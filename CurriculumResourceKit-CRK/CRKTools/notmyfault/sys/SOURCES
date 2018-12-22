@@ -1,0 +1,10 @@
+TARGETNAME=myfault
+!IF "$(DDK_TARGET_OS)" != "WinNET"
+TARGETPATH=$(BASEDIR)\lib
+!ELSE
+TARGETPATH=obj
+!ENDIF
+TARGETTYPE=DRIVER
+
+SOURCES=myfault.c myfault.rc
+
