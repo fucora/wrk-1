@@ -10,7 +10,8 @@ Module Name:
 Abstract:
     This module implements the NT balance set manager.
     Normally the kernel does not contain "policy" code.
-    However, the balance set manager needs to be able to traverse the kernel data structures and, therefore, the code has been located as logically part of the kernel.
+    However, the balance set manager needs to be able to traverse the kernel data structures and, 
+    therefore, the code has been located as logically part of the kernel.
 
     The balance set manager performs the following operations:
         1. Makes the kernel stack of threads that have been waiting for a certain amount of time, nonresident.
@@ -24,8 +25,7 @@ Abstract:
 #include "ki.h"
 
 // Define balance set wait object types.
-typedef enum _BALANCE_OBJECT
-{
+typedef enum _BALANCE_OBJECT{
     TimerExpiration,
     WorkingSetManagerEvent,
     MaximumObject
@@ -115,7 +115,8 @@ Arguments:
 
     // Loop forever processing balance set manager events.
     do {
-        // Wait for a memory management memory low event, a swap event, or the expiration of the period timeout rate that the balance set manager runs at.
+        // Wait for a memory management memory low event, a swap event, 
+        // or the expiration of the period timeout rate that the balance set manager runs at.
         Status = KeWaitForMultipleObjects(MaximumObject, &WaitObjects[0], WaitAny, Executive, KernelMode, FALSE, NULL, &WaitBlockArray[0]);
         switch (Status) // Switch on the wait status.
         {
@@ -128,7 +129,8 @@ Arguments:
 
             // Attempt to initiate outswapping of kernel stacks.
 
-            // N.B. If outswapping is initiated, then the dispatcher lock is not released until the wait at the top of the loop is executed.
+            // N.B. If outswapping is initiated, 
+            // then the dispatcher lock is not released until the wait at the top of the loop is executed.
             StackScanPeriod -= 1;
             if (StackScanPeriod == 0) {
                 StackScanPeriod = StackScanTime;
@@ -273,7 +275,8 @@ Arguments:
     KIRQL OldIrql;
     PKTHREAD Thread;
 
-    // Process the stack in swap SLIST and for each thread removed from the SLIST, make its kernel stack resident, and ready it for execution.
+    // Process the stack in swap SLIST and for each thread removed from the SLIST, 
+    // make its kernel stack resident, and ready it for execution.
     do {
         Thread = CONTAINING_RECORD(SwapEntry, KTHREAD, SwapListEntry);
         ASSERT(Thread->KernelStackResident == FALSE);
@@ -300,7 +303,8 @@ Arguments:
     PKPROCESS Process;
     PKTHREAD Thread;
 
-    // Process the process in swap list and for each process removed from the list, make the process resident, and process its ready list.
+    // Process the process in swap list and for each process removed from the list, 
+    // make the process resident, and process its ready list.
     do {
         Process = CONTAINING_RECORD(SwapEntry, KPROCESS, SwapListEntry);
         SwapEntry = SwapEntry->Next;
@@ -339,7 +343,8 @@ Routine Description:
 
     // Scan the waiting in list and check if the wait time exceeds the stack protect time.
     // If the protect time is exceeded, then make the kernel stack of the waiting thread nonresident.
-    // If the count of the number of stacks that are resident for the process reaches zero, then insert the process in the outswap list and set its state to transition.
+    // If the count of the number of stacks that are resident for the process reaches zero,
+    // then insert the process in the outswap list and set its state to transition.
 
     // Raise IRQL and lock the dispatcher database.
     NumberOfThreads = 0;
@@ -414,12 +419,14 @@ Arguments:
     PKPROCESS Process;
     PKTHREAD Thread;
 
-    // Process the process out swap list and for each process removed from the list, make the process nonresident, and process its ready list.
+    // Process the process out swap list and for each process removed from the list, 
+    // make the process nonresident, and process its ready list.
     do {
         Process = CONTAINING_RECORD(SwapEntry, KPROCESS, SwapListEntry);
         SwapEntry = SwapEntry->Next;
 
-        // If there are any threads in the process ready list, then don't out swap the process and ready all threads in the process ready list.
+        // If there are any threads in the process ready list, 
+        // then don't out swap the process and ready all threads in the process ready list.
         // Otherwise, out swap the process.
         KiLockDispatcherDatabase(&OldIrql);
         NextEntry = Process->ReadyListHead.Flink;
@@ -488,7 +495,8 @@ Arguments:
 
     // Get the address of the queue index variable.
 
-    // N.B. If a fault occurs accessing queue index value, then the exception handler is either executed or a bugcheck occurs.
+    // N.B. If a fault occurs accessing queue index value,
+    // then the exception handler is either executed or a bugcheck occurs.
     ScanLast = (PULONG)DeferredContext;
 
 #if defined(_AMD64_)
@@ -503,7 +511,8 @@ Arguments:
     ScanIndex = *ScanLast;
 #endif
 
-    // Lock the dispatcher database, acquire the PRCB lock, and check if there are any ready threads queued at the scanable priority levels.
+    // Lock the dispatcher database, acquire the PRCB lock,
+    // and check if there are any ready threads queued at the scanable priority levels.
     Count = THREAD_READY_COUNT;
     Number = THREAD_SCAN_COUNT;
     Prcb = KiProcessorBlock[ScanIndex];
@@ -514,12 +523,14 @@ Arguments:
     Summary = Prcb->ReadySummary & ((1 << THREAD_BOOST_PRIORITY) - 2);
     if (Summary != 0) {
         do {
-            // If the current ready queue index is beyond the end of the range of priorities that are scanned, then wrap back to the beginning priority.
+            // If the current ready queue index is beyond the end of the range of priorities that are scanned,
+            // then wrap back to the beginning priority.
             if (Index > THREAD_SCAN_PRIORITY) {
                 Index = 1;
             }
 
-            // If there are any ready threads queued at the current priority level, then attempt to boost the thread priority.
+            // If there are any ready threads queued at the current priority level,
+            // then attempt to boost the thread priority.
             if (Summary & PRIORITY_MASK(Index)) {
                 ASSERT(IsListEmpty(&Prcb->DispatcherReadyListHead[Index]) == FALSE);
                 Summary ^= PRIORITY_MASK(Index);
@@ -538,7 +549,8 @@ Arguments:
                         }
 
                         // Compute the priority decrement value, set the new thread priority, 
-                        // set the thread quantum to a value appropriate for lock ownership, and insert the thread in the ready list.
+                        // set the thread quantum to a value appropriate for lock ownership, 
+                        // and insert the thread in the ready list.
                         ASSERT((Thread->PriorityDecrement >= 0) && (Thread->PriorityDecrement <= Thread->Priority));
                         Thread->PriorityDecrement += (THREAD_BOOST_PRIORITY - Thread->Priority);
                         ASSERT((Thread->PriorityDecrement >= 0) && (Thread->PriorityDecrement <= THREAD_BOOST_PRIORITY));

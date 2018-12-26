@@ -117,7 +117,11 @@ Arguments:
                 (KernelRoutine)(Apc, &NormalRoutine, &NormalContext, &SystemArgument1, &SystemArgument2);
 #if DBG
                 if (KeGetCurrentIrql() != LockHandle.OldIrql) {
-                    KeBugCheckEx(IRQL_UNEXPECTED_VALUE, KeGetCurrentIrql() << 16 | LockHandle.OldIrql << 8, (ULONG_PTR)KernelRoutine, (ULONG_PTR)Apc, (ULONG_PTR)NormalRoutine);
+                    KeBugCheckEx(IRQL_UNEXPECTED_VALUE,
+                                 KeGetCurrentIrql() << 16 | LockHandle.OldIrql << 8,
+                                 (ULONG_PTR)KernelRoutine,
+                                 (ULONG_PTR)Apc, 
+                                 (ULONG_PTR)NormalRoutine);
                 }
 #endif
             } else {
@@ -133,7 +137,11 @@ Arguments:
                     (KernelRoutine)(Apc, &NormalRoutine, &NormalContext, &SystemArgument1, &SystemArgument2);
 #if DBG
                     if (KeGetCurrentIrql() != LockHandle.OldIrql) {
-                        KeBugCheckEx(IRQL_UNEXPECTED_VALUE, KeGetCurrentIrql() << 16 | LockHandle.OldIrql << 8 | 1, (ULONG_PTR)KernelRoutine, (ULONG_PTR)Apc, (ULONG_PTR)NormalRoutine);
+                        KeBugCheckEx(IRQL_UNEXPECTED_VALUE,
+                                     KeGetCurrentIrql() << 16 | LockHandle.OldIrql << 8 | 1,
+                                     (ULONG_PTR)KernelRoutine, 
+                                     (ULONG_PTR)Apc,
+                                     (ULONG_PTR)NormalRoutine);
                     }
 #endif
                     if (NormalRoutine != (PKNORMAL_ROUTINE)NULL) {
@@ -193,7 +201,11 @@ Arguments:
     // Check if process was attached during the APC routine.
 CheckProcess:
     if (Thread->ApcState.Process != Process) {
-        KeBugCheckEx(INVALID_PROCESS_ATTACH_ATTEMPT, (ULONG_PTR)Process, (ULONG_PTR)Thread->ApcState.Process, (ULONG)Thread->ApcStateIndex, (ULONG)KeIsExecutingDpc());
+        KeBugCheckEx(INVALID_PROCESS_ATTACH_ATTEMPT,
+            (ULONG_PTR)Process,
+                     (ULONG_PTR)Thread->ApcState.Process,
+                     (ULONG)Thread->ApcStateIndex,
+                     (ULONG)KeIsExecutingDpc());
     }
 
     Thread->TrapFrame = OldTrapFrame;// Restore the previous thread trap frame address.
