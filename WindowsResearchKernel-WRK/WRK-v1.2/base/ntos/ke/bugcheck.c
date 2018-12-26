@@ -199,7 +199,10 @@ VOID KiBugCheckDebugBreak(IN ULONG BreakStatus)
 }
 
 
-PVOID KiPcToFileHeader(IN PVOID PcValue, OUT PLDR_DATA_TABLE_ENTRY *DataTableEntry, IN LOGICAL DriversOnly, OUT PBOOLEAN InKernelOrHal)
+PVOID KiPcToFileHeader(IN PVOID PcValue, 
+                       OUT PLDR_DATA_TABLE_ENTRY *DataTableEntry,
+                       IN LOGICAL DriversOnly,
+                       OUT PBOOLEAN InKernelOrHal)
 /*
 Routine Description:
     This function returns the base of an image that contains the specified PcValue.
@@ -269,7 +272,12 @@ Return Value:
 #endif
 
 
-VOID KeBugCheck2(__in ULONG BugCheckCode, __in ULONG_PTR BugCheckParameter1, __in ULONG_PTR BugCheckParameter2, __in ULONG_PTR BugCheckParameter3, __in ULONG_PTR BugCheckParameter4, __in_opt PKTRAP_FRAME TrapFrame)
+VOID KeBugCheck2(__in ULONG BugCheckCode, 
+                 __in ULONG_PTR BugCheckParameter1,
+                 __in ULONG_PTR BugCheckParameter2, 
+                 __in ULONG_PTR BugCheckParameter3,
+                 __in ULONG_PTR BugCheckParameter4, 
+                 __in_opt PKTRAP_FRAME TrapFrame)
 /*
 Routine Description:
     This function crashes the system in a controlled manner.
@@ -381,7 +389,8 @@ Arguments:
         // If we are called by hard error then we don't want to dump the processor state on the machine.
 
         // We know that we are called by hard error because the bugcheck code will be FATAL_UNHANDLED_HARD_ERROR.
-        // If this is so then the error status passed to harderr is the first parameter, and a pointer to the parameter array from hard error is passed as the second argument.
+        // If this is so then the error status passed to harderr is the first parameter,
+        // and a pointer to the parameter array from hard error is passed as the second argument.
 
         // The third argument is the OemCaption to be printed.
         // The last argument is the OemMessage to be printed.
@@ -488,7 +497,9 @@ Arguments:
                     KiBugCheckData[0] = DRIVER_PAGE_FAULT_BEYOND_END_OF_ALLOCATION;
                 }
             }
-        } else if ((ExecutionAddress == VirtualAddress) && (MmIsSessionAddress(VirtualAddress) == TRUE) && ((Thread->Teb == NULL) || (IS_SYSTEM_ADDRESS(Thread->Teb)))) {
+        } else if ((ExecutionAddress == VirtualAddress) && 
+            (MmIsSessionAddress(VirtualAddress) == TRUE) && 
+                   ((Thread->Teb == NULL) || (IS_SYSTEM_ADDRESS(Thread->Teb)))) {
             // This is a driver reference to session space from a worker thread.
             // Since the system process has no session space this is illegal and the driver must be fixed.
             KiBugCheckData[0] = TERMINAL_SERVER_DRIVER_MADE_INCORRECT_MEMORY_REFERENCE;
@@ -526,7 +537,8 @@ Arguments:
     // Otherwise, if the debugger is enabled, print out the information and stop.
     if ((BugCheckCode != MANUALLY_INITIATED_CRASH) && (KdDebuggerEnabled)) {
         DbgPrint("\n*** Fatal System Error: 0x%08lx\n"
-                 "                       (0x%p,0x%p,0x%p,0x%p)\n\n", (ULONG)KiBugCheckData[0], KiBugCheckData[1], KiBugCheckData[2], KiBugCheckData[3], KiBugCheckData[4]);
+                 "                       (0x%p,0x%p,0x%p,0x%p)\n\n", 
+                 (ULONG)KiBugCheckData[0], KiBugCheckData[1], KiBugCheckData[2], KiBugCheckData[3], KiBugCheckData[4]);
 
         // If the debugger is not actually connected, or the user manually crashed the machine by typing .crash in the debugger, proceed to "blue screen" the system.
         // The call to DbgPrint above will have set the state of KdDebuggerNotPresent if the debugger has become disconnected since the system was booted.
@@ -692,7 +704,8 @@ Arguments:
                     // If this is a special pool buffer overrun bugcheck save the previous page containing the overran buffer.
                     IoAddTriageDumpDataBlock(PAGE_ALIGN(KiBugCheckData[1] - PAGE_SIZE), PAGE_SIZE);
                 } else if (CrashCode == DRIVER_IRQL_NOT_LESS_OR_EQUAL && MmIsSpecialPoolAddress((PVOID)(KiBugCheckData[1]))) {
-                    // A special pool buffer overrun at >=DPC level is classified as DRIVER_IRQL_NOT_LESS_OR_EQUAL. Take care of saving the previous page for better clues during debugging.
+                    // A special pool buffer overrun at >=DPC level is classified as DRIVER_IRQL_NOT_LESS_OR_EQUAL. 
+                    // Take care of saving the previous page for better clues during debugging.
                     IoAddTriageDumpDataBlock(PAGE_ALIGN(KiBugCheckData[1] - PAGE_SIZE), PAGE_SIZE);
                 }
             }
@@ -725,7 +738,8 @@ Arguments:
         }
 
         // If this is a recursive bugcheck, then continue to the recursive bugcheck handling code.
-        // Otherwise, wait here forever in order to let the bugcheck owner carry out the bugcheck operation, periodically checking for freeze requests from the bugcheck owner.
+        // Otherwise, wait here forever in order to let the bugcheck owner carry out the bugcheck operation,
+        // periodically checking for freeze requests from the bugcheck owner.
         if (CurrentProcessor != KeBugCheckOwner) {
             while (1) {
                 KiPollFreezeExecution();
@@ -811,7 +825,8 @@ Routine Description:
 Arguments:
     CallbackRecord - Supplies a pointer to a bugcheck callback record.
 Return Value:
-    If the specified bugcheck callback record is successfully deregistered, then a value of TRUE is returned. Otherwise, a value of FALSE is returned.
+    If the specified bugcheck callback record is successfully deregistered, 
+    then a value of TRUE is returned. Otherwise, a value of FALSE is returned.
 */
 {
     BOOLEAN Deregister;
@@ -829,7 +844,8 @@ Return Value:
         Deregister = TRUE;
     }
 
-    // Release the bugcheck callback spinlock, lower IRQL to its previous value, and return whether the callback record was successfully deregistered.
+    // Release the bugcheck callback spinlock, lower IRQL to its previous value, 
+    // and return whether the callback record was successfully deregistered.
     KiReleaseSpinLock(&KeBugCheckCallbackLock);
     KeLowerIrql(OldIrql);
     return Deregister;
@@ -890,7 +906,8 @@ VOID KiScanBugCheckCallbackList(VOID)
 /*
 Routine Description:
     This function scans the bugcheck callback list and calls each bugcheck callback routine so it can dump component specific information that may identify the cause of the bugcheck.
-    N.B. The scan of the bugcheck callback list is performed VERY carefully. Bugcheck callback routines are called at HIGH_LEVEL and may not acquire ANY resources.
+    N.B. The scan of the bugcheck callback list is performed VERY carefully. 
+    Bugcheck callback routines are called at HIGH_LEVEL and may not acquire ANY resources.
 */
 {
     PKBUGCHECK_CALLBACK_RECORD CallbackRecord;
@@ -901,14 +918,16 @@ Routine Description:
     PLIST_ENTRY NextEntry;
     PUCHAR Source;
 
-    // If the bugcheck callback listhead is not initialized, then the bugcheck has occured before the system has gotten far enough in the initialization code to enable anyone to register a callback.
+    // If the bugcheck callback listhead is not initialized, 
+    // then the bugcheck has occured before the system has gotten far enough in the initialization code to enable anyone to register a callback.
     ListHead = &KeBugCheckCallbackListHead;
     if ((ListHead->Flink != NULL) && (ListHead->Blink != NULL)) {
         // Scan the bugcheck callback list.
         LastEntry = ListHead;
         NextEntry = ListHead->Flink;
         while (NextEntry != ListHead) {
-            // The next entry address must be aligned properly, the callback record must be readable, and the callback record must have back link to the last entry.
+            // The next entry address must be aligned properly, the callback record must be readable, 
+            // and the callback record must have back link to the last entry.
             if (((ULONG_PTR)NextEntry & (sizeof(ULONG_PTR) - 1)) != 0) {
                 return;
             } else {
@@ -926,7 +945,8 @@ Routine Description:
                     return;
                 }
 
-                // If the callback record has a state of inserted and the computed checksum matches the callback record checksum, then call the specified bugcheck callback routine.
+                // If the callback record has a state of inserted and the computed checksum matches the callback record checksum, 
+                // then call the specified bugcheck callback routine.
                 Checksum = (ULONG_PTR)CallbackRecord->CallbackRoutine;
                 Checksum += (ULONG_PTR)CallbackRecord->Buffer;
                 Checksum += CallbackRecord->Length;
@@ -958,7 +978,8 @@ Routine Description:
 Arguments:
     CallbackRecord - Supplies a pointer to a bugcheck callback record.
 Return Value:
-    If the specified bugcheck callback record is successfully deregistered, then a value of TRUE is returned. Otherwise, a value of FALSE is returned.
+    If the specified bugcheck callback record is successfully deregistered, then a value of TRUE is returned. 
+    Otherwise, a value of FALSE is returned.
 */
 {
     BOOLEAN Deregister;
@@ -976,14 +997,18 @@ Return Value:
         Deregister = TRUE;
     }
 
-    // Release the bugcheck callback spinlock, lower IRQL to its previous value, and return whether the callback record was successfully deregistered.
+    // Release the bugcheck callback spinlock, lower IRQL to its previous value,
+    // and return whether the callback record was successfully deregistered.
     KiReleaseSpinLock(&KeBugCheckCallbackLock);
     KeLowerIrql(OldIrql);
     return Deregister;
 }
 
 
-NTKERNELAPI BOOLEAN KeRegisterBugCheckReasonCallback(__out PKBUGCHECK_REASON_CALLBACK_RECORD CallbackRecord, __in PKBUGCHECK_REASON_CALLBACK_ROUTINE CallbackRoutine, __in KBUGCHECK_CALLBACK_REASON Reason, __in PUCHAR Component)
+NTKERNELAPI BOOLEAN KeRegisterBugCheckReasonCallback(__out PKBUGCHECK_REASON_CALLBACK_RECORD CallbackRecord,
+                                                     __in PKBUGCHECK_REASON_CALLBACK_ROUTINE CallbackRoutine,
+                                                     __in KBUGCHECK_CALLBACK_REASON Reason,
+                                                     __in PUCHAR Component)
 /*
 Routine Description:
     This function registers a bugcheck callback record. If the system crashes, then the specified function will be called during bugcheck processing.
@@ -1016,7 +1041,8 @@ Return Value:
         Inserted = TRUE;
     }
 
-    // Release the bugcheck callback spinlock, lower IRQL to its previous value, and return whether the callback record was successfully registered.
+    // Release the bugcheck callback spinlock, lower IRQL to its previous value, 
+    // and return whether the callback record was successfully registered.
     KiReleaseSpinLock(&KeBugCheckCallbackLock);
     KeLowerIrql(OldIrql);
     return Inserted;
@@ -1032,7 +1058,8 @@ Routine Description:
     but the critical difference is that the bugcheck entry callbacks are called immediately upon entry to KeBugCheck2 whereas KSBCCL does not invoke its callbacks until after all bugcheck processing has finished.
 
     In order to avoid people from abusing this callback it's semi-private and the reason -- KbCallbackReserved1 -- has an obscure name.
-    N.B. The scan of the bugcheck callback list is performed VERY carefully. Bugcheck callback routines may be called at HIGH_LEVEL and may not acquire ANY resources.
+    N.B. The scan of the bugcheck callback list is performed VERY carefully. 
+    Bugcheck callback routines may be called at HIGH_LEVEL and may not acquire ANY resources.
 */
 {
     PKBUGCHECK_REASON_CALLBACK_RECORD CallbackRecord;
@@ -1043,7 +1070,8 @@ Routine Description:
     PUCHAR Va;
     ULONG Pages;
 
-    // If the bugcheck callback listhead is not initialized, then the bugcheck has occured before the system has gotten far enough in the initialization code to enable anyone to register a callback.
+    // If the bugcheck callback listhead is not initialized, 
+    // then the bugcheck has occured before the system has gotten far enough in the initialization code to enable anyone to register a callback.
     ListHead = &KeBugCheckReasonCallbackListHead;
     if (ListHead->Flink == NULL || ListHead->Blink == NULL) {
         return;
@@ -1053,7 +1081,8 @@ Routine Description:
     LastEntry = ListHead;
     NextEntry = ListHead->Flink;
     while (NextEntry != ListHead) {
-        // The next entry address must be aligned properly, the callback record must be readable, and the callback record must have back link to the last entry.
+        // The next entry address must be aligned properly, the callback record must be readable,
+        // and the callback record must have back link to the last entry.
         if (((ULONG_PTR)NextEntry & (sizeof(ULONG_PTR) - 1)) != 0) {
             return;
         }
@@ -1078,11 +1107,15 @@ Routine Description:
         LastEntry = NextEntry;
         NextEntry = NextEntry->Flink;
 
-        // If the callback record has a state of inserted and the computed checksum matches the callback record checksum, then call the specified bugcheck callback routine.
+        // If the callback record has a state of inserted and the computed checksum matches the callback record checksum,
+        // then call the specified bugcheck callback routine.
         Checksum = (ULONG_PTR)CallbackRecord->CallbackRoutine;
         Checksum += (ULONG_PTR)CallbackRecord->Reason;
         Checksum += (ULONG_PTR)CallbackRecord->Component;
-        if ((CallbackRecord->State != BufferInserted) || (CallbackRecord->Checksum != Checksum) || (CallbackRecord->Reason != KbCallbackReserved1) || MmIsAddressValid((PVOID)(ULONG_PTR)CallbackRecord->CallbackRoutine) == FALSE) {
+        if ((CallbackRecord->State != BufferInserted) || 
+            (CallbackRecord->Checksum != Checksum) || 
+            (CallbackRecord->Reason != KbCallbackReserved1) || 
+            MmIsAddressValid((PVOID)(ULONG_PTR)CallbackRecord->CallbackRoutine) == FALSE) {
             continue;
         }
 
