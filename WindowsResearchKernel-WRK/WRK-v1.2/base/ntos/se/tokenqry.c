@@ -24,8 +24,7 @@ Abstract:
 #endif
 
 
-NTSTATUS
-NtQueryInformationToken(
+NTSTATUS NtQueryInformationToken(
     __in HANDLE TokenHandle,
     __in TOKEN_INFORMATION_CLASS TokenInformationClass,
     __out_bcount_part_opt(TokenInformationLength, *ReturnLength) PVOID TokenInformation,
@@ -40,8 +39,7 @@ Arguments:
 
     TokenHandle - Provides a handle to the token to operate on.
 
-    TokenInformationClass - The token information class about which
-        to retrieve information.
+    TokenInformationClass - The token information class about which to retrieve information.
 
     TokenInformation - The buffer to receive the requested class of
         information.  The buffer must be aligned on at least a
@@ -52,55 +50,43 @@ Arguments:
         TokenInformation Format By Information Class:
 
            TokenUser => TOKEN_USER data structure.  TOKEN_QUERY
-           access is needed to retrieve this information about a
-           token.
+           access is needed to retrieve this information about a token.
 
            TokenGroups => TOKEN_GROUPS data structure.  TOKEN_QUERY
-           access is needed to retrieve this information about a
-           token.
+           access is needed to retrieve this information about a token.
 
            TokenPrivileges => TOKEN_PRIVILEGES data structure.
-           TOKEN_QUERY access is needed to retrieve this information
-           about a token.
+           TOKEN_QUERY access is needed to retrieve this information about a token.
 
            TokenOwner => TOKEN_OWNER data structure.  TOKEN_QUERY
-           access is needed to retrieve this information about a
-           token.
+           access is needed to retrieve this information about a token.
 
            TokenPrimaryGroup => TOKEN_PRIMARY_GROUP data structure.
-           TOKEN_QUERY access is needed to retrieve this information
-           about a token.
+           TOKEN_QUERY access is needed to retrieve this information about a token.
 
            TokenDefaultDacl => TOKEN_DEFAULT_DACL data structure.
-           TOKEN_QUERY access is needed to retrieve this information
-           about a token.
+           TOKEN_QUERY access is needed to retrieve this information about a token.
 
            TokenSource => TOKEN_SOURCE data structure.
-           TOKEN_QUERY_SOURCE access is needed to retrieve this
-           information about a token.
+           TOKEN_QUERY_SOURCE access is needed to retrieve this information about a token.
 
            TokenType => TOKEN_TYPE data structure.
-           TOKEN_QUERY access is needed to retrieve this information
-           about a token.
+           TOKEN_QUERY access is needed to retrieve this information about a token.
 
            TokenStatistics => TOKEN_STATISTICS data structure.
-           TOKEN_QUERY access is needed to retrieve this
-           information about a token.
+           TOKEN_QUERY access is needed to retrieve this information about a token.
 
            TokenGroups => TOKEN_GROUPS data structure.  TOKEN_QUERY
-           access is needed to retrieve this information about a
-           token.
+           access is needed to retrieve this information about a token.
 
-           TokenSessionId => ULONG.  TOKEN_QUERY access is needed to
-           query the Session ID of the token.
+           TokenSessionId => ULONG.  TOKEN_QUERY access is needed to query the Session ID of the token.
 
            TokenAuditPolicy => TOKEN_AUDIT_POLICY structure.  TOKEN_QUERY
            access is needed to retrieve this information about a token.
 
            TokenOrigin => TOKEN_ORIGIN structure.
 
-    TokenInformationLength - Indicates the length, in bytes, of the
-        TokenInformation buffer.
+    TokenInformationLength - Indicates the length, in bytes, of the TokenInformation buffer.
 
     ReturnLength - This OUT parameter receives the actual length of
         the requested information.  If this value is larger than that
@@ -113,14 +99,11 @@ Arguments:
         length will be returned as zero, and no data will be returned.
 
 Return Value:
-
     STATUS_SUCCESS - Indicates the operation was successful.
-
     STATUS_BUFFER_TOO_SMALL - if the requested information did not
         fit in the provided output buffer.  In this case, the
         ReturnLength OUT parameter contains the number of bytes
         actually needed to store the requested information.
-
 */
 {
     KPROCESSOR_MODE PreviousMode;
@@ -214,8 +197,7 @@ Return Value:
                 &(LocalUser->User),
                 PSid,
                 ((PSID *)&Ignore),
-                ((PULONG)&Ignore)
-            );
+                ((PULONG)&Ignore));
         } except(EXCEPTION_EXECUTE_HANDLER)
         {
             SepReleaseTokenReadLock(Token);
@@ -277,7 +259,9 @@ Return Value:
         // Now copy the groups.
         try {
             LocalGroups->GroupCount = Token->UserAndGroupCount - 1;
-            PSid = (PSID)((ULONG_PTR)LocalGroups + (ULONG)sizeof(TOKEN_GROUPS) + ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) * (ULONG)sizeof(SID_AND_ATTRIBUTES)));
+            PSid = (PSID)((ULONG_PTR)LocalGroups + 
+                (ULONG)sizeof(TOKEN_GROUPS) + 
+                          ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) * (ULONG)sizeof(SID_AND_ATTRIBUTES)));
             RtlCopySidAndAttributesArray(
                 (ULONG)(Token->UserAndGroupCount - 1),
                 &(Token->UserAndGroups[1]),
@@ -285,8 +269,7 @@ Return Value:
                 LocalGroups->Groups,
                 PSid,
                 ((PSID *)&Ignore),
-                ((PULONG)&Ignore)
-            );
+                ((PULONG)&Ignore));
         } except(EXCEPTION_EXECUTE_HANDLER)
         {
             SepReleaseTokenReadLock(Token);
@@ -322,7 +305,8 @@ Return Value:
         // The number of groups is Token->UserAndGroups-1 (since the count
         // includes the user ID).  Then the lengths of each individual group
         // must be added.
-        RequiredLength = (ULONG)sizeof(TOKEN_GROUPS) + ((Token->RestrictedSidCount) * ((ULONG)sizeof(SID_AND_ATTRIBUTES)) - ANYSIZE_ARRAY * sizeof(SID_AND_ATTRIBUTES));
+        RequiredLength = (ULONG)sizeof(TOKEN_GROUPS) + 
+            ((Token->RestrictedSidCount) * ((ULONG)sizeof(SID_AND_ATTRIBUTES)) - ANYSIZE_ARRAY * sizeof(SID_AND_ATTRIBUTES));
 
         while (Index < Token->RestrictedSidCount) {
             RequiredLength += SeLengthSid(Token->RestrictedSids[Index].Sid);
@@ -350,7 +334,9 @@ Return Value:
         // Now copy the groups.
         try {
             LocalGroups->GroupCount = Token->RestrictedSidCount;
-            PSid = (PSID)((ULONG_PTR)LocalGroups + (ULONG)sizeof(TOKEN_GROUPS) + ((Token->RestrictedSidCount) * (ULONG)sizeof(SID_AND_ATTRIBUTES) - ANYSIZE_ARRAY * sizeof(SID_AND_ATTRIBUTES)));
+            PSid = (PSID)((ULONG_PTR)LocalGroups + 
+                (ULONG)sizeof(TOKEN_GROUPS) + 
+                          ((Token->RestrictedSidCount) * (ULONG)sizeof(SID_AND_ATTRIBUTES) - ANYSIZE_ARRAY * sizeof(SID_AND_ATTRIBUTES)));
             RtlCopySidAndAttributesArray(
                 (ULONG)(Token->RestrictedSidCount),
                 Token->RestrictedSids,
@@ -358,8 +344,7 @@ Return Value:
                 LocalGroups->Groups,
                 PSid,
                 ((PSID *)&Ignore),
-                ((PULONG)&Ignore)
-            );
+                ((PULONG)&Ignore));
         } except(EXCEPTION_EXECUTE_HANDLER)
         {
             SepReleaseTokenReadLock(Token);
@@ -391,7 +376,8 @@ Return Value:
 
         // Return the length required now in case not enough buffer
         // was provided by the caller and we have to return an error.
-        RequiredLength = (ULONG)sizeof(TOKEN_PRIVILEGES) + ((Token->PrivilegeCount - ANYSIZE_ARRAY) * ((ULONG)sizeof(LUID_AND_ATTRIBUTES)));
+        RequiredLength = (ULONG)sizeof(TOKEN_PRIVILEGES) + 
+            ((Token->PrivilegeCount - ANYSIZE_ARRAY) * ((ULONG)sizeof(LUID_AND_ATTRIBUTES)));
 
         try {
             *ReturnLength = RequiredLength;
@@ -465,7 +451,9 @@ Return Value:
 
         try {
             LocalOwner->Owner = PSid;
-            Status = RtlCopySid((RequiredLength - (ULONG)sizeof(TOKEN_OWNER)), PSid, Token->UserAndGroups[Token->DefaultOwnerIndex].Sid);
+            Status = RtlCopySid((RequiredLength - (ULONG)sizeof(TOKEN_OWNER)),
+                                PSid,
+                                Token->UserAndGroups[Token->DefaultOwnerIndex].Sid);
             ASSERT(NT_SUCCESS(Status));
         } except(EXCEPTION_EXECUTE_HANDLER)
         {
@@ -909,7 +897,9 @@ Return Value:
 
             LocalGroupsAndPrivileges->PrivilegeLength = PrivilegesLength;
             LocalGroupsAndPrivileges->PrivilegeCount = Token->PrivilegeCount;
-            LocalGroupsAndPrivileges->Privileges = (PLUID_AND_ATTRIBUTES)((ULONG_PTR)LocalGroupsAndPrivileges->Sids + GroupsLength + RestrictedSidsLength);
+            LocalGroupsAndPrivileges->Privileges = (PLUID_AND_ATTRIBUTES)((ULONG_PTR)LocalGroupsAndPrivileges->Sids +
+                                                                          GroupsLength + 
+                                                                          RestrictedSidsLength);
             PSid = (PSID)((ULONG_PTR)LocalGroupsAndPrivileges->Sids + (Token->UserAndGroupCount * (ULONG)sizeof(SID_AND_ATTRIBUTES)));
             RtlCopySidAndAttributesArray(
                 (ULONG)Token->UserAndGroupCount,
@@ -918,8 +908,7 @@ Return Value:
                 LocalGroupsAndPrivileges->Sids,
                 PSid,
                 ((PSID *)&Ignore),
-                ((PULONG)&Ignore)
-            );
+                ((PULONG)&Ignore));
             PSid = (PSID)((ULONG_PTR)LocalGroupsAndPrivileges->RestrictedSids + ((Token->RestrictedSidCount) * (ULONG)sizeof(SID_AND_ATTRIBUTES)));
 
             if (LocalGroupsAndPrivileges->RestrictedSidCount > 0) {
@@ -930,8 +919,7 @@ Return Value:
                     LocalGroupsAndPrivileges->RestrictedSids,
                     PSid,
                     ((PSID *)&Ignore),
-                    ((PULONG)&Ignore)
-                );
+                    ((PULONG)&Ignore));
             }
 
             RtlCopyLuidAndAttributesArray(Token->PrivilegeCount, Token->Privileges, LocalGroupsAndPrivileges->Privileges);
@@ -1189,7 +1177,9 @@ Return Value:
 
 
 
-NTSTATUS SeQueryInformationToken(__in PACCESS_TOKEN AccessToken, __in TOKEN_INFORMATION_CLASS TokenInformationClass, __deref_out PVOID *TokenInformation)
+NTSTATUS SeQueryInformationToken(__in PACCESS_TOKEN AccessToken,
+                                 __in TOKEN_INFORMATION_CLASS TokenInformationClass,
+                                 __deref_out PVOID *TokenInformation)
 /*
 Routine Description:
     Retrieve information about a specified token.
@@ -1197,56 +1187,43 @@ Arguments:
 
     TokenHandle - Provides a handle to the token to operate on.
 
-    TokenInformationClass - The token information class about which
-        to retrieve information.
+    TokenInformationClass - The token information class about which to retrieve information.
 
     TokenInformation - Receives a pointer to the requested information.
         The actual structures returned are dependent upon the information
-        class requested, as defined in the TokenInformationClass parameter
-        description.
+        class requested, as defined in the TokenInformationClass parameter description.
 
         TokenInformation Format By Information Class:
 
            TokenUser => TOKEN_USER data structure.  TOKEN_QUERY
-           access is needed to retrieve this information about a
-           token.
+           access is needed to retrieve this information about a token.
 
            TokenGroups => TOKEN_GROUPS data structure.  TOKEN_QUERY
-           access is needed to retrieve this information about a
-           token.
+           access is needed to retrieve this information about a token.
 
            TokenPrivileges => TOKEN_PRIVILEGES data structure.
-           TOKEN_QUERY access is needed to retrieve this information
-           about a token.
+           TOKEN_QUERY access is needed to retrieve this information about a token.
 
            TokenOwner => TOKEN_OWNER data structure.  TOKEN_QUERY
-           access is needed to retrieve this information about a
-           token.
+           access is needed to retrieve this information about a token.
 
            TokenPrimaryGroup => TOKEN_PRIMARY_GROUP data structure.
-           TOKEN_QUERY access is needed to retrieve this information
-           about a token.
+           TOKEN_QUERY access is needed to retrieve this information about a token.
 
            TokenDefaultDacl => TOKEN_DEFAULT_DACL data structure.
-           TOKEN_QUERY access is needed to retrieve this information
-           about a token.
+           TOKEN_QUERY access is needed to retrieve this information about a token.
 
            TokenSource => TOKEN_SOURCE data structure.
-           TOKEN_QUERY_SOURCE access is needed to retrieve this
-           information about a token.
+           TOKEN_QUERY_SOURCE access is needed to retrieve this information about a token.
 
            TokenType => TOKEN_TYPE data structure.
-           TOKEN_QUERY access is needed to retrieve this information
-           about a token.
+           TOKEN_QUERY access is needed to retrieve this information about a token.
 
            TokenStatistics => TOKEN_STATISTICS data structure.
-           TOKEN_QUERY access is needed to retrieve this
-           information about a token.
+           TOKEN_QUERY access is needed to retrieve this information about a token.
 
 Return Value:
-
     STATUS_SUCCESS - Indicates the operation was successful.
-
 */
 {
     NTSTATUS Status;
@@ -1281,7 +1258,13 @@ Return Value:
 
         //  Put SID immediately following TOKEN_USER data structure
         PSid = (PSID)((ULONG_PTR)LocalUser + (ULONG)sizeof(TOKEN_USER));
-        RtlCopySidAndAttributesArray(1, Token->UserAndGroups, RequiredLength, &(LocalUser->User), PSid, ((PSID *)&Ignore), ((PULONG)&Ignore));
+        RtlCopySidAndAttributesArray(1,
+                                     Token->UserAndGroups,
+                                     RequiredLength,
+                                     &(LocalUser->User),
+                                     PSid, 
+                                     ((PSID *)&Ignore),
+                                     ((PULONG)&Ignore));
 
         SepReleaseTokenReadLock(Token);
         *TokenInformation = LocalUser;
@@ -1301,7 +1284,8 @@ Return Value:
         // includes the user ID).  Then the lengths of each individual group
         // must be added.
 
-        RequiredLength = (ULONG)sizeof(TOKEN_GROUPS) + ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) * ((ULONG)sizeof(SID_AND_ATTRIBUTES)));
+        RequiredLength = (ULONG)sizeof(TOKEN_GROUPS) + 
+            ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) * ((ULONG)sizeof(SID_AND_ATTRIBUTES)));
 
         Index = 1;
         while (Index < Token->UserAndGroupCount) {
@@ -1317,7 +1301,9 @@ Return Value:
 
         // Now copy the groups.
         LocalGroups->GroupCount = Token->UserAndGroupCount - 1;
-        PSid = (PSID)((ULONG_PTR)LocalGroups + (ULONG)sizeof(TOKEN_GROUPS) + ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) * (ULONG)sizeof(SID_AND_ATTRIBUTES)));
+        PSid = (PSID)((ULONG_PTR)LocalGroups + 
+            (ULONG)sizeof(TOKEN_GROUPS) + 
+                      ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) * (ULONG)sizeof(SID_AND_ATTRIBUTES)));
         RtlCopySidAndAttributesArray(
             (ULONG)(Token->UserAndGroupCount - 1),
             &(Token->UserAndGroups[1]),
@@ -1325,8 +1311,7 @@ Return Value:
             LocalGroups->Groups,
             PSid,
             ((PSID *)&Ignore),
-            ((PULONG)&Ignore)
-        );
+            ((PULONG)&Ignore));
         SepReleaseTokenReadLock(Token);
         *TokenInformation = LocalGroups;
         return STATUS_SUCCESS;
@@ -1375,7 +1360,9 @@ Return Value:
         // Return the owner SID
         PSid = (PSID)((ULONG_PTR)LocalOwner + (ULONG)sizeof(TOKEN_OWNER));
         LocalOwner->Owner = PSid;
-        Status = RtlCopySid((RequiredLength - (ULONG)sizeof(TOKEN_OWNER)), PSid, Token->UserAndGroups[Token->DefaultOwnerIndex].Sid);
+        Status = RtlCopySid((RequiredLength - (ULONG)sizeof(TOKEN_OWNER)),
+                            PSid,
+                            Token->UserAndGroups[Token->DefaultOwnerIndex].Sid);
         ASSERT(NT_SUCCESS(Status));
         SepReleaseTokenReadLock(Token);
         *TokenInformation = LocalOwner;

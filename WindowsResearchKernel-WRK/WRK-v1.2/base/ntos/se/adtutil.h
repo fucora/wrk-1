@@ -12,4 +12,9 @@ Abstract:
 */
 
 NTSTATUS SepRegQueryDwordValue(IN  PCWSTR KeyName, IN  PCWSTR ValueName, OUT PULONG Value);
-NTSTATUS SepRegQueryHelper(IN PCWSTR KeyName, IN PCWSTR ValueName, IN ULONG ValueType, IN ULONG ValueLength, OUT PVOID ValueBuffer, OUT PULONG LengthRequired);
+NTSTATUS SepRegQueryHelper(IN PCWSTR KeyName,
+                           IN PCWSTR ValueName,
+                           IN ULONG ValueType, 
+                           IN ULONG ValueLength,
+                           OUT PVOID ValueBuffer,
+                           OUT PULONG LengthRequired);

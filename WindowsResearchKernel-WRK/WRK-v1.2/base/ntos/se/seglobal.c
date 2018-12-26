@@ -269,9 +269,7 @@ ULONG SepLsaQueueLength = 0;
 #pragma data_seg()
 #endif
 
-
 // Mutex protecting the queue of work being passed to LSA
-
 
 ERESOURCE SepLsaQueueLock = {0};
 
@@ -287,10 +285,7 @@ BOOLEAN SepTokenLeakTracking = FALSE;
 #endif
 
 
-
-
 //           Variable Initialization Routines                         //
-
 
 
 BOOLEAN SepVariableInitialization()
@@ -643,7 +638,11 @@ Return Value:
     }
 
     // create and initialize SepImportantProcessSd
-    AclLength = (ULONG)sizeof(ACL) + (3 * ((ULONG)sizeof(ACCESS_ALLOWED_ACE) - sizeof(ULONG))) + SeLengthSid(SeLocalSystemSid) + SeLengthSid(SeLocalServiceSid) + SeLengthSid(SeNetworkServiceSid);
+    AclLength = (ULONG)sizeof(ACL) + 
+        (3 * ((ULONG)sizeof(ACCESS_ALLOWED_ACE) - sizeof(ULONG))) + 
+        SeLengthSid(SeLocalSystemSid) + 
+        SeLengthSid(SeLocalServiceSid) + 
+        SeLengthSid(SeNetworkServiceSid);
 
     TotalSdLength = sizeof(SECURITY_DESCRIPTOR) + AclLength;
 
@@ -728,7 +727,12 @@ Return Value:
     PublicLength = SystemLength + ((ULONG)sizeof(ACCESS_ALLOWED_ACE)) + SeLengthSid(SeWorldSid);
     PublicUnrestrictedLength = PublicLength + ((ULONG)sizeof(ACCESS_ALLOWED_ACE)) + SeLengthSid(SeRestrictedSid);
     PublicOpenLength = PublicLength;
-    LocalServiceLength = (ULONG)sizeof(ACL) + 4 * (ULONG)sizeof(ACCESS_ALLOWED_ACE) + SeLengthSid(SeWorldSid) + SeLengthSid(SeLocalSystemSid) + SeLengthSid(SeLocalServiceSid) + SeLengthSid(SeAliasAdminsSid);
+    LocalServiceLength = (ULONG)sizeof(ACL) + 
+        4 * (ULONG)sizeof(ACCESS_ALLOWED_ACE) + 
+        SeLengthSid(SeWorldSid) + 
+        SeLengthSid(SeLocalSystemSid) +
+        SeLengthSid(SeLocalServiceSid) +
+        SeLengthSid(SeAliasAdminsSid);
 
     SePublicDefaultDacl = (PACL)ExAllocatePoolWithTag(PagedPool | POOL_RAISE_IF_ALLOCATION_FAILURE, PublicLength, 'cAeS');
     SePublicDefaultUnrestrictedDacl = (PACL)ExAllocatePoolWithTag(PagedPool | POOL_RAISE_IF_ALLOCATION_FAILURE, PublicUnrestrictedLength, 'cAeS');

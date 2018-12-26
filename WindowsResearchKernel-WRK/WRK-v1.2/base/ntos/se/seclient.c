@@ -60,7 +60,8 @@ Routine Description
     This routine creates a context block to represent the passed token.
     The token is expected to be properly referenced when passed to the function.
     If the call is unsuccessful, the caller is responsible to dereference the token.
-    Also, if the call succeeds but the caller requested SECURITY_STATIC_TRACKING, then we have duplicated the token and the caller is again responsible to dereference the passed token.
+    Also, if the call succeeds but the caller requested SECURITY_STATIC_TRACKING, 
+    then we have duplicated the token and the caller is again responsible to dereference the passed token.
 Arguments
     Token - The effective token for which the context is constructed.
     ClientSecurityQos - Points to the security quality of service parameters specified by the client for this communication session.
@@ -83,7 +84,8 @@ Arguments
 
     // Make sure the client is not trying to abuse use of a client of its own by attempting an invalid impersonation.
     // Also set the ClientContext->DirectAccessEffectiveOnly flag appropriately if the impersonation is legitimate.
-    // The DirectAccessEffectiveOnly flag value will end up being ignored if STATIC mode is requested, but this is the most efficient place to calculate it, and we are optimizing for DYNAMIC mode.
+    // The DirectAccessEffectiveOnly flag value will end up being ignored if STATIC mode is requested,
+    // but this is the most efficient place to calculate it, and we are optimizing for DYNAMIC mode.
     if (TokenType == TokenImpersonation) {
         if (ClientSecurityQos->ImpersonationLevel > ImpersonationLevel) {
             return STATUS_BAD_IMPERSONATION_LEVEL;
@@ -127,11 +129,16 @@ Arguments
 }
 
 
-NTSTATUS SeCreateClientSecurity(__in PETHREAD ClientThread, __in PSECURITY_QUALITY_OF_SERVICE ClientSecurityQos, __in BOOLEAN ServerIsRemote, __out PSECURITY_CLIENT_CONTEXT ClientContext)
+NTSTATUS SeCreateClientSecurity(__in PETHREAD ClientThread, 
+                                __in PSECURITY_QUALITY_OF_SERVICE ClientSecurityQos, 
+                                __in BOOLEAN ServerIsRemote, 
+                                __out PSECURITY_CLIENT_CONTEXT ClientContext)
 /*
 Routine Description:
     This service initializes a context block to represent a client's security context.
-    This may simply result in a reference to the client's token, or may cause the client's token to be duplicated, depending upon the security quality of service information specified.
+    This may simply result in a reference to the client's token, 
+    or may cause the client's token to be duplicated,
+    depending upon the security quality of service information specified.
 
                                NOTE
 
@@ -199,7 +206,8 @@ Routine Description:
     be up to date.
 Arguments:
     ClientContext - Points to client security context block.
-    ServerThread - (Optional) Specifies the thread which is to be made to impersonate the client.  If not specified, the calling thread is used.
+    ServerThread - (Optional) Specifies the thread which is to be made to impersonate the client.
+                   If not specified, the calling thread is used.
 */
 {
     BOOLEAN EffectiveValueToUse;
@@ -237,7 +245,8 @@ SeCreateClientSecurityFromSubjectContext(
 /*
 Routine Description:
     This service initializes a context block to represent a client's security context.
-    This may simply result in a reference to the client's token, or may cause the client's token to be duplicated, depending upon the security quality of service information specified.
+    This may simply result in a reference to the client's token, or may cause the client's token to be duplicated,
+    depending upon the security quality of service information specified.
 
                                NOTE
 

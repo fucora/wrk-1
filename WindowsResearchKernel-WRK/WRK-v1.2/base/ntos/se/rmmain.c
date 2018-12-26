@@ -77,7 +77,11 @@ Return Value:
     // This will be used by the LSA to send commands to the Reference Monitor to update its state data.
     RtlInitUnicodeString(&RmCommandPortName, L"\\SeRmCommandPort");
     InitializeObjectAttributes(&ObjectAttributes, &RmCommandPortName, 0, NULL, NULL);
-    Status = ZwCreatePort(&SepRmState.RmCommandServerPortHandle, &ObjectAttributes, sizeof(SEP_RM_CONNECT_INFO), sizeof(RM_COMMAND_MESSAGE), sizeof(RM_COMMAND_MESSAGE) * 32);
+    Status = ZwCreatePort(&SepRmState.RmCommandServerPortHandle, 
+                          &ObjectAttributes,
+                          sizeof(SEP_RM_CONNECT_INFO), 
+                          sizeof(RM_COMMAND_MESSAGE),
+                          sizeof(RM_COMMAND_MESSAGE) * 32);
     if (!NT_SUCCESS(Status)) {
         KdPrint(("Security: Rm Create Command Port failed 0x%lx\n", Status));
         return FALSE;
@@ -91,7 +95,8 @@ Return Value:
         return FALSE;
     }
 
-    // Allocate a temporary buffer from the paged pool.  It is a fatal system error if the allocation fails since security cannot be enabled.
+    // Allocate a temporary buffer from the paged pool. 
+    // It is a fatal system error if the allocation fails since security cannot be enabled.
     AclSize = sizeof(ACL) + sizeof(ACCESS_ALLOWED_ACE) + SeLengthSid(SeLocalSystemSid);
     LsaInitEventSecurityDescriptor.Dacl = ExAllocatePoolWithTag(PagedPool, AclSize, 'cAeS');
     if (LsaInitEventSecurityDescriptor.Dacl == NULL) {
@@ -130,13 +135,20 @@ Return Value:
 
     // Create a permanent thread of the Sysinit Process, called the Reference Monitor Server Thread.  
     // This thread is dedicated to receiving Reference Monitor commands and dispatching them.
-    Status = PsCreateSystemThread(&SepRmState.SepRmThreadHandle, THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_SET_INFORMATION, NULL, NULL, NULL, SepRmCommandServerThread, NULL);
+    Status = PsCreateSystemThread(&SepRmState.SepRmThreadHandle,
+                                  THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_SET_INFORMATION,
+                                  NULL,
+                                  NULL,
+                                  NULL, 
+                                  SepRmCommandServerThread,
+                                  NULL);
     if (!NT_SUCCESS(Status)) {
         KdPrint(("Security: Rm Server Thread creation failed 0x%lx\n", Status));
         return FALSE;
     }
 
-    // Initialize data from the registry.  This must go here because all other Se initialization takes place before the registry is initialized.
+    // Initialize data from the registry. 
+    // This must go here because all other Se initialization takes place before the registry is initialized.
     SepAdtInitializeCrashOnFail();
     SepAdtInitializePrivilegeAuditing();
     SepAdtInitializeAuditingOptions();
@@ -205,7 +217,8 @@ Routine Description:
         // Wait for Command, send reply to previous command (if any)
         Status = ZwReplyWaitReceivePort(SepRmState.RmCommandPortHandle, NULL, (PPORT_MESSAGE)Reply, (PPORT_MESSAGE)&CommandMessage);
         if (!NT_SUCCESS(Status)) {
-            // malicious user apps can try to connect to this port.  We will fail later, but if their thread vanishes, we'll get a failure here.  Ignore it:
+            // malicious user apps can try to connect to this port.  
+            // We will fail later, but if their thread vanishes, we'll get a failure here.  Ignore it:
             if (Status == STATUS_UNSUCCESSFUL || Status == STATUS_INVALID_CID || Status == STATUS_REPLY_MESSAGE_MISMATCH) {
                 // skip it:
                 Reply = NULL;
@@ -293,7 +306,8 @@ Routine Description:
     SepRmLsaCallProcess = PsGetCurrentProcess();
     ObReferenceObject(SepRmLsaCallProcess);
 
-    // Wait on the LSA signaling the event.  This means that the LSA has created its command port, not that LSA initialization is complete.
+    // Wait on the LSA signaling the event.  
+    // This means that the LSA has created its command port, not that LSA initialization is complete.
     Status = ZwWaitForSingleObject(SepRmState.LsaInitEventHandle, FALSE, NULL);
     if (!NT_SUCCESS(Status)) {
         KdPrint(("Security Rm Init: Waiting for LSA Init Event failed 0x%lx\n", Status));
@@ -303,7 +317,8 @@ Routine Description:
     // Close the LSA Init Event Handle.  The event is not used again.
     ZwClose(SepRmState.LsaInitEventHandle);
 
-    // Listen for a connection to be made by the LSA to the Reference Monitor Command Port.  This connection will be made by the LSA process.
+    // Listen for a connection to be made by the LSA to the Reference Monitor Command Port.
+    // This connection will be made by the LSA process.
     ConnectionRequest.u1.s1.TotalLength = sizeof(ConnectionRequest);
     ConnectionRequest.u1.s1.DataLength = (CSHORT)0;
     Status = ZwListenPort(SepRmState.RmCommandServerPortHandle, &ConnectionRequest);
@@ -501,18 +516,25 @@ Return Value:
             if (WorkQueueItem->CommandParamsLength <= LSA_MAXIMUM_COMMAND_PARAM_SIZE) {
                 // Parameters will fit into the LPC Command Message block.
                 CopiedCommandParams = CommandMessage.CommandParams;
-                RtlCopyMemory(CopiedCommandParams, WorkQueueItem->CommandParams.BaseAddress, WorkQueueItem->CommandParamsLength);
+                RtlCopyMemory(CopiedCommandParams,
+                              WorkQueueItem->CommandParams.BaseAddress,
+                              WorkQueueItem->CommandParamsLength);
                 CommandMessage.CommandParamsMemoryType = SepRmImmediateMemory;
             } else {
                 // Parameters too large for LPC Command Message block.
                 // If possible, copy them to the preallocated Lsa Shared Memory block.
                 // If they are too large to fit, copy them to an individually allocated chunk of Shared Virtual Memory.
                 if (WorkQueueItem->CommandParamsLength <= SEP_RM_LSA_SHARED_MEMORY_SIZE) {
-                    RtlCopyMemory(SepRmState.RmViewPortMemory, WorkQueueItem->CommandParams.BaseAddress, WorkQueueItem->CommandParamsLength);
+                    RtlCopyMemory(SepRmState.RmViewPortMemory, 
+                                  WorkQueueItem->CommandParams.BaseAddress,
+                                  WorkQueueItem->CommandParamsLength);
                     LsaViewCopiedCommandParams = SepRmState.LsaViewPortMemory;
                     CommandMessage.CommandParamsMemoryType = SepRmLsaCommandPortSharedMemory;
                 } else {
-                    Status = SepAdtCopyToLsaSharedMemory(SepLsaHandle, WorkQueueItem->CommandParams.BaseAddress, WorkQueueItem->CommandParamsLength, &LsaViewCopiedCommandParams);
+                    Status = SepAdtCopyToLsaSharedMemory(SepLsaHandle,
+                                                         WorkQueueItem->CommandParams.BaseAddress,
+                                                         WorkQueueItem->CommandParamsLength,
+                                                         &LsaViewCopiedCommandParams);
                     if (!NT_SUCCESS(Status)) {
                         // An error occurred, most likely in allocating shared virtual memory.
                         // For now, just ignore the error and discard the Audit Record.

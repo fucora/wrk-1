@@ -10,7 +10,8 @@ Module Name:
 Abstract:
     This module implements the kernel mode logon tracking performed by the reference monitor.
     Logon tracking is performed by keeping a count of how many tokens exist for each active logon in a system.
-    When a logon session's reference count drops to zero, the LSA is notified so that authentication packages can clean up any related context data.
+    When a logon session's reference count drops to zero, 
+    the LSA is notified so that authentication packages can clean up any related context data.
 */
 
 #include "pch.h"
@@ -31,8 +32,7 @@ SeFileSystemNotifyRoutinesHead = {0};
 
 
 // Internally defined data types                                          //
-typedef struct _SEP_FILE_SYSTEM_NOTIFY_CONTEXT
-{
+typedef struct _SEP_FILE_SYSTEM_NOTIFY_CONTEXT{
     WORK_QUEUE_ITEM WorkItem;
     LUID LogonId;
 } SEP_FILE_SYSTEM_NOTIFY_CONTEXT, *PSEP_FILE_SYSTEM_NOTIFY_CONTEXT;
@@ -230,7 +230,11 @@ Return Value:
 
     // Open a handle to the directory object for the LUID device map
     // Get a kernel handle
-    _snwprintf(szString, (sizeof(szString) / sizeof(WCHAR)) - 1, L"\\Sessions\\0\\DosDevices\\%08x-%08x", pLogonId->HighPart, pLogonId->LowPart);
+    _snwprintf(szString, 
+        (sizeof(szString) / sizeof(WCHAR)) - 1,
+               L"\\Sessions\\0\\DosDevices\\%08x-%08x",
+               pLogonId->HighPart,
+               pLogonId->LowPart);
 
 #pragma prefast(suppress:53, "szString is correctly null-terminated.")
     RtlInitUnicodeString(&UnicodeString, szString);
@@ -264,7 +268,13 @@ Restart:
     while (TRUE) {
         do {
             // ZwQueryDirectoryObject returns one element at a time
-            Status = ZwQueryDirectoryObject(DosDevicesDirectory, (PVOID)DirInfo, dirInfoLength, TRUE, RestartScan, &Context, &ReturnedLength);
+            Status = ZwQueryDirectoryObject(DosDevicesDirectory,
+                (PVOID)DirInfo,
+                                            dirInfoLength,
+                                            TRUE,
+                                            RestartScan,
+                                            &Context,
+                                            &ReturnedLength);
             if (Status == STATUS_BUFFER_TOO_SMALL) {
                 dirInfoLength = ReturnedLength;
                 if (DirInfo != NULL) {
@@ -384,14 +394,16 @@ Return Value:
                     Current->pDeviceMap = NULL;
                 }
 
-                // Make all the contents of the LUID's device map temporary, so that the names go away from the Object Manager's namespace
+                // Make all the contents of the LUID's device map temporary,
+                // so that the names go away from the Object Manager's namespace
                 // Remove our reference on the LUID's device map
                 if (pDeviceMap != NULL) {
                     SepCleanupLUIDDeviceMapDirectory(LogonId);
                     ObfDereferenceDeviceMap(pDeviceMap);
                 }
 
-                // Asynchronoously inform file systems that this logon session is going away, if at least one FS expressed interest in this logon session.
+                // Asynchronoously inform file systems that this logon session is going away,
+                // if at least one FS expressed interest in this logon session.
                 if (Current->Flags & SEP_TERMINATION_NOTIFY) {
                     SepInformFileSystemsOfDeletedLogon(LogonId);
                 }
@@ -448,7 +460,9 @@ Return Value:
 #endif
 
     // Make sure we can allocate a new logon session track record
-    LogonSessionTrack = (PSEP_LOGON_SESSION_REFERENCES)ExAllocatePoolWithTag(PagedPool, sizeof(SEP_LOGON_SESSION_REFERENCES), 'sLeS');
+    LogonSessionTrack = (PSEP_LOGON_SESSION_REFERENCES)ExAllocatePoolWithTag(PagedPool,
+                                                                             sizeof(SEP_LOGON_SESSION_REFERENCES),
+                                                                             'sLeS');
     if (LogonSessionTrack == NULL) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -631,7 +645,9 @@ Return Value:
         return(STATUS_INVALID_PARAMETER);
     }
 
-    NewCallback = ExAllocatePoolWithTag(PagedPool | POOL_COLD_ALLOCATION, sizeof(SEP_LOGON_SESSION_TERMINATED_NOTIFICATION), 'SFeS');
+    NewCallback = ExAllocatePoolWithTag(PagedPool | POOL_COLD_ALLOCATION, 
+                                        sizeof(SEP_LOGON_SESSION_TERMINATED_NOTIFICATION), 
+                                        'SFeS');
     if (NewCallback == NULL) {
         return(STATUS_INSUFFICIENT_RESOURCES);
     }
@@ -670,7 +686,9 @@ Return Value:
 
     SepRmAcquireNotifyLock();
 
-    for (PreviousEntry = &SeFileSystemNotifyRoutinesHead, NotifyEntry = SeFileSystemNotifyRoutinesHead.Next; NotifyEntry != NULL; PreviousEntry = NotifyEntry, NotifyEntry = NotifyEntry->Next) {
+    for (PreviousEntry = &SeFileSystemNotifyRoutinesHead, NotifyEntry = SeFileSystemNotifyRoutinesHead.Next;
+         NotifyEntry != NULL;
+         PreviousEntry = NotifyEntry, NotifyEntry = NotifyEntry->Next) {
         if (NotifyEntry->CallbackRoutine == CallbackRoutine)
             break;
     }
@@ -841,7 +859,11 @@ Return Value:
                     if (NT_SUCCESS(Status)) {// Create the Global SymLink to the global DosDevices                        
                         RtlInitUnicodeString(&SymLinkUnicodeString, L"Global");
                         RtlInitUnicodeString(&UnicodeString, L"\\Global??");
-                        InitializeObjectAttributes(&Obja, &SymLinkUnicodeString, OBJ_PERMANENT | OBJ_CASE_INSENSITIVE | OBJ_OPENIF | OBJ_KERNEL_HANDLE, hDevMap, NULL);
+                        InitializeObjectAttributes(&Obja, 
+                                                   &SymLinkUnicodeString,
+                                                   OBJ_PERMANENT | OBJ_CASE_INSENSITIVE | OBJ_OPENIF | OBJ_KERNEL_HANDLE,
+                                                   hDevMap, 
+                                                   NULL);
                         Status = ZwCreateSymbolicLinkObject(&hSymLink, SYMBOLIC_LINK_ALL_ACCESS, &Obja, &UnicodeString);
                         if (NT_SUCCESS(Status)) {
                             ZwClose(hSymLink);

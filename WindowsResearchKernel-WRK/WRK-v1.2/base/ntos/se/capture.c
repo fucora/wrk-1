@@ -375,7 +375,9 @@ Return Value:
 }
 
 
-VOID SeReleaseSecurityDescriptor(__in PSECURITY_DESCRIPTOR CapturedSecurityDescriptor, __in KPROCESSOR_MODE RequestorMode, __in BOOLEAN ForceCapture)
+VOID SeReleaseSecurityDescriptor(__in PSECURITY_DESCRIPTOR CapturedSecurityDescriptor, 
+                                 __in KPROCESSOR_MODE RequestorMode, 
+                                 __in BOOLEAN ForceCapture)
 /*
 Routine Description:
     This routine releases a previously captured security descriptor.
@@ -412,7 +414,9 @@ Return Value:
 {
     PAGED_CODE();
 
-    *DestProxyData = ExAllocatePoolWithTag(PagedPool, PtrAlignSize(sizeof(SECURITY_TOKEN_PROXY_DATA)) + SourceProxyData->PathInfo.Length, 'dPoT');
+    *DestProxyData = ExAllocatePoolWithTag(PagedPool,
+                                           PtrAlignSize(sizeof(SECURITY_TOKEN_PROXY_DATA)) + SourceProxyData->PathInfo.Length,
+                                           'dPoT');
     if (*DestProxyData == NULL) {
         return(STATUS_INSUFFICIENT_RESOURCES);
     }
@@ -546,7 +550,10 @@ Return Value:
 }
 
 
-NTSTATUS SeCaptureSecurityQos(__in_opt POBJECT_ATTRIBUTES ObjectAttributes, __in KPROCESSOR_MODE RequestorMode, __out PBOOLEAN SecurityQosPresent, __out PSECURITY_ADVANCED_QUALITY_OF_SERVICE CapturedSecurityQos)
+NTSTATUS SeCaptureSecurityQos(__in_opt POBJECT_ATTRIBUTES ObjectAttributes, 
+                              __in KPROCESSOR_MODE RequestorMode, 
+                              __out PBOOLEAN SecurityQosPresent,
+                              __out PSECURITY_ADVANCED_QUALITY_OF_SERVICE CapturedSecurityQos)
 /*
 Routine Description:
     This routine probes and captures a copy of any security quality of service parameters that might have been provided via the ObjectAttributes argument.
@@ -1022,7 +1029,9 @@ Return Value:
 }
 
 
-VOID SeReleaseLuidAndAttributesArray(__in PLUID_AND_ATTRIBUTES CapturedArray, __in KPROCESSOR_MODE RequestorMode, __in BOOLEAN ForceCapture)
+VOID SeReleaseLuidAndAttributesArray(__in PLUID_AND_ATTRIBUTES CapturedArray,
+                                     __in KPROCESSOR_MODE RequestorMode,
+                                     __in BOOLEAN ForceCapture)
 /*
 Routine Description:
     This routine releases a previously captured array of LUID_AND_ATTRIBUTES.
@@ -1318,7 +1327,9 @@ Return Value:
 }
 
 
-VOID SeReleaseSidAndAttributesArray(__in PSID_AND_ATTRIBUTES CapturedArray, __in KPROCESSOR_MODE RequestorMode, __in BOOLEAN ForceCapture)
+VOID SeReleaseSidAndAttributesArray(__in PSID_AND_ATTRIBUTES CapturedArray,
+                                    __in KPROCESSOR_MODE RequestorMode,
+                                    __in BOOLEAN ForceCapture)
 /*
 Routine Description:
     This routine releases a previously captured array of SID_AND_ATTRIBUTES.
@@ -1440,7 +1451,10 @@ Return Value:
     for (i = 0; i < PolicyCount; i++) {
         if (!VALID_TOKEN_AUDIT_POLICY_ELEMENT((*CapturedPolicy)->Policy[i])) {
 #if DBG
-            DbgPrint("SeCaptureAuditPolicy: element %d mask 0x%x category %d invalid.\n", i, (*CapturedPolicy)->Policy[i].PolicyMask, (*CapturedPolicy)->Policy[i].Category);
+            DbgPrint("SeCaptureAuditPolicy: element %d mask 0x%x category %d invalid.\n",
+                     i,
+                     (*CapturedPolicy)->Policy[i].PolicyMask,
+                     (*CapturedPolicy)->Policy[i].Category);
             ASSERT(FALSE);
 #endif
             if (!ARGUMENT_PRESENT(CaptureBuffer)) {
@@ -1522,10 +1536,12 @@ BOOLEAN SeValidSecurityDescriptor(__in ULONG Length, __in_bcount(Length) PSECURI
 /*
 Routine Description:
     Validates a security descriptor for structural correctness.
-    The idea is to make sure that the security descriptor may be passed to other kernel callers, without fear that they're going to choke while manipulating it.
+    The idea is to make sure that the security descriptor may be passed to other kernel callers, 
+    without fear that they're going to choke while manipulating it.
 
     This routine does not enforce policy (e.g., ACL/ACE revision information).
-    It is entirely possible for a security descriptor to be approved by this routine, only to be later found to be invalid by some later routine.
+    It is entirely possible for a security descriptor to be approved by this routine,
+    only to be later found to be invalid by some later routine.
 
     This routine is designed to be used by callers who have a security descriptor in kernel memory.
     Callers wishing to validate a security descriptor passed from user mode should call RtlValidSecurityDescriptor.
@@ -1565,7 +1581,10 @@ Return Value:
 
     // Check the owner.  A valid SecurityDescriptor must have an owner.
     // It must also be long aligned.
-    if ((ISecurityDescriptor->Owner == 0) || (!LongAligned((PVOID)(ULONG_PTR)(ULONG)ISecurityDescriptor->Owner)) || (ISecurityDescriptor->Owner > Length) || (Length - ISecurityDescriptor->Owner < sizeof(SID))) {
+    if ((ISecurityDescriptor->Owner == 0) || 
+        (!LongAligned((PVOID)(ULONG_PTR)(ULONG)ISecurityDescriptor->Owner)) || 
+        (ISecurityDescriptor->Owner > Length) || 
+        (Length - ISecurityDescriptor->Owner < sizeof(SID))) {
         return(FALSE);
     }
 

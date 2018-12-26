@@ -69,7 +69,8 @@ Return Value:
 {
     PAGED_CODE();
 
-    //  LUID allocation services are needed by security prior to phase 0 Executive initialization.  So, LUID initialization is performed here
+    //  LUID allocation services are needed by security prior to phase 0 Executive initialization. 
+    //  So, LUID initialization is performed here
     if (ExLuidInitialization() == FALSE) {
         KdPrint(("Security: Locally Unique ID initialization failed.\n"));
         return FALSE;

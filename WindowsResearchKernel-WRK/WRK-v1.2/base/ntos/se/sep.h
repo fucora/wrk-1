@@ -282,7 +282,12 @@ extern BOOLEAN SepTokenLeakTracking;
 
 VOID SepLockSubjectContext(IN PSECURITY_SUBJECT_CONTEXT SubjectContext);
 VOID SepFreeSubjectContext(IN PSECURITY_SUBJECT_CONTEXT SubjectContext);
-VOID SepGetDefaultsSubjectContext(IN PSECURITY_SUBJECT_CONTEXT SubjectContext, OUT PSID *Owner, OUT PSID *Group, OUT PSID *ServerOwner, OUT PSID *ServerGroup, OUT PACL *Dacl);
+VOID SepGetDefaultsSubjectContext(IN PSECURITY_SUBJECT_CONTEXT SubjectContext,
+                                  OUT PSID *Owner,
+                                  OUT PSID *Group, 
+                                  OUT PSID *ServerOwner,
+                                  OUT PSID *ServerGroup,
+                                  OUT PACL *Dacl);
 BOOLEAN SepValidOwnerSubjectContext(IN PSECURITY_SUBJECT_CONTEXT SubjectContext, IN PSID Owner, IN BOOLEAN ServerObject);
 BOOLEAN SepIdAssignableAsGroup(IN PACCESS_TOKEN Token, IN PSID Group);
 BOOLEAN SepCheckAcl (IN PACL Acl, IN ULONG Length);
@@ -316,9 +321,17 @@ VOID SepDumpString(IN PUNICODE_STRING String);
 #endif //DBG
 
 BOOLEAN SepSidInToken (IN PACCESS_TOKEN Token, IN PSID PrincipalSelfSid, IN PSID Sid, IN BOOLEAN DenyAce);
-VOID SepExamineSacl(IN PACL Sacl, IN PACCESS_TOKEN Token, IN ACCESS_MASK DesiredAccess, IN BOOLEAN AccessGranted, OUT PBOOLEAN GenerateAudit, OUT PBOOLEAN GenerateAlarm);
+VOID SepExamineSacl(IN PACL Sacl, 
+                    IN PACCESS_TOKEN Token,
+                    IN ACCESS_MASK DesiredAccess,
+                    IN BOOLEAN AccessGranted,
+                    OUT PBOOLEAN GenerateAudit, 
+                    OUT PBOOLEAN GenerateAlarm);
 VOID SepCopyString (IN PUNICODE_STRING SourceString, OUT PUNICODE_STRING *DestString);
-VOID SepAssemblePrivileges(IN ULONG PrivilegeCount, IN BOOLEAN SystemSecurity, IN BOOLEAN WriteOwner, OUT PPRIVILEGE_SET *Privileges);
+VOID SepAssemblePrivileges(IN ULONG PrivilegeCount,
+                           IN BOOLEAN SystemSecurity,
+                           IN BOOLEAN WriteOwner,
+                           OUT PPRIVILEGE_SET *Privileges);
 PUNICODE_STRING SepQueryTypeString(IN PVOID Object);
 POBJECT_NAME_INFORMATION SepQueryNameString(IN PVOID Object);
 
@@ -335,6 +348,9 @@ NTSTATUS SepCopyProxyData (OUT PSECURITY_TOKEN_PROXY_DATA * DestProxyData, IN PS
 VOID SepFreeProxyData (IN PSECURITY_TOKEN_PROXY_DATA ProxyData);
 NTSTATUS SepProbeAndCaptureQosData(IN PSECURITY_ADVANCED_QUALITY_OF_SERVICE CapturedSecurityQos);
 VOID SepAuditAssignPrimaryToken(IN PEPROCESS Process, IN PACCESS_TOKEN NewAccessToken);
-BOOLEAN SepAdtAuditThisEventWithContext(IN POLICY_AUDIT_EVENT_TYPE Category, IN BOOLEAN AccessGranted, IN BOOLEAN AccessDenied, IN PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext OPTIONAL);
+BOOLEAN SepAdtAuditThisEventWithContext(IN POLICY_AUDIT_EVENT_TYPE Category, 
+                                        IN BOOLEAN AccessGranted, 
+                                        IN BOOLEAN AccessDenied, 
+                                        IN PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext OPTIONAL);
 
 #endif // _SEP_

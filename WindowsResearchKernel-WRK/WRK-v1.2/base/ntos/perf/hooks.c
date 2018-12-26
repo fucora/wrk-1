@@ -56,7 +56,9 @@ Arguments:
     }
 
     // Log the portion of the cache that has valid data.
-    PerfInfoLogBytes(PERFINFO_LOG_TYPE_SAMPLED_PROFILE_CACHE, &PerfProfileCache, FIELD_OFFSET(PERFINFO_SAMPLED_PROFILE_CACHE, Sample) + (PerfProfileCache.Entries * sizeof(PERFINFO_SAMPLED_PROFILE_INFORMATION)));
+    PerfInfoLogBytes(PERFINFO_LOG_TYPE_SAMPLED_PROFILE_CACHE,
+                     &PerfProfileCache, 
+                     FIELD_OFFSET(PERFINFO_SAMPLED_PROFILE_CACHE, Sample) + (PerfProfileCache.Entries * sizeof(PERFINFO_SAMPLED_PROFILE_INFORMATION)));
 
     PerfProfileCache.Entries = 0;// Clear the cache for the next set of entries.
     InterlockedDecrement(&PerfInfoSampledProfileFlushInProgress);// Let the interrupt fill the cache again.
@@ -195,9 +197,11 @@ Arguments:
 NTSTATUS PerfInfoLogFileName(PVOID  FileObject, PUNICODE_STRING SourceString)
 /*
 Routine Description:
-    This routine logs a FileObject pointer and FileName to the log.  The pointer is used as hash key to map this name to other trace events.
+    This routine logs a FileObject pointer and FileName to the log. 
+    The pointer is used as hash key to map this name to other trace events.
 Arguments:
-    FileObject - Pointer to the FileName member within the FILE_OBJECT structure.  The FileName may not yet be initialized, so the actual data comes from the SourceString parameter.
+    FileObject - Pointer to the FileName member within the FILE_OBJECT structure.  
+                 The FileName may not yet be initialized, so the actual data comes from the SourceString parameter.
     SourceString - Optional pointer to the source string.
 Return Value:
     STATUS_SUCCESS
@@ -208,7 +212,10 @@ Return Value:
 
     if ((FileObject != NULL) && (SourceString != NULL) && (SourceString->Length != 0)) {
         FileInfo.HashKeyFileNamePointer = FileObject;
-        Status = PerfInfoLogBytesAndUnicodeString(PERFINFO_LOG_TYPE_FILENAME_CREATE, &FileInfo, FIELD_OFFSET(PERFINFO_FILENAME_INFORMATION, FileName), SourceString);
+        Status = PerfInfoLogBytesAndUnicodeString(PERFINFO_LOG_TYPE_FILENAME_CREATE,
+                                                  &FileInfo, 
+                                                  FIELD_OFFSET(PERFINFO_FILENAME_INFORMATION, FileName),
+                                                  SourceString);
     }
 
     return Status;

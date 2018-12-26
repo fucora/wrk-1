@@ -24,13 +24,18 @@ Abstract:
 #endif
 
 
-BOOLEAN SepPrivilegeCheck(IN PTOKEN Token, IN OUT PLUID_AND_ATTRIBUTES RequiredPrivileges, IN ULONG RequiredPrivilegeCount, IN ULONG PrivilegeSetControl, IN KPROCESSOR_MODE PreviousMode)
+BOOLEAN SepPrivilegeCheck(IN PTOKEN Token, 
+                          IN OUT PLUID_AND_ATTRIBUTES RequiredPrivileges,
+                          IN ULONG RequiredPrivilegeCount,
+                          IN ULONG PrivilegeSetControl,
+                          IN KPROCESSOR_MODE PreviousMode)
 /*
 Routine Description:
     Worker routine for SePrivilegeCheck
 Arguments:
     Token - The user's effective token.
-    RequiredPrivileges - A privilege set describing the required privileges.  The UsedForAccess bits will be set in any privilege that is actually used (usually all of them).
+    RequiredPrivileges - A privilege set describing the required privileges.  
+                         The UsedForAccess bits will be set in any privilege that is actually used (usually all of them).
     RequiredPrivilegeCount - How many privileges are in the RequiredPrivileges set.
     PrivilegeSetControl - Describes how many privileges are required.
     PreviousMode - The previous processor mode.
@@ -59,7 +64,8 @@ Return Value:
     SepAcquireTokenReadLock(Token);
     for (i = 0, CurrentRequiredPrivilege = RequiredPrivileges; i < RequiredPrivilegeCount; i++, CurrentRequiredPrivilege++) {
         for (j = 0, CurrentTokenPrivilege = Token->Privileges; j < TokenPrivilegeCount; j++, CurrentTokenPrivilege++) {
-            if ((CurrentTokenPrivilege->Attributes & SE_PRIVILEGE_ENABLED) && (RtlEqualLuid(&CurrentTokenPrivilege->Luid, &CurrentRequiredPrivilege->Luid))) {
+            if ((CurrentTokenPrivilege->Attributes & SE_PRIVILEGE_ENABLED) && 
+                (RtlEqualLuid(&CurrentTokenPrivilege->Luid, &CurrentRequiredPrivilege->Luid))) {
                 CurrentRequiredPrivilege->Attributes |= SE_PRIVILEGE_USED_FOR_ACCESS;
                 MatchCount++;
                 break;     // start looking for next one
@@ -82,7 +88,9 @@ Return Value:
 }
 
 
-BOOLEAN SePrivilegeCheck(__inout PPRIVILEGE_SET RequiredPrivileges, __in PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext, __in KPROCESSOR_MODE AccessMode)
+BOOLEAN SePrivilegeCheck(__inout PPRIVILEGE_SET RequiredPrivileges, 
+                         __in PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext,
+                         __in KPROCESSOR_MODE AccessMode)
 /*
 Routine Description:
     This routine checks to see if the token contains the specified privileges.
@@ -108,7 +116,11 @@ Return Value:
     }
 
     // SepPrivilegeCheck locks the passed token for read access
-    Status = SepPrivilegeCheck(EffectiveToken(SubjectSecurityContext), RequiredPrivileges->Privilege, RequiredPrivileges->PrivilegeCount, RequiredPrivileges->Control, AccessMode);
+    Status = SepPrivilegeCheck(EffectiveToken(SubjectSecurityContext),
+                               RequiredPrivileges->Privilege,
+                               RequiredPrivileges->PrivilegeCount,
+                               RequiredPrivileges->Control,
+                               AccessMode);
     return(Status);
 }
 
@@ -119,7 +131,8 @@ Routine Description:
     This routine tests the caller's client's security context to see if it contains the specified privileges.
 Arguments:
     ClientToken - A handle to a token object representing a client attempting access.
-        This handle must be obtained from a communication session layer, such as from an LPC Port or Local Named Pipe, to prevent possible security policy violations.
+        This handle must be obtained from a communication session layer,
+        such as from an LPC Port or Local Named Pipe, to prevent possible security policy violations.
     RequiredPrivileges - Points to a set of privileges.
         The client's security context is to be checked to see which of the specified privileges are present.
         The results will be indicated in the attributes associated with each privilege.
@@ -189,7 +202,15 @@ Return Value:
         return Status;
     }
 
-    Status = SeCaptureLuidAndAttributesArray((RequiredPrivileges->Privilege), CapturedPrivilegeCount, UserMode, NULL, 0, PagedPool, TRUE, &CapturedPrivileges, &CapturedPrivilegesLength);
+    Status = SeCaptureLuidAndAttributesArray((RequiredPrivileges->Privilege),
+                                             CapturedPrivilegeCount,
+                                             UserMode,
+                                             NULL,
+                                             0, 
+                                             PagedPool,
+                                             TRUE, 
+                                             &CapturedPrivileges,
+                                             &CapturedPrivilegesLength);
     if (!NT_SUCCESS(Status)) {
         ObDereferenceObject((PVOID)Token);
         return Status;
@@ -251,7 +272,10 @@ Return Value:
 }
 
 
-BOOLEAN SeCheckPrivilegedObject(__in LUID PrivilegeValue, __in HANDLE ObjectHandle, __in ACCESS_MASK DesiredAccess, __in KPROCESSOR_MODE PreviousMode)
+BOOLEAN SeCheckPrivilegedObject(__in LUID PrivilegeValue,
+                                __in HANDLE ObjectHandle,
+                                __in ACCESS_MASK DesiredAccess,
+                                __in KPROCESSOR_MODE PreviousMode)
 /*
 Routine Description:
     This function will check for the passed privilege value in the current context, and generate audits as appropriate.
@@ -280,7 +304,12 @@ Return Value:
     SeCaptureSubjectContext(&SubjectSecurityContext);
     AccessGranted = SePrivilegeCheck(&RequiredPrivileges, &SubjectSecurityContext, PreviousMode);
     if (PreviousMode != KernelMode) {
-        SePrivilegeObjectAuditAlarm(ObjectHandle, &SubjectSecurityContext, DesiredAccess, &RequiredPrivileges, AccessGranted, PreviousMode);
+        SePrivilegeObjectAuditAlarm(ObjectHandle,
+                                    &SubjectSecurityContext,
+                                    DesiredAccess,
+                                    &RequiredPrivileges,
+                                    AccessGranted,
+                                    PreviousMode);
     }
     SeReleaseSubjectContext(&SubjectSecurityContext);
     return(AccessGranted);

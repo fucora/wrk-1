@@ -35,7 +35,10 @@ Abstract:
                 (ANYSIZE_ARRAY * (ULONG)sizeof(LUID_AND_ATTRIBUTES)))
 
 
-NTSTATUS SeCreateAccessState(__out PACCESS_STATE AccessState, __out PAUX_ACCESS_DATA AuxData, __in ACCESS_MASK DesiredAccess, __in_opt PGENERIC_MAPPING GenericMapping)
+NTSTATUS SeCreateAccessState(__out PACCESS_STATE AccessState, 
+                             __out PAUX_ACCESS_DATA AuxData,
+                             __in ACCESS_MASK DesiredAccess,
+                             __in_opt PGENERIC_MAPPING GenericMapping)
 /*
 Routine Description:
     This routine initializes an ACCESS_STATE structure.  This consists of:
@@ -60,7 +63,12 @@ Return Value:
 }
 
 
-NTSTATUS SeCreateAccessStateEx(__in_opt PETHREAD Thread, __in PEPROCESS Process, __out PACCESS_STATE AccessState, __out PAUX_ACCESS_DATA AuxData, __in ACCESS_MASK DesiredAccess, __in_opt PGENERIC_MAPPING GenericMapping)
+NTSTATUS SeCreateAccessStateEx(__in_opt PETHREAD Thread,
+                               __in PEPROCESS Process,
+                               __out PACCESS_STATE AccessState,
+                               __out PAUX_ACCESS_DATA AuxData, 
+                               __in ACCESS_MASK DesiredAccess, 
+                               __in_opt PGENERIC_MAPPING GenericMapping)
 /*
 Routine Description:
     This routine initializes an ACCESS_STATE structure.  This consists of:
@@ -180,7 +188,8 @@ Routine Description:
     This routine takes a privilege set and adds it to the privilege set embedded in an ACCESS_STATE structure.
 
     An AccessState may contain up to three embedded privileges.
-    To add more, this routine will allocate a block of memory, copy the current privileges into it, and append the new privilege to that block.
+    To add more, this routine will allocate a block of memory, copy the current privileges into it,
+    and append the new privilege to that block.
     A bit is set in the AccessState indicating that the pointer to the privilege set in the structure points to pool memory and must be deallocated.
 Arguments:
     AccessState - The AccessState structure representing the current access attempt.
@@ -224,7 +233,9 @@ Return Value:
 }
 
 
-VOID SepConcatenatePrivileges(IN PPRIVILEGE_SET TargetPrivilegeSet, IN ULONG TargetBufferSize, IN PPRIVILEGE_SET SourcePrivilegeSet)
+VOID SepConcatenatePrivileges(IN PPRIVILEGE_SET TargetPrivilegeSet, 
+                              IN ULONG TargetBufferSize, 
+                              IN PPRIVILEGE_SET SourcePrivilegeSet)
 /*
 Routine Description:
     Takes two privilege sets and appends the second to the end of the first.

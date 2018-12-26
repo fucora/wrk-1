@@ -20,8 +20,7 @@ Abstract:
 //  Local macros and procedures
 
 
-NTSTATUS
-SepInheritAcl(
+NTSTATUS SepInheritAcl(
     IN PACL Acl,
     IN BOOLEAN IsDirectoryObject,
     IN PSID OwnerSid,
@@ -30,8 +29,7 @@ SepInheritAcl(
     IN PSID ClientSid OPTIONAL,
     IN PGENERIC_MAPPING GenericMapping,
     IN POOL_TYPE PoolType,
-    OUT PACL *NewAcl
-);
+    OUT PACL *NewAcl);
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE,SeAssignSecurity)
@@ -49,7 +47,6 @@ SepInheritAcl(
 #endif
 
 
-
 // These variables control whether security descriptors and token
 // information are dumped by their dump routines.  This allows
 // selective turning on and off of debugging output by both program
@@ -57,17 +54,12 @@ SepInheritAcl(
 
 
 #if DBG
-
 BOOLEAN SepDumpSD = FALSE;
 BOOLEAN SepDumpToken = FALSE;
-
 #endif
 
 
-
-
-NTSTATUS
-SeAssignSecurity(
+NTSTATUS SeAssignSecurity(
     __in_opt PSECURITY_DESCRIPTOR ParentDescriptor,
     __in_opt PSECURITY_DESCRIPTOR ExplicitDescriptor,
     __out PSECURITY_DESCRIPTOR *NewDescriptor,
@@ -76,13 +68,9 @@ SeAssignSecurity(
     __in PGENERIC_MAPPING GenericMapping,
     __in POOL_TYPE PoolType
 )
-
 /*
-
 Routine Description:
-
-    This routine assumes privilege checking HAS NOT yet been performed
-    and so will be performed by this routine.
+    This routine assumes privilege checking HAS NOT yet been performed and so will be performed by this routine.
 
     This procedure is used to build a security descriptor for a new object
     given the security descriptor of its parent directory and any originally
@@ -90,10 +78,7 @@ Routine Description:
     returned to the caller may contain a mix of information, some explicitly
     provided other from the new object's parent.
 
-
-    See RtlpNewSecurityObject for a descriptor of how the NewDescriptor is
-    built.
-
+    See RtlpNewSecurityObject for a descriptor of how the NewDescriptor is built.
 
 Arguments:
 
@@ -101,41 +86,32 @@ Arguments:
         parent directory under which this new object is being created.
 
     ExplicitDescriptor - Supplies the address of a pointer to the security
-        descriptor as specified by the user that is to be applied to
-        the new object.
+        descriptor as specified by the user that is to be applied to the new object.
 
     NewDescriptor - Returns the actual security descriptor for the new
         object that has been modified according to above rules.
 
     IsDirectoryObject - Specifies if the new object is itself a directory
-        object.  A value of TRUE indicates the object is a container of other
-        objects.
+        object.  A value of TRUE indicates the object is a container of other objects.
 
     SubjectContext - Supplies the security context of the subject creating the
         object. This is used to retrieve default security information for the
-        new object, such as default owner, primary group, and discretionary
-        access control.
+        new object, such as default owner, primary group, and discretionary access control.
 
     GenericMapping - Supplies a pointer to an array of access mask values
         denoting the mapping between each generic right to non-generic rights.
 
-    PoolType - Specifies the pool type to use to when allocating a new
-        security descriptor.
+    PoolType - Specifies the pool type to use to when allocating a new security descriptor.
 
 Return Value:
-
     STATUS_SUCCESS - indicates the operation was successful.
-
     STATUS_INVALID_OWNER - The owner SID provided as the owner of the
         target security descriptor is not one the caller is authorized
         to assign as the owner of an object.
-
     STATUS_PRIVILEGE_NOT_HELD - The caller does not have the privilege
         necessary to explicitly assign the specified system ACL.
-        SeSecurityPrivilege privilege is needed to explicitly assign
-        system ACLs to objects.
+        SeSecurityPrivilege privilege is needed to explicitly assign system ACLs to objects.
 */
-
 {
     NTSTATUS Status;
     ULONG AutoInherit = 0;
@@ -143,26 +119,19 @@ Return Value:
 
 #if DBG
     if (ARGUMENT_PRESENT(ExplicitDescriptor)) {
-        SepDumpSecurityDescriptor(ExplicitDescriptor,
-                                  "\nSeAssignSecurity: Input security descriptor = \n"
-        );
+        SepDumpSecurityDescriptor(ExplicitDescriptor, "\nSeAssignSecurity: Input security descriptor = \n");
     }
 
     if (ARGUMENT_PRESENT(ParentDescriptor)) {
-        SepDumpSecurityDescriptor(ParentDescriptor,
-                                  "\nSeAssignSecurity: Parent security descriptor = \n"
-        );
+        SepDumpSecurityDescriptor(ParentDescriptor, "\nSeAssignSecurity: Parent security descriptor = \n");
     }
 #endif // DBG
-
 
     // If the Parent SD was created via AutoInheritance,
     //  and this object is being created with no explicit descriptor,
     //  then we can safely create this object as AutoInherit.
 
-
     if (ParentDescriptor != NULL) {
-
         if ((ExplicitDescriptor == NULL ||
             (((PISECURITY_DESCRIPTOR)ExplicitDescriptor)->Control & SE_DACL_PRESENT) == 0) &&
              (((PISECURITY_DESCRIPTOR)ParentDescriptor)->Control & SE_DACL_AUTO_INHERITED) != 0) {
@@ -174,9 +143,7 @@ Return Value:
              (((PISECURITY_DESCRIPTOR)ParentDescriptor)->Control & SE_SACL_AUTO_INHERITED) != 0) {
             AutoInherit |= SEF_SACL_AUTO_INHERIT;
         }
-
     }
-
 
     Status = RtlpNewSecurityObject(
         ParentDescriptor OPTIONAL,
@@ -191,23 +158,18 @@ Return Value:
 
 #if DBG
     if (NT_SUCCESS(Status)) {
-        SepDumpSecurityDescriptor(*NewDescriptor,
-                                  "SeAssignSecurity: Final security descriptor = \n"
-        );
+        SepDumpSecurityDescriptor(*NewDescriptor, "SeAssignSecurity: Final security descriptor = \n");
     }
 #endif
 
     return Status;
 
-
     // RtlpNewSecurityObject always uses PagedPool.
     UNREFERENCED_PARAMETER(PoolType);
-
 }
 
 
-NTSTATUS
-SeAssignSecurityEx(
+NTSTATUS SeAssignSecurityEx(
     __in_opt PSECURITY_DESCRIPTOR ParentDescriptor,
     __in_opt PSECURITY_DESCRIPTOR ExplicitDescriptor,
     __out PSECURITY_DESCRIPTOR *NewDescriptor,
@@ -218,13 +180,9 @@ SeAssignSecurityEx(
     __in PGENERIC_MAPPING GenericMapping,
     __in POOL_TYPE PoolType
 )
-
 /*
-
 Routine Description:
-
-    This routine assumes privilege checking HAS NOT yet been performed
-    and so will be performed by this routine.
+    This routine assumes privilege checking HAS NOT yet been performed and so will be performed by this routine.
 
     This procedure is used to build a security descriptor for a new object
     given the security descriptor of its parent directory and any originally
@@ -232,10 +190,7 @@ Routine Description:
     returned to the caller may contain a mix of information, some explicitly
     provided other from the new object's parent.
 
-
-    See RtlpNewSecurityObject for a descriptor of how the NewDescriptor is
-    built.
-
+    See RtlpNewSecurityObject for a descriptor of how the NewDescriptor is built.
 
 Arguments:
 
@@ -304,25 +259,19 @@ Return Value:
         SeSecurityPrivilege privilege is needed to explicitly assign
         system ACLs to objects.
 */
-
 {
     NTSTATUS Status;
     PAGED_CODE();
 
 #if DBG
     if (ARGUMENT_PRESENT(ExplicitDescriptor)) {
-        SepDumpSecurityDescriptor(ExplicitDescriptor,
-                                  "\nSeAssignSecurityEx: Input security descriptor = \n"
-        );
+        SepDumpSecurityDescriptor(ExplicitDescriptor, "\nSeAssignSecurityEx: Input security descriptor = \n");
     }
 
     if (ARGUMENT_PRESENT(ParentDescriptor)) {
-        SepDumpSecurityDescriptor(ParentDescriptor,
-                                  "\nSeAssignSecurityEx: Parent security descriptor = \n"
-        );
+        SepDumpSecurityDescriptor(ParentDescriptor, "\nSeAssignSecurityEx: Parent security descriptor = \n");
     }
 #endif // DBG
-
 
     Status = RtlpNewSecurityObject(
         ParentDescriptor OPTIONAL,
@@ -337,45 +286,26 @@ Return Value:
 
 #if DBG
     if (NT_SUCCESS(Status)) {
-        SepDumpSecurityDescriptor(*NewDescriptor,
-                                  "SeAssignSecurityEx: Final security descriptor = \n"
-        );
+        SepDumpSecurityDescriptor(*NewDescriptor, "SeAssignSecurityEx: Final security descriptor = \n");
     }
 #endif
 
     return Status;
 
-
     // RtlpNewSecurityObject always uses PagedPool.
     UNREFERENCED_PARAMETER(PoolType);
-
 }
 
 
-NTSTATUS
-SeDeassignSecurity(
-    __deref_inout PSECURITY_DESCRIPTOR *SecurityDescriptor
-)
-
+NTSTATUS SeDeassignSecurity(__deref_inout PSECURITY_DESCRIPTOR *SecurityDescriptor)
 /*
-
 Routine Description:
-
-    This routine deallocates the memory associated with a security descriptor
-    that was assigned using SeAssignSecurity.
-
-
+    This routine deallocates the memory associated with a security descriptor that was assigned using SeAssignSecurity.
 Arguments:
-
-    SecurityDescriptor - Supplies the address of a pointer to the security
-        descriptor  being deleted.
-
+    SecurityDescriptor - Supplies the address of a pointer to the security descriptor  being deleted.
 Return Value:
-
     STATUS_SUCCESS - The deallocation was successful.
-
 */
-
 {
     PAGED_CODE();
 
@@ -383,20 +313,14 @@ Return Value:
         ExFreePool((*SecurityDescriptor));
     }
 
-
     //  And zero out the pointer to it for safety sake
-
-
     (*SecurityDescriptor) = NULL;
 
     return(STATUS_SUCCESS);
-
 }
 
 
-
-NTSTATUS
-SepInheritAcl(
+NTSTATUS SepInheritAcl(
     IN PACL Acl,
     IN BOOLEAN IsDirectoryObject,
     IN PSID ClientOwnerSid,
@@ -407,49 +331,27 @@ SepInheritAcl(
     IN POOL_TYPE PoolType,
     OUT PACL *NewAcl
 )
-
 /*
-
 Routine Description:
-
-    This is a private routine that produces an inherited acl from
-    a parent acl according to the rules of inheritance
-
+    This is a private routine that produces an inherited acl from a parent acl according to the rules of inheritance
 Arguments:
-
     Acl - Supplies the acl being inherited.
-
     IsDirectoryObject - Specifies if the new acl is for a directory.
-
     OwnerSid - Specifies the owner Sid to use.
-
     GroupSid - Specifies the group SID to use.
-
     ServerSid - Specifies the Server SID to use.
-
     ClientSid - Specifies the Client SID to use.
-
     GenericMapping - Specifies the generic mapping to use.
-
     PoolType - Specifies the pool type for the new acl.
-
     NewAcl - Receives a pointer to the new (inherited) acl.
-
 Return Value:
-
     STATUS_SUCCESS - An inheritable ACL was successfully generated.
-
     STATUS_NO_INHERITANCE - An inheritable ACL was not successfully generated.
         This is a warning completion status.
-
     STATUS_BAD_INHERITANCE_ACL - Indicates the acl built was not a valid ACL.
         This can be caused by a number of things.  One of the more probable
-        causes is the replacement of a CreatorId with an SID that didn't fit
-        into the ACE or ACL.
-
-    STATUS_UNKNOWN_REVISION - Indicates the source ACL is a revision that
-        is unknown to this routine.
-
+        causes is the replacement of a CreatorId with an SID that didn't fit into the ACE or ACL.
+    STATUS_UNKNOWN_REVISION - Indicates the source ACL is a revision that is unknown to this routine.
 */
 {
     //   The logic in the ACL inheritance code must mirror the code for         //
@@ -463,20 +365,14 @@ Return Value:
     PAGED_CODE();
     ASSERT(PoolType == PagedPool); // RtlpInheritAcl assumes paged pool
 
-
     //  First check if the acl is null
-
-
     if (Acl == NULL) {
-
         return STATUS_NO_INHERITANCE;
     }
-
 
     // Generating an inheritable ACL.
 
     // Pass all parameters as though there is no auto inheritance.
-
 
     Status = RtlpInheritAcl(
         Acl,
@@ -501,18 +397,13 @@ Return Value:
 }
 
 
-
-NTSTATUS
-SeAssignWorldSecurityDescriptor(
+NTSTATUS SeAssignWorldSecurityDescriptor(
     __inout_bcount_part(*Length, *Length) PSECURITY_DESCRIPTOR SecurityDescriptor,
     __inout PULONG Length,
     __in PSECURITY_INFORMATION SecurityInformation
 )
-
 /*
-
 Routine Description:
-
     This routine is called by the I/O system to properly initialize a
     security descriptor for a FAT file.  It will take a pointer to a
     buffer containing an emptry security descriptor, and create in the
@@ -525,24 +416,16 @@ Routine Description:
     Thus, a FAT file is accessable to all.
 
 Arguments:
-
-    SecurityDescriptor - Supplies a pointer to a buffer in which will be
+    SecurityDescriptor - Supplies a pointer to a buffer in which will be 
         created a self-relative security descriptor as described above.
 
     Length - The length in bytes of the buffer.  If the length is too
         small, it will contain the minimum size required upon exit.
 
-
 Return Value:
-
-    STATUS_BUFFER_TOO_SMALL - The buffer was not big enough to contain
-        the requested information.
-
-
+    STATUS_BUFFER_TOO_SMALL - The buffer was not big enough to contain the requested information.
 */
-
 {
-
     PCHAR Field;
     PCHAR Base;
     ULONG WorldSidLength;
@@ -553,27 +436,19 @@ Return Value:
     PAGED_CODE();
 
     if (!ARGUMENT_PRESENT(SecurityInformation)) {
-
         return(STATUS_ACCESS_DENIED);
     }
 
     WorldSidLength = SeLengthSid(SeWorldSid);
-
     MinSize = sizeof(SECURITY_DESCRIPTOR_RELATIVE) + 2 * WorldSidLength;
-
     if (*Length < MinSize) {
-
         *Length = MinSize;
         return(STATUS_BUFFER_TOO_SMALL);
     }
 
     *Length = MinSize;
-
     ISecurityDescriptor = (SECURITY_DESCRIPTOR_RELATIVE *)SecurityDescriptor;
-
-    Status = RtlCreateSecurityDescriptorRelative(ISecurityDescriptor,
-                                                 SECURITY_DESCRIPTOR_REVISION);
-
+    Status = RtlCreateSecurityDescriptorRelative(ISecurityDescriptor, SECURITY_DESCRIPTOR_REVISION);
     if (!NT_SUCCESS(Status)) {
         return(Status);
     }
@@ -582,14 +457,12 @@ Return Value:
     Field = Base + sizeof(SECURITY_DESCRIPTOR_RELATIVE);
 
     if (*SecurityInformation & OWNER_SECURITY_INFORMATION) {
-
         RtlCopyMemory(Field, SeWorldSid, WorldSidLength);
         ISecurityDescriptor->Owner = RtlPointerToOffset(Base, Field);
         Field += WorldSidLength;
     }
 
     if (*SecurityInformation & GROUP_SECURITY_INFORMATION) {
-
         RtlCopyMemory(Field, SeWorldSid, WorldSidLength);
         ISecurityDescriptor->Group = RtlPointerToOffset(Base, Field);
     }
@@ -605,39 +478,20 @@ Return Value:
     RtlpSetControlBits(ISecurityDescriptor, SE_SELF_RELATIVE);
 
     return(STATUS_SUCCESS);
-
 }
-
 
 
 #if DBG
 
-VOID
-SepDumpSecurityDescriptor(
-    IN PSECURITY_DESCRIPTOR SecurityDescriptor,
-    IN PSZ TitleString
-)
-
+VOID SepDumpSecurityDescriptor(IN PSECURITY_DESCRIPTOR SecurityDescriptor, IN PSZ TitleString)
 /*
-
 Routine Description:
-
-    Private routine to dump a security descriptor to the debug
-    screen.
-
+    Private routine to dump a security descriptor to the debug screen.
 Arguments:
-
     SecurityDescriptor - Supplies the security descriptor to be dumped.
-
-    TitleString - A null terminated string to print before dumping
-        the security descriptor.
-
-
+    TitleString - A null terminated string to print before dumping the security descriptor.
 Return Value:
-
     None.
-
-
 */
 {
     PISECURITY_DESCRIPTOR ISecurityDescriptor;
@@ -649,7 +503,6 @@ Return Value:
     PACL Dacl;
 
     PAGED_CODE();
-
 
     if (!SepDumpSD) {
         return;
@@ -672,12 +525,9 @@ Return Value:
     Dacl = RtlpDaclAddrSecurityDescriptor(ISecurityDescriptor);
 
     DbgPrint("\nSECURITY DESCRIPTOR\n");
-
     DbgPrint("Revision = %d\n", Revision);
 
-
     // Print control info
-
 
     if (Control & SE_OWNER_DEFAULTED) {
         DbgPrint("Owner defaulted\n");
@@ -721,30 +571,15 @@ Return Value:
 }
 
 
-
-VOID
-SepPrintAcl(
-    IN PACL Acl
-)
-
+VOID SepPrintAcl(IN PACL Acl)
 /*
-
 Routine Description:
-
-    This routine dumps via (DbgPrint) an Acl for debug purposes.  It is
-    specialized to dump standard aces.
-
+    This routine dumps via (DbgPrint) an Acl for debug purposes.  It is specialized to dump standard aces.
 Arguments:
-
     Acl - Supplies the Acl to dump
-
 Return Value:
-
     None
-
 */
-
-
 {
     ULONG i;
     PKNOWN_ACE Ace;
@@ -754,53 +589,29 @@ Return Value:
 
     DbgPrint("@ %8lx\n", Acl);
 
-
     //  Check if the Acl is null
-
-
     if (Acl == NULL) {
-
         return;
-
     }
 
-
     //  Dump the Acl header
-
-
     DbgPrint(" Revision: %02x", Acl->AclRevision);
     DbgPrint(" Size: %04x", Acl->AclSize);
     DbgPrint(" AceCount: %04x\n", Acl->AceCount);
 
-
     //  Now for each Ace we want do dump it
-
-
-    for (i = 0, Ace = FirstAce(Acl);
-         i < Acl->AceCount;
-         i++, Ace = NextAce(Ace)) {
-
-
+    for (i = 0, Ace = FirstAce(Acl); i < Acl->AceCount; i++, Ace = NextAce(Ace)) {
         //  print out the ace header
-
-
         DbgPrint("\n AceHeader: %08lx ", *(PULONG)Ace);
 
-
         //  special case on the standard ace types
-
-
         if ((Ace->Header.AceType == ACCESS_ALLOWED_ACE_TYPE) ||
             (Ace->Header.AceType == ACCESS_DENIED_ACE_TYPE) ||
             (Ace->Header.AceType == SYSTEM_AUDIT_ACE_TYPE) ||
             (Ace->Header.AceType == SYSTEM_ALARM_ACE_TYPE) ||
             (Ace->Header.AceType == ACCESS_ALLOWED_COMPOUND_ACE_TYPE)) {
-
-
             //  The following array is indexed by ace types and must
             //  follow the allowed, denied, audit, alarm sequence
-
-
             PCHAR AceTypes[] = {"Access Allowed",
                                  "Access Denied ",
                                  "System Audit  ",
@@ -811,15 +622,12 @@ Return Value:
             DbgPrint(AceTypes[Ace->Header.AceType]);
             DbgPrint("\n Access Mask: %08lx ", Ace->Mask);
             KnownType = TRUE;
-
         } else {
-
             DbgPrint(" Unknown Ace Type\n");
             KnownType = FALSE;
         }
 
         DbgPrint("\n");
-
         DbgPrint(" AceSize = %d\n", Ace->Header.AceSize);
 
         DbgPrint(" Ace Flags = ");
@@ -842,7 +650,6 @@ Return Value:
             DbgPrint("INHERIT_ONLY_ACE\n");
             DbgPrint("                   ");
         }
-
 
         if (Ace->Header.AceFlags & SUCCESSFUL_ACCESS_ACE_FLAG) {
             DbgPrint("SUCCESSFUL_ACCESS_ACE_FLAG\n");
@@ -933,8 +740,6 @@ Return Value:
 }
 
 
-
-
 VOID SepDumpTokenInfo(IN PACCESS_TOKEN Token)
 /*
 Routine Description:
@@ -975,7 +780,6 @@ Arguments:
         }
     }
 }
-
 
 
 BOOLEAN SepSidTranslation(PSID Sid, PSTRING AccountName)

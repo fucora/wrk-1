@@ -19,16 +19,14 @@ Abstract:
 NTSTATUS SepCreateImpersonationTokenDacl(IN PTOKEN Token, IN PACCESS_TOKEN PrimaryToken, OUT PACL *Acl);
 
 #ifdef ALLOC_PRAGMA
-NTSTATUS
-SepOpenTokenOfThread(
+NTSTATUS SepOpenTokenOfThread(
     IN HANDLE ThreadHandle,
     IN BOOLEAN OpenAsSelf,
     OUT PACCESS_TOKEN *Token,
     OUT PETHREAD *Thread,
     OUT PBOOLEAN CopyOnOpen,
     OUT PBOOLEAN EffectiveOnly,
-    OUT PSECURITY_IMPERSONATION_LEVEL ImpersonationLevel
-);
+    OUT PSECURITY_IMPERSONATION_LEVEL ImpersonationLevel);
 #pragma alloc_text(PAGE,SepCreateImpersonationTokenDacl)
 #pragma alloc_text(PAGE,NtOpenProcessToken)
 #pragma alloc_text(PAGE,NtOpenProcessTokenEx)
@@ -127,7 +125,10 @@ Return Value:
 }
 
 
-NTSTATUS NtOpenProcessTokenEx(__in HANDLE ProcessHandle, __in ACCESS_MASK DesiredAccess, __in ULONG HandleAttributes, __out PHANDLE TokenHandle)
+NTSTATUS NtOpenProcessTokenEx(__in HANDLE ProcessHandle,
+                              __in ACCESS_MASK DesiredAccess,
+                              __in ULONG HandleAttributes,
+                              __out PHANDLE TokenHandle)
 /*
 Routine Description:
     Open a token object associated with a process and return a handle that may be used to access that token.
@@ -276,7 +277,10 @@ Return Value:
 }
 
 
-NTSTATUS NtOpenThreadToken(__in HANDLE ThreadHandle, __in ACCESS_MASK DesiredAccess, __in BOOLEAN OpenAsSelf, __out PHANDLE TokenHandle)
+NTSTATUS NtOpenThreadToken(__in HANDLE ThreadHandle,
+                           __in ACCESS_MASK DesiredAccess,
+                           __in BOOLEAN OpenAsSelf,
+                           __out PHANDLE TokenHandle)
 /*
 Routine Description:
 
@@ -314,7 +318,11 @@ Return Value:
 }
 
 
-NTSTATUS NtOpenThreadTokenEx(__in HANDLE ThreadHandle, __in ACCESS_MASK DesiredAccess, __in BOOLEAN OpenAsSelf, __in ULONG HandleAttributes, __out PHANDLE TokenHandle)
+NTSTATUS NtOpenThreadTokenEx(__in HANDLE ThreadHandle, 
+                             __in ACCESS_MASK DesiredAccess,
+                             __in BOOLEAN OpenAsSelf, 
+                             __in ULONG HandleAttributes, 
+                             __out PHANDLE TokenHandle)
 /*
 Routine Description:
 Open a token object associated with a thread and return a handle that may be used to access that token.
@@ -380,7 +388,13 @@ Return Value:
     // thread's token (if there is one).  If successful, this will cause the token's reference count to be incremented.
 
     // This routine disabled impersonation as necessary to properly honor the OpenAsSelf flag.
-    Status = SepOpenTokenOfThread(ThreadHandle, OpenAsSelf, ((PACCESS_TOKEN *)&Token), &OriginalThread, &CopyOnOpen, &EffectiveOnly, &ImpersonationLevel);
+    Status = SepOpenTokenOfThread(ThreadHandle,
+                                  OpenAsSelf,
+                                  ((PACCESS_TOKEN *)&Token),
+                                  &OriginalThread, 
+                                  &CopyOnOpen,
+                                  &EffectiveOnly,
+                                  &ImpersonationLevel);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -425,7 +439,11 @@ Return Value:
                     ASSERT(NT_SUCCESS(Status));
                 }
 
-                InitializeObjectAttributes(&ObjectAttributes, NULL, HandleAttributes, NULL, NewAcl == NULL ? NULL : &SecurityDescriptor);
+                InitializeObjectAttributes(&ObjectAttributes, 
+                                           NULL, 
+                                           HandleAttributes,
+                                           NULL, 
+                                           NewAcl == NULL ? NULL : &SecurityDescriptor);
 
                 // Open a copy of the token
                 Status = SepDuplicateToken(
@@ -485,8 +503,7 @@ Return Value:
                             NewToken,
                             FALSE,  // turn off CopyOnOpen flag
                             EffectiveOnly,
-                            ImpersonationLevel
-        );
+                            ImpersonationLevel);
     }
 
     // We've impersonated the token so let go of our reference

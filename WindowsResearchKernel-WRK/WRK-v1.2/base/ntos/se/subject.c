@@ -80,7 +80,10 @@ Arguments:
     if (Thread == NULL) {
         SubjectContext->ClientToken = NULL;
     } else {
-        SubjectContext->ClientToken = PsReferenceImpersonationToken(Thread, &IgnoreCopyOnOpen, &IgnoreEffectiveOnly, &(SubjectContext->ImpersonationLevel));
+        SubjectContext->ClientToken = PsReferenceImpersonationToken(Thread,
+                                                                    &IgnoreCopyOnOpen,
+                                                                    &IgnoreEffectiveOnly,
+                                                                    &(SubjectContext->ImpersonationLevel));
     }
 
     SubjectContext->PrimaryToken = PsReferencePrimaryToken(Process);

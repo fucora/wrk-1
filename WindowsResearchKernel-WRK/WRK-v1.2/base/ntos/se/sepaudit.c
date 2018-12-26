@@ -227,7 +227,10 @@ Cleanup:
 }
 
 
-BOOLEAN SepAdtAuditThisEventWithContext(IN POLICY_AUDIT_EVENT_TYPE Category, IN BOOLEAN AccessGranted, IN BOOLEAN AccessDenied, IN PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext OPTIONAL)
+BOOLEAN SepAdtAuditThisEventWithContext(IN POLICY_AUDIT_EVENT_TYPE Category,
+                                        IN BOOLEAN AccessGranted,
+                                        IN BOOLEAN AccessDenied, 
+                                        IN PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext OPTIONAL)
 /*
 Routine Description
     Determines if an audit should be generated based upon current policy settings and the per user audit policy set in the effective token of the context.
@@ -257,7 +260,8 @@ Arguments
         return AuditThisEvent;
     }
 
-    // We cannot decide quickly whether or not to audit (there exist tokens with per user policy settings), so continue with examining the token's policy.
+    // We cannot decide quickly whether or not to audit (there exist tokens with per user policy settings),
+    // so continue with examining the token's policy.
     if (!ARGUMENT_PRESENT(SubjectSecurityContext)) {
         pLocalSecurityContext = &LocalSecurityContext;
         SeCaptureSubjectContext(pLocalSecurityContext);
@@ -315,7 +319,8 @@ Arguments
         }
 
         // If granted and the token is marked for success_exclude OR if not granted and token is marked for failure_exclude then do not audit the event.
-        else if ((AccessGranted && (Mask & TOKEN_AUDIT_SUCCESS_EXCLUDE)) || (AccessDenied && (Mask & TOKEN_AUDIT_FAILURE_EXCLUDE))) {
+        else if ((AccessGranted && (Mask & TOKEN_AUDIT_SUCCESS_EXCLUDE)) || 
+            (AccessDenied && (Mask & TOKEN_AUDIT_FAILURE_EXCLUDE))) {
             AuditThisEvent = FALSE;
         }
     }
@@ -514,7 +519,8 @@ Arguments:
     PAGED_CODE();
 
     // Determine if we are auditing privileged services
-    if (!(SepAdtAuditThisEventWithContext(AuditCategoryPrivilegeUse, AccessGranted, !AccessGranted, SubjectSecurityContext) && SepFilterPrivilegeAudits(0, CapturedPrivileges))) {
+    if (!(SepAdtAuditThisEventWithContext(AuditCategoryPrivilegeUse, AccessGranted, !AccessGranted, SubjectSecurityContext) && 
+          SepFilterPrivilegeAudits(0, CapturedPrivileges))) {
         return;
     }
 
@@ -638,7 +644,8 @@ BOOLEAN SepAdtOpenObjectAuditAlarm(
     Parameter[13] - Number of restricted SIDs in the token
 Arguments:
     CapturedSubsystemName - Supplies a name string identifying the subsystem calling the routine.
-    HandleId - A unique value representing the client's handle to the object.  If the access attempt was not successful (AccessGranted is FALSE), then this parameter is ignored.
+    HandleId - A unique value representing the client's handle to the object.  
+               If the access attempt was not successful (AccessGranted is FALSE), then this parameter is ignored.
     CapturedObjectTypeName - Supplies the name of the type of object being accessed.
     CapturedObjectName - Supplies the name of the object the client accessed or attempted to access.
     CapturedSecurityDescriptor - A pointer to the security descriptor of the object being accessed.
@@ -928,7 +935,8 @@ BOOLEAN SepAdtOpenObjectForDeleteAuditAlarm(
     Parameter[10] - Privileges used for open
 Arguments:
     CapturedSubsystemName - Supplies a name string identifying the subsystem calling the routine.
-    HandleId - A unique value representing the client's handle to the object.  If the access attempt was not successful (AccessGranted is FALSE), then this parameter is ignored.
+    HandleId - A unique value representing the client's handle to the object. 
+               If the access attempt was not successful (AccessGranted is FALSE), then this parameter is ignored.
     CapturedObjectTypeName - Supplies the name of the type of object being accessed.
     CapturedObjectName - Supplies the name of the object the client accessed or attempted to access.
     CapturedSecurityDescriptor - A pointer to the security descriptor of the object being accessed.
@@ -1094,7 +1102,8 @@ Routine Description:
     This may have an impact on the approach taken for data structure mutex locking, for example.
 
     This API requires the caller have SeTcbPrivilege privilege.
-    The test for this privilege is always against the primary token of the calling process, allowing the caller to be impersonating a client during the call with no ill effects.
+    The test for this privilege is always against the primary token of the calling process,
+    allowing the caller to be impersonating a client during the call with no ill effects.
     It is assumed that this privilege has been tested at a higher level.
 
     This routine will create an SE_ADT_PARAMETERS array organized as follows:
@@ -1277,7 +1286,11 @@ Arguments:
 }
 
 
-VOID SeOperationAuditAlarm(__in_opt PUNICODE_STRING CapturedSubsystemName, __in PVOID HandleId, __in PUNICODE_STRING ObjectTypeName, __in ACCESS_MASK AuditMask, __in_opt PSID UserSid)
+VOID SeOperationAuditAlarm(__in_opt PUNICODE_STRING CapturedSubsystemName, 
+                           __in PVOID HandleId,
+                           __in PUNICODE_STRING ObjectTypeName,
+                           __in ACCESS_MASK AuditMask, 
+                           __in_opt PSID UserSid)
 /*
 Routine Description:
     This routine generates an "operation-based" audit.
@@ -1395,7 +1408,10 @@ Arguments:
 }
 
 
-VOID SepAdtObjectReferenceAuditAlarm(IN PVOID Object, IN PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext, IN ACCESS_MASK DesiredAccess, IN BOOLEAN AccessGranted)
+VOID SepAdtObjectReferenceAuditAlarm(IN PVOID Object,
+                                     IN PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext,
+                                     IN ACCESS_MASK DesiredAccess,
+                                     IN BOOLEAN AccessGranted)
 /*
 Routine Description:
     Note: the caller (SeObjectReferenceAuditAlarm) checks audit policy.
@@ -1610,7 +1626,8 @@ Arguments:
         ImageFileName = &NullString;
     }
 
-    // NtCreateProcess with no section will cause this to be NULL fork() for posix will do this, or someone calling NtCreateProcess directly.
+    // NtCreateProcess with no section will cause this to be NULL fork() for posix will do this,
+    // or someone calling NtCreateProcess directly.
     SeCaptureSubjectContext(&SubjectSecurityContext);
     RtlZeroMemory((PVOID)&AuditParameters, sizeof(AuditParameters));
 
@@ -1652,7 +1669,10 @@ Arguments:
 }
 
 
-VOID SeAuditHandleDuplication(__in PVOID SourceHandle, __in PVOID NewHandle, __in PEPROCESS SourceProcess, __in PEPROCESS TargetProcess)
+VOID SeAuditHandleDuplication(__in PVOID SourceHandle,
+                              __in PVOID NewHandle,
+                              __in PEPROCESS SourceProcess,
+                              __in PEPROCESS TargetProcess)
 /*
 Routine Description:
     This routine generates a handle duplication audit.
@@ -1806,7 +1826,9 @@ Routine Description:
 }
 
 
-NTSTATUS SeInitializeProcessAuditName(__in __typefix(PFILE_OBJECT) PVOID FileObject, __in BOOLEAN bIgnoreAuditPolicy, __deref_out POBJECT_NAME_INFORMATION *pAuditName)
+NTSTATUS SeInitializeProcessAuditName(__in __typefix(PFILE_OBJECT) PVOID FileObject,
+                                      __in BOOLEAN bIgnoreAuditPolicy, 
+                                      __deref_out POBJECT_NAME_INFORMATION *pAuditName)
 /*
 Routine Description:
     This routine initializes the executable name for auditing purposes.
@@ -1959,7 +1981,8 @@ Arguments
             );
             if (NT_SUCCESS(Status)) {
                 // Only use the pProcessImageName if the field in the process is currently NULL.
-                PreviousValue = InterlockedCompareExchangePointer((PVOID *)&Process->SeAuditProcessCreationInfo.ImageFileName, (PVOID)pProcessImageName, (PVOID)NULL);
+                PreviousValue = InterlockedCompareExchangePointer((PVOID *)&Process->SeAuditProcessCreationInfo.ImageFileName, 
+                    (PVOID)pProcessImageName, (PVOID)NULL);
                 if (NULL != PreviousValue) {
                     ExFreePool(pProcessImageName); // free what we caused to be allocated.
                 }
@@ -2151,7 +2174,9 @@ Arguments:
         AuditParameters.ParameterCount++;
 
         if (SubjectSecurityContext.ClientToken) {
-            SepSetParmTypeLogonId(AuditParameters, AuditParameters.ParameterCount, SepTokenAuthenticationId(SubjectSecurityContext.ClientToken));
+            SepSetParmTypeLogonId(AuditParameters, 
+                                  AuditParameters.ParameterCount, 
+                                  SepTokenAuthenticationId(SubjectSecurityContext.ClientToken));
         } else {
             SepSetParmTypeNoLogon(AuditParameters, AuditParameters.ParameterCount);
         }
@@ -2231,7 +2256,9 @@ Arguments:
         AuditParameters.ParameterCount++;
 
         if (SubjectSecurityContext.ClientToken) {
-            SepSetParmTypeLogonId(AuditParameters, AuditParameters.ParameterCount, SepTokenAuthenticationId(SubjectSecurityContext.ClientToken));
+            SepSetParmTypeLogonId(AuditParameters, 
+                                  AuditParameters.ParameterCount, 
+                                  SepTokenAuthenticationId(SubjectSecurityContext.ClientToken));
         } else {
             SepSetParmTypeNoLogon(AuditParameters, AuditParameters.ParameterCount);
         }
@@ -2304,7 +2331,10 @@ Arguments:
 }
 
 
-NTSTATUS SeSetAuditParameter(__inout PSE_ADT_PARAMETER_ARRAY AuditParameters, __in SE_ADT_PARAMETER_TYPE Type, __in ULONG Index, __in PVOID Data)
+NTSTATUS SeSetAuditParameter(__inout PSE_ADT_PARAMETER_ARRAY AuditParameters,
+                             __in SE_ADT_PARAMETER_TYPE Type,
+                             __in ULONG Index, 
+                             __in PVOID Data)
 /*
 Routine Description:
     This sets a parameter in the passed AuditParameters.
@@ -2395,14 +2425,18 @@ Arguments:
 }
 
 
-NTSTATUS SeReportSecurityEvent(__in ULONG Flags, __in PUNICODE_STRING SourceName, __in_opt PSID UserSid, __in PSE_ADT_PARAMETER_ARRAY AuditParameters)
+NTSTATUS SeReportSecurityEvent(__in ULONG Flags,
+                               __in PUNICODE_STRING SourceName,
+                               __in_opt PSID UserSid,
+                               __in PSE_ADT_PARAMETER_ARRAY AuditParameters)
 /*
 Routine Description
     This routine generates an audit which will be logged in the security event log.
     The event will only be generated if allowed by audit policy.
 Arguments
     Flags - None defined.
-    SourceName - The source that is generating the audit.  The source must be registered with the event log service via AuthzInstallSecurityEventSource.
+    SourceName - The source that is generating the audit.  
+                 The source must be registered with the event log service via AuthzInstallSecurityEventSource.
     UserSid - optional Sid that will be specified as the user generating the audit in the event log headers.
         If left NULL then the effective token is queried for the user Sid.
     AuditParameters - pointer to an SE_ADT_PARAMETER_ARRAY.  The following fields of the structure should be specified by the caller:
@@ -2489,7 +2523,9 @@ Return Value
     CompleteParameters.ParameterCount++;
 
     // Now copy over the remainder of the caller provided data.
-    RtlCopyMemory(&CompleteParameters.Parameters[CompleteParameters.ParameterCount], &AuditParameters->Parameters[0], sizeof(SE_ADT_PARAMETER_ARRAY_ENTRY) * AuditParameters->ParameterCount);
+    RtlCopyMemory(&CompleteParameters.Parameters[CompleteParameters.ParameterCount],
+                  &AuditParameters->Parameters[0],
+                  sizeof(SE_ADT_PARAMETER_ARRAY_ENTRY) * AuditParameters->ParameterCount);
 
     CompleteParameters.ParameterCount += AuditParameters->ParameterCount;
     ASSERT(CompleteParameters.ParameterCount <= SE_MAX_AUDIT_PARAMETERS);
@@ -2499,6 +2535,5 @@ Cleanup:
     if (AuditSid != UserSid) {
         SeReleaseSubjectContext(&Context);
     }
-
     return STATUS_SUCCESS;
 }

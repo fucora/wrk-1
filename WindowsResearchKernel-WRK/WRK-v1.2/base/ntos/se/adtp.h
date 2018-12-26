@@ -128,12 +128,7 @@ SepAdtPrivilegedServiceAuditAlarm (
     );
 
 
-VOID
-SepAdtCloseObjectAuditAlarm(
-    IN PUNICODE_STRING CapturedSubsystemName,
-    IN PVOID HandleId,
-    IN PSID UserSid
-    );
+VOID SepAdtCloseObjectAuditAlarm(IN PUNICODE_STRING CapturedSubsystemName, IN PVOID HandleId, IN PSID UserSid);
 
 VOID
 SepAdtDeleteObjectAuditAlarm(

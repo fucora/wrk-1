@@ -30,8 +30,7 @@ BOOLEAN SepShowAccessFail;
 
 VOID SepUpdateParentTypeList(IN PIOBJECT_TYPE_LIST ObjectTypeList, IN ULONG ObjectTypeListLength, IN ULONG StartIndex);
 
-typedef enum
-{
+typedef enum{
     UpdateRemaining,
     UpdateCurrentGranted,
     UpdateCurrentDenied
@@ -163,10 +162,8 @@ Return Value:
             // Allocate a buffer to copy into.
             LocalTypeList = ExAllocatePoolWithTag(PagedPool, sizeof(IOBJECT_TYPE_LIST) * ObjectTypeListLength, 'tOeS');
             if (LocalTypeList == NULL) {
-                Status = STATUS_INSUFFICIENT_RESOURCES;
-
-                // Copy the callers structure to the local structure.
-            } else {
+                Status = STATUS_INSUFFICIENT_RESOURCES;                
+            } else {// Copy the callers structure to the local structure.
                 GUID * CapturedObjectType;
                 for (i = 0; i < ObjectTypeListLength; i++) {
                     USHORT CurrentLevel;

@@ -104,41 +104,15 @@ typedef enum _MODE {
 
 struct _KAPC;
 
-typedef
-VOID
-(*PKNORMAL_ROUTINE) (
-    IN PVOID NormalContext,
-    IN PVOID SystemArgument1,
-    IN PVOID SystemArgument2
-    );
-
-typedef
-VOID
-(*PKKERNEL_ROUTINE) (
-    IN struct _KAPC *Apc,
-    IN OUT PKNORMAL_ROUTINE *NormalRoutine,
-    IN OUT PVOID *NormalContext,
-    IN OUT PVOID *SystemArgument1,
-    IN OUT PVOID *SystemArgument2
-    );
-
-typedef
-VOID
-(*PKRUNDOWN_ROUTINE) (
-    IN struct _KAPC *Apc
-    );
-
-typedef
-BOOLEAN
-(*PKSYNCHRONIZE_ROUTINE) (
-    IN PVOID SynchronizeContext
-    );
-
-typedef
-BOOLEAN
-(*PKTRANSFER_ROUTINE) (
-    VOID
-    );
+typedef VOID (*PKNORMAL_ROUTINE) (IN PVOID NormalContext, IN PVOID SystemArgument1, IN PVOID SystemArgument2);
+typedef VOID (*PKKERNEL_ROUTINE) (IN struct _KAPC *Apc,
+                                  IN OUT PKNORMAL_ROUTINE *NormalRoutine,
+                                  IN OUT PVOID *NormalContext,
+                                  IN OUT PVOID *SystemArgument1,
+                                  IN OUT PVOID *SystemArgument2);
+typedef VOID (*PKRUNDOWN_ROUTINE) (IN struct _KAPC *Apc);
+typedef BOOLEAN (*PKSYNCHRONIZE_ROUTINE) (IN PVOID SynchronizeContext);
+typedef BOOLEAN (*PKTRANSFER_ROUTINE) (VOID);
 
 // Asynchronous Procedure Call (APC) object
 
@@ -178,14 +152,10 @@ typedef struct _KAPC {
 
 struct _KDPC;
 
-typedef
-VOID
-(*PKDEFERRED_ROUTINE) (
-    IN struct _KDPC *Dpc,
-    IN PVOID DeferredContext,
-    IN PVOID SystemArgument1,
-    IN PVOID SystemArgument2
-    );
+typedef VOID (*PKDEFERRED_ROUTINE) (IN struct _KDPC *Dpc, 
+                                    IN PVOID DeferredContext,
+                                    IN PVOID SystemArgument1,
+                                    IN PVOID SystemArgument2);
 
 // Define DPC importance.
 
@@ -232,8 +202,7 @@ typedef enum _KDPC_IMPORTANCE {
 
 // Deferred Procedure Call (DPC) object
 #define ASSERT_DPC(Object)                                                   \
-    ASSERT(((Object)->Type == DpcObject) ||                                  \
-           ((Object)->Type == ThreadedDpcObject))
+    ASSERT(((Object)->Type == DpcObject) || ((Object)->Type == ThreadedDpcObject))
 
 typedef struct _KDPC {
     UCHAR Type;
@@ -407,9 +376,8 @@ typedef struct _SECURITY_CLIENT_CONTEXT {
 //        whether the information at the remote server needs to be updated to match the current state of the client's security context.
 
 
-//    NOTE: At some point, we may find it worthwhile to keep an array of
-//          elements in this data structure, where each element of the
-//          array contains {ClientToken, ClientTokenControl} fields.
+//    NOTE: At some point, we may find it worthwhile to keep an array of elements in this data structure,
+//          where each element of the array contains {ClientToken, ClientTokenControl} fields.
 //          This would allow efficient handling of the case where a client
 //          thread was constantly switching between a couple different
 //          contexts - presumably impersonating client's of its own.

@@ -15,8 +15,14 @@ Abstract:
 
 #pragma hdrstop
 
-BOOLEAN SepComparePrivilegeAndAttributeArrays(IN PLUID_AND_ATTRIBUTES PrivilegeArray1, IN ULONG Count1, IN PLUID_AND_ATTRIBUTES PrivilegeArray2, IN ULONG Count2);
-BOOLEAN SepCompareSidAndAttributeArrays(IN PSID_AND_ATTRIBUTES SidArray1, IN ULONG Count1, IN PSID_AND_ATTRIBUTES SidArray2, IN ULONG Count2);
+BOOLEAN SepComparePrivilegeAndAttributeArrays(IN PLUID_AND_ATTRIBUTES PrivilegeArray1,
+                                              IN ULONG Count1,
+                                              IN PLUID_AND_ATTRIBUTES PrivilegeArray2,
+                                              IN ULONG Count2);
+BOOLEAN SepCompareSidAndAttributeArrays(IN PSID_AND_ATTRIBUTES SidArray1,
+                                        IN ULONG Count1, 
+                                        IN PSID_AND_ATTRIBUTES SidArray2,
+                                        IN ULONG Count2);
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE,SeTokenType)
@@ -113,7 +119,9 @@ Return Value:
 }
 
 
-NTKERNELAPI NTSTATUS SeTokenCanImpersonate(__in PACCESS_TOKEN ProcessToken, __in PACCESS_TOKEN Token, __in SECURITY_IMPERSONATION_LEVEL ImpersonationLevel)
+NTKERNELAPI NTSTATUS SeTokenCanImpersonate(__in PACCESS_TOKEN ProcessToken,
+                                           __in PACCESS_TOKEN Token,
+                                           __in SECURITY_IMPERSONATION_LEVEL ImpersonationLevel)
 /*
 Routine Description:
     Determines if the process token is allowed to impersonate the second token, assuming that the access rights check has already passed.
@@ -160,7 +168,8 @@ Return Value:
 
         if (RtlEqualSid(PrimaryUserSid, ImpUserSid)) {
             // The tokens are representing the same user.
-            // If the primary token is restricted and the impersonation token is not, then the process is attempting to elevate to the nonrestricted version of itself.
+            // If the primary token is restricted and the impersonation token is not, 
+            // then the process is attempting to elevate to the nonrestricted version of itself.
             // Do not allow this.
             if (SeTokenIsRestricted(PrimaryToken) && !SeTokenIsRestricted(ImpToken)) {
                 Status = STATUS_PRIVILEGE_NOT_HELD;
@@ -175,7 +184,10 @@ Return Value:
 
 #if DBG
     if (!NT_SUCCESS(Status)) {
-        DbgPrint("Process %x.%x not allowed to impersonate!  Returning %x\n", PsGetCurrentThread()->Cid.UniqueProcess, PsGetCurrentThread()->Cid.UniqueThread, Status);
+        DbgPrint("Process %x.%x not allowed to impersonate!  Returning %x\n", 
+                 PsGetCurrentThread()->Cid.UniqueProcess,
+                 PsGetCurrentThread()->Cid.UniqueThread, 
+                 Status);
     }
 #endif
 
@@ -248,8 +260,7 @@ Return Value:
         &AccessStatus,
         0,
         NULL,
-        NULL
-    );
+        NULL);
 
     return AccessStatus == STATUS_SUCCESS;
 }
@@ -258,7 +269,8 @@ Return Value:
 VOID SeAddSaclToProcess(__in PEPROCESS Process, __in PACCESS_TOKEN Token, __in PVOID Reserved)
 /*
 Routine Description:
-    If 'Token' has at least one of the sids present in the ACEs of SepImportantProcessSd, add a SACL to the security descriptor of 'Process' as defined by SepProcessAuditSd.
+    If 'Token' has at least one of the sids present in the ACEs of SepImportantProcessSd,
+    add a SACL to the security descriptor of 'Process' as defined by SepProcessAuditSd.
 Arguments:
     Process - process to add SACL to
     Token - token to examine
@@ -370,7 +382,9 @@ Arguments:
 }
 
 
-NTSTATUS SeExchangePrimaryToken(__in PEPROCESS Process, __in PACCESS_TOKEN NewAccessToken, __deref_out PACCESS_TOKEN *OldAccessToken)
+NTSTATUS SeExchangePrimaryToken(__in PEPROCESS Process, 
+                                __in PACCESS_TOKEN NewAccessToken,
+                                __deref_out PACCESS_TOKEN *OldAccessToken)
 /*
 Routine Description:
     This function is used to perform the portions of changing a primary token that reference the internals of token structures.
@@ -425,7 +439,8 @@ Return Value:
         SepAuditAssignPrimaryToken(Process, NewToken);
     }
 
-    // If the token being assigned to this process has any one of the following SIDs, then the process is considered to be a system process:
+    // If the token being assigned to this process has any one of the following SIDs, 
+    // then the process is considered to be a system process:
     // -- SeLocalSystemSid
     // -- SeLocalServiceSid
     // -- SeNetworkServiceSid
@@ -460,7 +475,8 @@ Return Value:
 VOID SeGetTokenControlInformation(__in PACCESS_TOKEN Token, __out PTOKEN_CONTROL TokenControl)
 /*
 Routine Description:
-    This routine is provided for communication session layers, or any other executive component that needs to keep track of whether a caller's security context has changed between calls.
+    This routine is provided for communication session layers, 
+    or any other executive component that needs to keep track of whether a caller's security context has changed between calls.
     Communication session layers will need to check this, for some security quality of service modes,
     to determine whether or not a server's security context needs to be updated to reflect changes in the client's security context.
 
@@ -491,7 +507,8 @@ Parameters:
 PACCESS_TOKEN SeMakeSystemToken()
 /*
 Routine Description:
-    This routine is provided for use by executive components DURING SYSTEM INITIALIZATION ONLY.  It creates a token for use by system components.
+    This routine is provided for use by executive components DURING SYSTEM INITIALIZATION ONLY.
+    It creates a token for use by system components.
 
     A system token has the following characteristics:
 
@@ -589,7 +606,10 @@ Return Value:
     (GroupIds + 1)->Attributes = NormalGroupAttributes;
     (GroupIds + 2)->Attributes = NormalGroupAttributes;
 
-    GroupIdsLength = (ULONG)LongAlignSize(SeLengthSid(GroupIds->Sid)) + (ULONG)LongAlignSize(SeLengthSid((GroupIds + 1)->Sid)) + (ULONG)LongAlignSize(SeLengthSid((GroupIds + 2)->Sid)) + sizeof(SID_AND_ATTRIBUTES);
+    GroupIdsLength = (ULONG)LongAlignSize(SeLengthSid(GroupIds->Sid)) + 
+        (ULONG)LongAlignSize(SeLengthSid((GroupIds + 1)->Sid)) + 
+        (ULONG)LongAlignSize(SeLengthSid((GroupIds + 2)->Sid)) + 
+        sizeof(SID_AND_ATTRIBUTES);
     ASSERT(GroupIdsLength <= 128 * sizeof(ULONG));
 
     // Privileges
@@ -790,8 +810,7 @@ Return Value:
         (PTOKEN_SOURCE)&SeSystemTokenSource,
         TRUE,                        // System token
         NULL,
-        NULL
-    );
+        NULL);
     ASSERT(NT_SUCCESS(Status));
 
     // We can free the old one now.
@@ -804,7 +823,8 @@ Return Value:
 PACCESS_TOKEN SeMakeAnonymousLogonTokenNoEveryone(VOID)
 /*
 Routine Description:
-    This routine is provided for use by executive components DURING SYSTEM INITIALIZATION ONLY.  It creates a token for use by system components.
+    This routine is provided for use by executive components DURING SYSTEM INITIALIZATION ONLY. 
+    It creates a token for use by system components.
 
     A system token has the following characteristics:
          - It has ANONYMOUS_LOGON as its user ID
@@ -851,7 +871,11 @@ Return Value:
     // Set up an ACL to protect token as well ...
     // Let everyone read/write.  However, the token is dup'ed before we given
     // anyone a handle to it.
-    Length = (ULONG)sizeof(ACL) + (ULONG)sizeof(ACCESS_ALLOWED_ACE) + SeLengthSid(SeWorldSid) + (ULONG)sizeof(ACCESS_ALLOWED_ACE) + SeLengthSid(SeAnonymousLogonSid);
+    Length = (ULONG)sizeof(ACL) +
+        (ULONG)sizeof(ACCESS_ALLOWED_ACE) +
+        SeLengthSid(SeWorldSid) +
+        (ULONG)sizeof(ACCESS_ALLOWED_ACE) +
+        SeLengthSid(SeAnonymousLogonSid);
     ASSERT(Length < 200);
 
     TokenAcl = (PACL)ExAllocatePoolWithTag(PagedPool, 200, 'cAeS');
@@ -917,8 +941,7 @@ Return Value:
         (PTOKEN_SOURCE)&SeSystemTokenSource,
         TRUE,                        // System token
         NULL,
-        NULL
-    );
+        NULL);
     ASSERT(NT_SUCCESS(Status));
 
     // We can free the old one now.
@@ -931,7 +954,8 @@ Return Value:
 PACCESS_TOKEN SeMakeAnonymousLogonToken(VOID)
 /*
 Routine Description:
-    This routine is provided for use by executive components DURING SYSTEM INITIALIZATION ONLY.  It creates a token for use by system components.
+    This routine is provided for use by executive components DURING SYSTEM INITIALIZATION ONLY.
+    It creates a token for use by system components.
 
     A system token has the following characteristics:
 
@@ -1006,7 +1030,11 @@ Return Value:
     // Set up an ACL to protect token as well ...
     // give system full reign of terror.  This includes user-mode components running as part of the system.
     // Let everyone read/write.  However, the token is dup'ed before we given anyone a handle to it.
-    Length = (ULONG)sizeof(ACL) + (ULONG)sizeof(ACCESS_ALLOWED_ACE) + SeLengthSid(SeWorldSid) + (ULONG)sizeof(ACCESS_ALLOWED_ACE) + SeLengthSid(SeAnonymousLogonSid);
+    Length = (ULONG)sizeof(ACL) +
+        (ULONG)sizeof(ACCESS_ALLOWED_ACE) +
+        SeLengthSid(SeWorldSid) + 
+        (ULONG)sizeof(ACCESS_ALLOWED_ACE) + 
+        SeLengthSid(SeAnonymousLogonSid);
     ASSERT(Length < 200);
 
     TokenAcl = (PACL)ExAllocatePoolWithTag(PagedPool, 200, 'cAeS');
@@ -1072,8 +1100,7 @@ Return Value:
         (PTOKEN_SOURCE)&SeSystemTokenSource,
         TRUE,                        // System token
         NULL,
-        NULL
-    );
+        NULL);
     ASSERT(NT_SUCCESS(Status));
 
     // We can free the old one now.
@@ -1083,7 +1110,10 @@ Return Value:
 }
 
 
-NTSTATUS SeSubProcessToken(__in PACCESS_TOKEN ParentToken, __deref_out PACCESS_TOKEN *ChildToken, __in BOOLEAN MarkAsActive, __in ULONG SessionId)
+NTSTATUS SeSubProcessToken(__in PACCESS_TOKEN ParentToken, 
+                           __deref_out PACCESS_TOKEN *ChildToken, 
+                           __in BOOLEAN MarkAsActive,
+                           __in ULONG SessionId)
 /*
 Routine Description:
     This routine makes a token for a sub-process that is a duplicate of the parent process's token.
@@ -1324,19 +1354,43 @@ Return Value:
 
         //  Capture User
         if (NT_SUCCESS(Status)) {
-            Status = SeCaptureSidAndAttributesArray(&(User->User), 1, PreviousMode, NULL, 0, PagedPool, TRUE, &CapturedUser, &CapturedUserLength);
+            Status = SeCaptureSidAndAttributesArray(&(User->User),
+                                                    1, 
+                                                    PreviousMode,
+                                                    NULL,
+                                                    0, 
+                                                    PagedPool,
+                                                    TRUE,
+                                                    &CapturedUser,
+                                                    &CapturedUserLength);
         }
 
         //  Capture Groups
         if (NT_SUCCESS(Status)) {
             CapturedGroupCount = Groups->GroupCount;
-            Status = SeCaptureSidAndAttributesArray((Groups->Groups), CapturedGroupCount, PreviousMode, NULL, 0, PagedPool, TRUE, &CapturedGroups, &CapturedGroupsLength);
+            Status = SeCaptureSidAndAttributesArray((Groups->Groups),
+                                                    CapturedGroupCount, 
+                                                    PreviousMode,
+                                                    NULL,
+                                                    0, 
+                                                    PagedPool,
+                                                    TRUE, 
+                                                    &CapturedGroups,
+                                                    &CapturedGroupsLength);
         }
 
         //  Capture Privileges
         if (NT_SUCCESS(Status)) {
             CapturedPrivilegeCount = Privileges->PrivilegeCount;
-            Status = SeCaptureLuidAndAttributesArray((Privileges->Privileges), CapturedPrivilegeCount, PreviousMode, NULL, 0, PagedPool, TRUE, &CapturedPrivileges, &CapturedPrivilegesLength);
+            Status = SeCaptureLuidAndAttributesArray((Privileges->Privileges),
+                                                     CapturedPrivilegeCount,
+                                                     PreviousMode, 
+                                                     NULL,
+                                                     0, 
+                                                     PagedPool,
+                                                     TRUE,
+                                                     &CapturedPrivileges,
+                                                     &CapturedPrivilegesLength);
         }
 
         //  Capture Owner
@@ -1417,8 +1471,7 @@ Return Value:
             &CapturedTokenSource,
             FALSE,                       // Not a system token
             SecurityQosPresent ? CapturedSecurityQos.ProxyData : NULL,
-            SecurityQosPresent ? CapturedSecurityQos.AuditData : NULL
-        );
+            SecurityQosPresent ? CapturedSecurityQos.AuditData : NULL);
     }
 
     //  Clean up the temporary capture buffers
@@ -1542,7 +1595,8 @@ Routine Description:
 
     All parameters except DesiredAccess and ObjectAttributes are assumed to have been probed and captured.
 
-    The output parameter (TokenHandle) is expected to be returned to a safe address, rather than to a user mode address that may cause an exception.
+    The output parameter (TokenHandle) is expected to be returned to a safe address,
+    rather than to a user mode address that may cause an exception.
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     NOTE: This routine is also used to create the initial system token.
@@ -1552,7 +1606,9 @@ Routine Description:
 
 Arguments:
 
-    TokenHandle - Receives the handle of the newly created token.  If the SystemToken parameter is specified is true, then this parameter receives a pointer to the token instead of a handle to the token.
+    TokenHandle - Receives the handle of the newly created token. 
+                  If the SystemToken parameter is specified is true,
+                  then this parameter receives a pointer to the token instead of a handle to the token.
 
     RequestorMode - The mode of the caller on whose behalf the token is being created.
 
@@ -1565,9 +1621,11 @@ Arguments:
 
     ImpersonationLevel - If the token type is TokenImpersonation, then this parameter is used to specify the impersonation level of the token.
 
-    AuthenticationId - Points to a LUID (or LUID) providing a unique identifier associated with the authentication.  This is used within security only, for audit purposes.
+    AuthenticationId - Points to a LUID (or LUID) providing a unique identifier associated with the authentication.
+                       This is used within security only, for audit purposes.
 
-    ExpirationTime - Time at which the token becomes invalid.  If this value is specified as zero, then the token has no expiration time.
+    ExpirationTime - Time at which the token becomes invalid. 
+                     If this value is specified as zero, then the token has no expiration time.
 
     User - Is the user SID to place in the token.
 
@@ -1578,13 +1636,15 @@ Arguments:
 
     GroupsLength - Indicates the length, in bytes, of the array of groups to place in the token.
 
-    PrivilegeCount - Indicates the number of privileges in the 'Privileges' parameter.  This value may be zero, in which case the 'Privileges' parameter is ignored.
+    PrivilegeCount - Indicates the number of privileges in the 'Privileges' parameter. 
+                     This value may be zero, in which case the 'Privileges' parameter is ignored.
 
     Privileges - Are the privilege LUIDs, and their corresponding attributes, to place in the token.
 
     PrivilegesLength - Indicates the length, in bytes, of the array of privileges to place in the token.
 
-    Owner - (Optionally) identifies an identifier that is to be used as the default owner for the token.  If not provided, the user ID is made the default owner.
+    Owner - (Optionally) identifies an identifier that is to be used as the default owner for the token.  
+            If not provided, the user ID is made the default owner.
 
     PrimaryGroup - Identifies which of the group IDs is to be the primary group of the token.
 
@@ -1654,10 +1714,12 @@ Return Value:
     // SeChangeNotifyPrivilege.  If so, set a flag in the TokenFlags field
     // so we can find this out quickly.
     for (PrivilegeIndex = 0; PrivilegeIndex < PrivilegeCount; PrivilegeIndex++) {
-        if (((RtlEqualLuid(&Privileges[PrivilegeIndex].Luid, &SeChangeNotifyPrivilege)) && (Privileges[PrivilegeIndex].Attributes & SE_PRIVILEGE_ENABLED))) {
+        if (((RtlEqualLuid(&Privileges[PrivilegeIndex].Luid, &SeChangeNotifyPrivilege)) && 
+            (Privileges[PrivilegeIndex].Attributes & SE_PRIVILEGE_ENABLED))) {
             TokenFlags |= TOKEN_HAS_TRAVERSE_PRIVILEGE;
         }
-        if (((RtlEqualLuid(&Privileges[PrivilegeIndex].Luid, &SeImpersonatePrivilege)) && (Privileges[PrivilegeIndex].Attributes & SE_PRIVILEGE_ENABLED))) {
+        if (((RtlEqualLuid(&Privileges[PrivilegeIndex].Luid, &SeImpersonatePrivilege)) && 
+            (Privileges[PrivilegeIndex].Attributes & SE_PRIVILEGE_ENABLED))) {
             TokenFlags |= TOKEN_HAS_IMPERSONATE_PRIVILEGE;
         }
     }
@@ -1791,7 +1853,9 @@ Return Value:
     Token->Count = 0;
     Token->CaptureCount = 0;
 
-    RtlCopyMemory(Token->ImageFileName, PsGetCurrentProcess()->ImageFileName, min(sizeof(Token->ImageFileName), sizeof(PsGetCurrentProcess()->ImageFileName)));
+    RtlCopyMemory(Token->ImageFileName, 
+                  PsGetCurrentProcess()->ImageFileName, 
+                  min(sizeof(Token->ImageFileName), sizeof(PsGetCurrentProcess()->ImageFileName)));
     Frames = RtlWalkFrameChain((PVOID)Token->CreateTrace, TRACE_SIZE, 0);
     if (KeGetCurrentIrql() < DISPATCH_LEVEL) {
         RtlWalkFrameChain((PVOID)&Token->CreateTrace[Frames], TRACE_SIZE - Frames, 1);
@@ -1845,10 +1909,22 @@ Return Value:
     Token->UserAndGroupCount = GroupCount + 1;
     ASSERT(VariableLength >= ((GroupCount + 1) * (ULONG)sizeof(SID_AND_ATTRIBUTES)));
     VariableLength -= ((GroupCount + 1) * (ULONG)sizeof(SID_AND_ATTRIBUTES));
-    Status = RtlCopySidAndAttributesArray(1, User, VariableLength, (PSID_AND_ATTRIBUTES)Where, NextSidFree, &NextSidFree, &VariableLength);
+    Status = RtlCopySidAndAttributesArray(1,
+                                          User, 
+                                          VariableLength,
+                                          (PSID_AND_ATTRIBUTES)Where,
+                                          NextSidFree, 
+                                          &NextSidFree,
+                                          &VariableLength);
     Where += sizeof(SID_AND_ATTRIBUTES);
     ASSERT((((ULONG_PTR)Where) & (sizeof(PVOID) - 1)) == 0);
-    Status = RtlCopySidAndAttributesArray(GroupCount, Groups, VariableLength, (PSID_AND_ATTRIBUTES)Where, NextSidFree, &NextSidFree, &VariableLength);
+    Status = RtlCopySidAndAttributesArray(GroupCount,
+                                          Groups,
+                                          VariableLength,
+                                          (PSID_AND_ATTRIBUTES)Where,
+                                          NextSidFree,
+                                          &NextSidFree, 
+                                          &VariableLength);
     ASSERT(NT_SUCCESS(Status));
     Token->RestrictedSids = NULL;
     Token->RestrictedSidCount = 0;
@@ -1910,7 +1986,9 @@ Return Value:
     }
 
 #if DBG || TOKEN_LEAK_MONITOR
-    if (SepTokenLeakTracking && SepTokenLeakMethodWatch == 0xC && PsGetCurrentProcess()->UniqueProcessId == SepTokenLeakProcessCid) {
+    if (SepTokenLeakTracking && 
+        SepTokenLeakMethodWatch == 0xC && 
+        PsGetCurrentProcess()->UniqueProcessId == SepTokenLeakProcessCid) {
         Token->Count = InterlockedIncrement(&SepTokenLeakMethodCount);
         if (Token->Count >= SepTokenLeakBreakCount) {
             DbgPrint("\nToken number 0x%x = 0x%x\n", Token->Count, Token);
@@ -2189,13 +2267,20 @@ Return Value:
 #define EVERYONE_INCLUDES_ANONYMOUS 1
 
     // Reference the caller's thread to make sure we can impersonate
-    Status = ObReferenceObjectByHandle(ThreadHandle, THREAD_IMPERSONATE, PsThreadType, KeGetPreviousMode(), (PVOID *)&CallerThread, NULL);
+    Status = ObReferenceObjectByHandle(ThreadHandle,
+                                       THREAD_IMPERSONATE,
+                                       PsThreadType,
+                                       KeGetPreviousMode(),
+                                       (PVOID *)&CallerThread,
+                                       NULL);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
 
     // Check the AnonymousIncludesEveryone reg key setting.
-    Status = SepRegQueryDwordValue(L"\\Registry\\Machine\\System\\CurrentControlSet\\Control\\Lsa", L"EveryoneIncludesAnonymous", &RegValue);
+    Status = SepRegQueryDwordValue(L"\\Registry\\Machine\\System\\CurrentControlSet\\Control\\Lsa",
+                                   L"EveryoneIncludesAnonymous",
+                                   &RegValue);
     if (NT_SUCCESS(Status) && (RegValue == EVERYONE_INCLUDES_ANONYMOUS)) {
         hAnonymousToken = SeAnonymousLogonToken;
     } else {
@@ -2255,7 +2340,10 @@ Cleanup:
         )
 
 
-BOOLEAN SepComparePrivilegeAndAttributeArrays(IN PLUID_AND_ATTRIBUTES PrivilegeArray1, IN ULONG Count1, IN PLUID_AND_ATTRIBUTES PrivilegeArray2, IN ULONG Count2)
+BOOLEAN SepComparePrivilegeAndAttributeArrays(IN PLUID_AND_ATTRIBUTES PrivilegeArray1,
+                                              IN ULONG Count1,
+                                              IN PLUID_AND_ATTRIBUTES PrivilegeArray2,
+                                              IN ULONG Count2)
 /*
 Routine Description:
     This routine decides whether the given two privilege arrays are equivalent from AccessCheck perspective.
@@ -2324,7 +2412,10 @@ Return Value:
 }
 
 
-BOOLEAN SepCompareSidAndAttributeArrays(IN PSID_AND_ATTRIBUTES SidArray1, IN ULONG Count1, IN PSID_AND_ATTRIBUTES SidArray2, IN ULONG Count2)
+BOOLEAN SepCompareSidAndAttributeArrays(IN PSID_AND_ATTRIBUTES SidArray1,
+                                        IN ULONG Count1,
+                                        IN PSID_AND_ATTRIBUTES SidArray2,
+                                        IN ULONG Count2)
 /*
 Routine Description:
     This routine decides whether the given two sid and attribute arrays are equivalentfrom AccessCheck perspective.
@@ -2347,8 +2438,8 @@ Return Value:
         return FALSE;
     }
 
-    // In most cases when the sid arrays are the same, the elements will
-    // be ordered in the same manner. Walk the two arrays till we get a mismatch or exhaust the number of entries in the array.
+    // In most cases when the sid arrays are the same, the elements will be ordered in the same manner.
+    // Walk the two arrays till we get a mismatch or exhaust the number of entries in the array.
     for (k = 0; k < Count1; k++) {
         if (!SepEqualSidAndAttribute(SidArray1[k], SidArray2[k])) {
             break;
@@ -2482,7 +2573,10 @@ Return Value:
             goto Cleanup1;
         }
 
-        RetVal = SepCompareSidAndAttributeArrays(TokenOne->RestrictedSids, TokenOne->RestrictedSidCount, TokenTwo->RestrictedSids, TokenTwo->RestrictedSidCount);
+        RetVal = SepCompareSidAndAttributeArrays(TokenOne->RestrictedSids,
+                                                 TokenOne->RestrictedSidCount,
+                                                 TokenTwo->RestrictedSids,
+                                                 TokenTwo->RestrictedSidCount);
         if (!RetVal) {
             goto Cleanup1;
         }
@@ -2493,13 +2587,19 @@ Return Value:
     }
 
     // Compare the sid arrays.
-    RetVal = SepCompareSidAndAttributeArrays(TokenOne->UserAndGroups + 1, TokenOne->UserAndGroupCount - 1, TokenTwo->UserAndGroups + 1, TokenTwo->UserAndGroupCount - 1);
+    RetVal = SepCompareSidAndAttributeArrays(TokenOne->UserAndGroups + 1,
+                                             TokenOne->UserAndGroupCount - 1,
+                                             TokenTwo->UserAndGroups + 1,
+                                             TokenTwo->UserAndGroupCount - 1);
     if (!RetVal) {
         goto Cleanup1;
     }
 
     // Compare the privilege arrays.
-    RetVal = SepComparePrivilegeAndAttributeArrays(TokenOne->Privileges, TokenOne->PrivilegeCount, TokenTwo->Privileges, TokenTwo->PrivilegeCount);
+    RetVal = SepComparePrivilegeAndAttributeArrays(TokenOne->Privileges,
+                                                   TokenOne->PrivilegeCount,
+                                                   TokenTwo->Privileges,
+                                                   TokenTwo->PrivilegeCount);
 
 Cleanup1:
     SepReleaseTokenReadLock(TokenOne);

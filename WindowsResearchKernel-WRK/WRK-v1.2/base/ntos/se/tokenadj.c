@@ -26,8 +26,7 @@ Abstract:
 //           Token Object Routines & Methods
 
 
-NTSTATUS
-NtAdjustPrivilegesToken(
+NTSTATUS NtAdjustPrivilegesToken(
     __in HANDLE TokenHandle,
     __in BOOLEAN DisableAllPrivileges,
     __in_opt PTOKEN_PRIVILEGES NewState,
@@ -60,7 +59,8 @@ Arguments:
         in a subsequent call to this routine to restore the original state of those privileges.
         TOKEN_QUERY access is needed to use this parameter.
 
-        If this buffer does not contain enough space to receive the complete list of modified privileges, then no privilege states are changed and STATUS_BUFFER_TOO_SMALL is returned.
+        If this buffer does not contain enough space to receive the complete list of modified privileges, 
+        then no privilege states are changed and STATUS_BUFFER_TOO_SMALL is returned.
         In this case, the ReturnLength OUT parameter will contain the actual number of bytes needed to hold the information.
 
     ReturnLength - Indicates the actual number of bytes needed to contain the previous privilege state information.
@@ -132,7 +132,15 @@ Return Value:
     // Capture NewState if passed.
     if (!DisableAllPrivileges) {
         try {
-            Status = SeCaptureLuidAndAttributesArray((NewState->Privileges), CapturedPrivilegeCount, PreviousMode, NULL, 0, PagedPool, TRUE, &CapturedPrivileges, &CapturedPrivilegesLength);
+            Status = SeCaptureLuidAndAttributesArray((NewState->Privileges),
+                                                     CapturedPrivilegeCount,
+                                                     PreviousMode,
+                                                     NULL, 
+                                                     0,
+                                                     PagedPool,
+                                                     TRUE,
+                                                     &CapturedPrivileges,
+                                                     &CapturedPrivilegesLength);
         } except(EXCEPTION_EXECUTE_HANDLER)
         {
             return GetExceptionCode();
@@ -178,8 +186,7 @@ Return Value:
         PreviousState,
         &LocalReturnLength,
         &ChangeCount,
-        &ChangesMade
-    );
+        &ChangesMade);
     if (ARGUMENT_PRESENT(PreviousState)) {
         try {
             (*ReturnLength) = LocalReturnLength;
@@ -221,8 +228,7 @@ Return Value:
             PreviousState,
             &LocalReturnLength,
             &ChangeCount,
-            &ChangesMade
-        );
+            &ChangesMade);
         if (ARGUMENT_PRESENT(PreviousState)) {
             PreviousState->PrivilegeCount = ChangeCount;
             if (ChangeCount == 0) {
@@ -250,8 +256,7 @@ Return Value:
 }
 
 
-NTSTATUS
-NtAdjustGroupsToken(
+NTSTATUS NtAdjustGroupsToken(
     __in HANDLE TokenHandle,
     __in BOOLEAN ResetToDefault,
     __in PTOKEN_GROUPS NewState,
@@ -280,7 +285,8 @@ Arguments:
         It provides the new value that is to be assigned to the group in the token.
         If the ResetToDefault argument is specified as TRUE, then this argument is ignored.  Otherwise, it must be passed.
 
-    BufferLength - This optional parameter indicates the length (in bytes) of the PreviousState buffer.  This value must be provided if the PreviousState parameter is provided.
+    BufferLength - This optional parameter indicates the length (in bytes) of the PreviousState buffer. 
+                   This value must be provided if the PreviousState parameter is provided.
 
     PreviousState - This (optional) parameter points to a buffer to receive the state of any groups actually changed by this request.
         This information is formated as a TOKEN_GROUPS data structure which may be passed as the NewState parameter in a subsequent call to NtAdjustGroups to restore the original state
@@ -326,7 +332,8 @@ Return Value:
     //  The semantics of the PreviousState parameter and the STATUS_CANT_DISABLE_MANDATORY completion status leads to a two-pass approach to adjusting groups.
     //  The first pass simply checks to see which groups will change and counts them.
     //  This allows the amount of space needed to be calculated and returned.
-    //  If the caller's PreviousState return buffer is not large enough, or one of the specified groups is a mandatory group, then an error is returned without making any modifications.
+    //  If the caller's PreviousState return buffer is not large enough, or one of the specified groups is a mandatory group,
+    //  then an error is returned without making any modifications.
     //  Otherwise, a second pass is made to actually make the changes.
     if (!ResetToDefault && !ARGUMENT_PRESENT(NewState)) {
         return STATUS_INVALID_PARAMETER;
@@ -354,7 +361,15 @@ Return Value:
     if (!ResetToDefault) {
         try {
             CapturedGroupCount = NewState->GroupCount;
-            Status = SeCaptureSidAndAttributesArray(&(NewState->Groups[0]), CapturedGroupCount, PreviousMode, NULL, 0, PagedPool, TRUE, &CapturedGroups, &CapturedGroupsLength);
+            Status = SeCaptureSidAndAttributesArray(&(NewState->Groups[0]),
+                                                    CapturedGroupCount,
+                                                    PreviousMode,
+                                                    NULL,
+                                                    0,
+                                                    PagedPool, 
+                                                    TRUE,
+                                                    &CapturedGroups,
+                                                    &CapturedGroupsLength);
             if (!NT_SUCCESS(Status)) {
                 return Status;
             }
@@ -402,8 +417,7 @@ Return Value:
         NULL,                // Not returning SIDs this call
         &LocalReturnLength,
         &ChangeCount,
-        &ChangesMade
-    );
+        &ChangesMade);
     if (ARGUMENT_PRESENT(PreviousState)) {
         try {
             (*ReturnLength) = LocalReturnLength;
@@ -444,7 +458,10 @@ Return Value:
         }
 
         // Calculate where the SIDs can be placed in the PreviousState buffer.
-        SidBuffer = (PSID)(LongAlignPtr((PCHAR)PreviousState + (ULONG)sizeof(TOKEN_GROUPS) + (ChangeCount * (ULONG)sizeof(SID_AND_ATTRIBUTES)) - (ANYSIZE_ARRAY * (ULONG)sizeof(SID_AND_ATTRIBUTES))));
+        SidBuffer = (PSID)(LongAlignPtr((PCHAR)PreviousState +
+            (ULONG)sizeof(TOKEN_GROUPS) + 
+                                        (ChangeCount * (ULONG)sizeof(SID_AND_ATTRIBUTES)) - 
+                                        (ANYSIZE_ARRAY * (ULONG)sizeof(SID_AND_ATTRIBUTES))));
     }
 
     // Second pass through the groups list.
@@ -459,8 +476,7 @@ Return Value:
             SidBuffer,
             &LocalReturnLength,
             &ChangeCount,
-            &ChangesMade
-        );
+            &ChangesMade);
         if (ARGUMENT_PRESENT(PreviousState)) {
             PreviousState->GroupCount = ChangeCount;
         }
@@ -486,8 +502,7 @@ Return Value:
 }
 
 
-NTSTATUS
-SepAdjustPrivileges(
+NTSTATUS SepAdjustPrivileges(
     IN PTOKEN Token,
     IN BOOLEAN MakeChanges,
     IN BOOLEAN DisableAllPrivileges,
@@ -502,9 +517,12 @@ SepAdjustPrivileges(
 Routine Description:
     This routine is used to walk the privileges array in a token as a result of a request to adjust privileges.
 
-    If the MakeChanges parameter is FALSE, this routine simply determines what changes are needed and how much space is necessary to save the current state of changed privileges.
+    If the MakeChanges parameter is FALSE, 
+    this routine simply determines what changes are needed and how much space is necessary to save the current state of changed privileges.
 
-    If the MakeChanges parameter is TRUE, this routine will not only calculate the space necessary to save the current state, but will actually make the changes.
+    If the MakeChanges parameter is TRUE, 
+    this routine will not only calculate the space necessary to save the current state, 
+    but will actually make the changes.
 
     This routine makes the following assumptions:
       1) The token is locked for exclusive access.
@@ -619,7 +637,8 @@ Return Value:
                         // Note: Do NOT increment the number of changes
 
                    // Check if there is a state change from/to enabled to/from disabled
-                    } else if ((SepArrayPrivilegeAttributes(NewState, NewIndex) & SE_PRIVILEGE_ENABLED) != (SepTokenPrivilegeAttributes(Token, OldIndex) & SE_PRIVILEGE_ENABLED)) {
+                    } else if ((SepArrayPrivilegeAttributes(NewState, NewIndex) & SE_PRIVILEGE_ENABLED) != 
+                        (SepTokenPrivilegeAttributes(Token, OldIndex) & SE_PRIVILEGE_ENABLED)) {
                         // Change, if necessary (saving previous state if appropriate).
                         if (MakeChanges) {
                             if (ARGUMENT_PRESENT(PreviousState)) {
@@ -670,15 +689,15 @@ Return Value:
 
     // Calculate the space needed to return previous state information
     if (ARGUMENT_PRESENT(PreviousState)) {
-        (*ReturnLength) = (ULONG)sizeof(TOKEN_PRIVILEGES) + ((*ChangeCount > ANYSIZE_ARRAY) ? (*ChangeCount - ANYSIZE_ARRAY) * (ULONG)sizeof(LUID_AND_ATTRIBUTES) : 0);
+        (*ReturnLength) = (ULONG)sizeof(TOKEN_PRIVILEGES) + 
+            ((*ChangeCount > ANYSIZE_ARRAY) ? (*ChangeCount - ANYSIZE_ARRAY) * (ULONG)sizeof(LUID_AND_ATTRIBUTES) : 0);
     }
 
     return CompletionStatus;
 }
 
 
-NTSTATUS
-SepAdjustGroups(
+NTSTATUS SepAdjustGroups(
     IN PTOKEN Token,
     IN BOOLEAN MakeChanges,
     IN BOOLEAN ResetToDefault,
@@ -694,9 +713,12 @@ SepAdjustGroups(
 Routine Description:
     This routine is used to walk the groups array in a token as a result of a request to adjust groups.
 
-    If the MakeChanges parameter is FALSE, this routine simply determines what changes are needed and how much space is necessary to save the current state of changed groups.
+    If the MakeChanges parameter is FALSE, 
+    this routine simply determines what changes are needed and how much space is necessary to save the current state of changed groups.
 
-    If the MakeChanges parameter is TRUE, this routine will not only calculate the space necessary to save the current state, but will actually make the changes.
+    If the MakeChanges parameter is TRUE,
+    this routine will not only calculate the space necessary to save the current state,
+    but will actually make the changes.
 
     This routine makes the following assumptions:
       1) The token is locked for exclusive access.
@@ -814,7 +836,8 @@ Return Value:
                     MatchCount += 1;
 
                     // See if it needs to be changed
-                    if ((SepArrayGroupAttributes(NewState, NewIndex) & SE_GROUP_ENABLED) != (SepTokenGroupAttributes(Token, OldIndex) & SE_GROUP_ENABLED)) {
+                    if ((SepArrayGroupAttributes(NewState, NewIndex) & SE_GROUP_ENABLED) != 
+                        (SepTokenGroupAttributes(Token, OldIndex) & SE_GROUP_ENABLED)) {
                         // Make sure group is not mandatory
                         if (SepTokenGroupAttributes(Token, OldIndex) & SE_GROUP_MANDATORY) {
                             return STATUS_CANT_DISABLE_MANDATORY;
@@ -871,7 +894,10 @@ Return Value:
     // Calculate the space needed to return previous state information
     // (The SID lengths have already been added up in LocalReturnLength).
     if (ARGUMENT_PRESENT(PreviousState)) {
-        (*ReturnLength) = LocalReturnLength + (ULONG)sizeof(TOKEN_GROUPS) + ((*ChangeCount) *  (ULONG)sizeof(SID_AND_ATTRIBUTES)) - (ANYSIZE_ARRAY * (ULONG)sizeof(SID_AND_ATTRIBUTES));
+        (*ReturnLength) = LocalReturnLength + 
+            (ULONG)sizeof(TOKEN_GROUPS) + 
+            ((*ChangeCount) *  (ULONG)sizeof(SID_AND_ATTRIBUTES)) - 
+            (ANYSIZE_ARRAY * (ULONG)sizeof(SID_AND_ATTRIBUTES));
     }
 
     return CompletionStatus;

@@ -19,10 +19,7 @@ Abstract:
 #include "sep.h"
 
 
-
-//  Reference Monitor Private defines                                        //
-
-
+//  Reference Monitor Private defines
 
 
 // Used to define the bounds of the array used to track logon session reference counts.
@@ -76,9 +73,7 @@ Abstract:
 
 // Reference Monitor Private Global State Data Structure
 
-
 typedef struct _SEP_RM_STATE {
-
     HANDLE LsaInitEventHandle;
     HANDLE LsaCommandPortHandle;
     HANDLE SepRmThreadHandle;

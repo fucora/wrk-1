@@ -42,7 +42,8 @@ Arguments:
     TokenInformationClass - The token information class being set.
     TokenInformation - The buffer containing the new values for the specified class of information.
         The buffer must be aligned on at least a longword boundary.
-        The actual structures provided are dependent upon the information class specified, as defined in the TokenInformationClass parameter description.
+        The actual structures provided are dependent upon the information class specified, 
+        as defined in the TokenInformationClass parameter description.
 
         TokenInformation Format By Information Class:
 
@@ -643,7 +644,8 @@ Return Value:
 NTSTATUS SepExpandDynamic(__in PTOKEN Token, __in ULONG NewLength)
 /*
 Routine Description:
-    This routines checks if the existing token dynamic buffer is big enough for the new group/dacl. If it isn't then its reallocated.
+    This routines checks if the existing token dynamic buffer is big enough for the new group/dacl.
+    If it isn't then its reallocated.
 Arguments:
     Token - Pointer to the token to expand. Locked for write access.
 Return Value:
@@ -738,7 +740,8 @@ Return Value:
         Token->DefaultDacl = NULL;
     }
 
-    // If it is not already at the beginning of the dynamic part, move the primary group there (remember to update the pointer to it).
+    // If it is not already at the beginning of the dynamic part,
+    // move the primary group there (remember to update the pointer to it).
     if (Token->DynamicPart != (PULONG)(Token->PrimaryGroup)) {
         PrimaryGroupSize = SeLengthSid(Token->PrimaryGroup);
         RtlMoveMemory((PVOID)(Token->DynamicPart), (PVOID)(Token->PrimaryGroup), PrimaryGroupSize);

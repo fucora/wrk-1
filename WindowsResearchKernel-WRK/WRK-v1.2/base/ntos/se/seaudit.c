@@ -2877,7 +2877,9 @@ Return Value:
 }
 
 
-BOOLEAN SeAuditingFileOrGlobalEvents(__in BOOLEAN AccessGranted, __in PSECURITY_DESCRIPTOR SecurityDescriptor, __in PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext)
+BOOLEAN SeAuditingFileOrGlobalEvents(__in BOOLEAN AccessGranted,
+                                     __in PSECURITY_DESCRIPTOR SecurityDescriptor,
+                                     __in PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext)
 /*
 Routine Description:
     This routine is to be called by a file system to quickly determine if we are auditing file open events.
@@ -2924,7 +2926,9 @@ Return Value:
 }
 
 
-BOOLEAN SeAuditingFileEventsWithContext(__in BOOLEAN AccessGranted, __in PSECURITY_DESCRIPTOR SecurityDescriptor, __in_opt PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext)
+BOOLEAN SeAuditingFileEventsWithContext(__in BOOLEAN AccessGranted, 
+                                        __in PSECURITY_DESCRIPTOR SecurityDescriptor, 
+                                        __in_opt PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext)
 /*
 Routine Description:
     This routine is to be called by a file system to quickly determine if we are auditing file open events.
@@ -2974,7 +2978,9 @@ Return Value:
 }
 
 
-BOOLEAN SeAuditingHardLinkEventsWithContext(__in BOOLEAN AccessGranted, __in PSECURITY_DESCRIPTOR SecurityDescriptor, __in_opt PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext)
+BOOLEAN SeAuditingHardLinkEventsWithContext(__in BOOLEAN AccessGranted, 
+                                            __in PSECURITY_DESCRIPTOR SecurityDescriptor,
+                                            __in_opt PSECURITY_SUBJECT_CONTEXT SubjectSecurityContext)
 /*
 Routine Description:
     This routine is to be called by a file system to quickly determine if we are auditing hard link creation.
@@ -2994,7 +3000,9 @@ Return Value:
     Sacl = RtlpSaclAddrSecurityDescriptor(pSD);
 
     // Audit hard link creation if object access auditing is on and the original file has a non empty SACL.
-    if ((NULL != Sacl) && (0 != Sacl->AceCount) && (SepAdtAuditThisEventWithContext(AuditCategoryObjectAccess, AccessGranted, !AccessGranted, SubjectSecurityContext))) {
+    if ((NULL != Sacl) && 
+        (0 != Sacl->AceCount) && 
+        (SepAdtAuditThisEventWithContext(AuditCategoryObjectAccess, AccessGranted, !AccessGranted, SubjectSecurityContext))) {
         return TRUE;
     }
 

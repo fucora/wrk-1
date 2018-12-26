@@ -93,7 +93,9 @@ Return Value:
     // Figure out accesses needed to perform the indicated operation(s).
     (*DesiredAccess) = 0;
 
-    if ((SecurityInformation & OWNER_SECURITY_INFORMATION) || (SecurityInformation & GROUP_SECURITY_INFORMATION) || (SecurityInformation & DACL_SECURITY_INFORMATION)) {
+    if ((SecurityInformation & OWNER_SECURITY_INFORMATION) || 
+        (SecurityInformation & GROUP_SECURITY_INFORMATION) || 
+        (SecurityInformation & DACL_SECURITY_INFORMATION)) {
         (*DesiredAccess) |= READ_CONTROL;
     }
 
@@ -204,49 +206,35 @@ SeSetSecurityDescriptorInfo(
     __in POOL_TYPE PoolType,
     __in PGENERIC_MAPPING GenericMapping
 )
-
 /*
-
 Routine Description:
-
-    This routine will set an object's security descriptor.  The input
-    security descriptor must be previously captured.
-
+    This routine will set an object's security descriptor.  
+    The input security descriptor must be previously captured.
 Arguments:
-
     Object - Optionally supplies the object whose security is
-        being adjusted.  This is used to update security quota
-        information.
-
+        being adjusted.  This is used to update security quota information.
     SecurityInformation - Indicates which security information is
         to be applied to the object.  The value(s) to be assigned are
         passed in the SecurityDescriptor parameter.
-
     ModificationDescriptor - Supplies the input security descriptor to be
         applied to the object.  The caller of this routine is expected
         to probe and capture the passed security descriptor before calling
         and release it after calling.
-
     ObjectsSecurityDescriptor - Supplies the address of a pointer to
         the objects security descriptor that is going to be altered by
         this procedure.  This structure must be deallocated by the caller.
-
-    PoolType - Specifies the type of pool to allocate for the objects
-        security descriptor.
-
+    PoolType - Specifies the type of pool to allocate for the objects security descriptor.
     GenericMapping - This argument provides the mapping of generic to
         specific/standard access types for the object being accessed.
         This mapping structure is expected to be safe to access
         (i.e., captured if necessary) prior to be passed to this routine.
-
 Return Value:
     NTSTATUS - STATUS_SUCCESS if successful and an appropriate error value otherwise.
 */
 {
     // Make sure the object already has a security descriptor.
-    // Objects that 'may' have security descriptors 'must' have security
-    // descriptors.  If this one doesn't already have one, then we can't
-    // assign one to it.
+    // Objects that 'may' have security descriptors 'must' have security descriptors. 
+    // If this one doesn't already have one, then we can't assign one to it.
 
     if ((*ObjectsSecurityDescriptor) == NULL) {
         return(STATUS_NO_SECURITY_ON_OBJECT);
@@ -265,8 +253,6 @@ Return Value:
 }
 
 
-
-
 NTSTATUS
 SeSetSecurityDescriptorInfoEx(
     __in_opt PVOID Object,
@@ -277,36 +263,23 @@ SeSetSecurityDescriptorInfoEx(
     __in POOL_TYPE PoolType,
     __in PGENERIC_MAPPING GenericMapping
 )
-
 /*
-
 Routine Description:
-
-    This routine will set an object's security descriptor.  The input
-    security descriptor must be previously captured.
-
+    This routine will set an object's security descriptor.
+    The input security descriptor must be previously captured.
 Arguments:
-
     Object - Optionally supplies the object whose security is
-        being adjusted.  This is used to update security quota
-        information.
-
+        being adjusted.  This is used to update security quota information.
     SecurityInformation - Indicates which security information is
-        to be applied to the object.  The value(s) to be assigned are
-        passed in the SecurityDescriptor parameter.
-
+        to be applied to the object.  The value(s) to be assigned are passed in the SecurityDescriptor parameter.
     ModificationDescriptor - Supplies the input security descriptor to be
         applied to the object.  The caller of this routine is expected
-        to probe and capture the passed security descriptor before calling
-        and release it after calling.
-
+        to probe and capture the passed security descriptor before calling and release it after calling.
     ObjectsSecurityDescriptor - Supplies the address of a pointer to
         the objects security descriptor that is going to be altered by
         this procedure.  This structure must be deallocated by the caller.
-
     AutoInheritFlags - Controls automatic inheritance of ACES.
-        Valid values are a bits mask of the logical OR of
-        one or more of the following bits:
+        Valid values are a bits mask of the logical OR of one or more of the following bits:
 
         SEF_DACL_AUTO_INHERIT - If set, inherited ACEs from the
             DACL in the ObjectsSecurityDescriptor are preserved and inherited ACEs from
@@ -324,42 +297,25 @@ Arguments:
             not set this bit.  The caller of the protected server may implement
             auto inheritance and my indeed be modifying inherited ACEs.
 
-    PoolType - Specifies the type of pool to allocate for the objects
-        security descriptor.
-
+    PoolType - Specifies the type of pool to allocate for the objects security descriptor.
     GenericMapping - This argument provides the mapping of generic to
         specific/standard access types for the object being accessed.
         This mapping structure is expected to be safe to access
         (i.e., captured if necessary) prior to be passed to this routine.
-
 Return Value:
-
-    NTSTATUS - STATUS_SUCCESS if successful and an appropriate error
-        value otherwise.
-
+    NTSTATUS - STATUS_SUCCESS if successful and an appropriate error value otherwise.
 */
-
 {
-
     PAGED_CODE();
-
-
-
+       
     // Make sure the object already has a security descriptor.
     // Objects that 'may' have security descriptors 'must' have security
-    // descriptors.  If this one doesn't already have one, then we can't
-    // assign one to it.
-
-
+    // descriptors.  If this one doesn't already have one, then we can't assign one to it.
     if ((*ObjectsSecurityDescriptor) == NULL) {
         return(STATUS_NO_SECURITY_ON_OBJECT);
     }
 
-
-
     // Pass this call to the common Rtlp routine.
-
-
     return RtlpSetSecurityObject(
         Object,
         *SecurityInformation,
@@ -369,35 +325,23 @@ Return Value:
         PoolType,
         GenericMapping,
         NULL); // No Token
-
-
 }
 
 
-
-NTSTATUS
-SeQuerySecurityDescriptorInfo(
+NTSTATUS SeQuerySecurityDescriptorInfo(
     __in PSECURITY_INFORMATION SecurityInformation,
     __out_bcount(*Length) PSECURITY_DESCRIPTOR SecurityDescriptor,
     __inout PULONG Length,
     __deref_inout PSECURITY_DESCRIPTOR *ObjectsSecurityDescriptor
 )
-
 /*
-
 Routine Description:
-
     This routine will extract the desired information from the
     passed security descriptor and return the information in
-    the passed buffer as a security descriptor in self-relative
-    format.
-
+    the passed buffer as a security descriptor in self-relative format.
 Arguments:
-
     SecurityInformation - Specifies what information is being queried.
-
-    SecurityDescriptor - Supplies the buffer to output the requested
-        information into.
+    SecurityDescriptor - Supplies the buffer to output the requested information into.
 
         This buffer has been probed only to the size indicated by
         the Length parameter.  Since it still points into user space,
@@ -412,15 +356,10 @@ Arguments:
         must be in self-relative format.
 
 Return Value:
-
-    NTSTATUS - STATUS_SUCCESS if successful and an appropriate error value
-        otherwise
-
+    NTSTATUS - STATUS_SUCCESS if successful and an appropriate error value otherwise
 */
-
 {
     ULONG BufferLength;
-
     ULONG Size;
     ULONG OwnerLength = 0;
     ULONG GroupLength = 0;
@@ -429,76 +368,46 @@ Return Value:
     PUCHAR NextFree;
     SECURITY_DESCRIPTOR IObjectSecurity;
 
-
     // Note that IObjectSecurity is not a pointer to a pointer
     // like ObjectsSecurityDescriptor is.
-
 
     SECURITY_DESCRIPTOR_RELATIVE *ISecurityDescriptor = SecurityDescriptor;
 
     PAGED_CODE();
 
-
     //  We will be accessing user memory throughout this routine,
     //  therefore do everything in a try-except clause.
 
-
     try {
-
         BufferLength = *Length;
-
 
         //  Check if the object's descriptor is null, and if it is then
         //  we only need to return a blank security descriptor record
 
-
         if (*ObjectsSecurityDescriptor == NULL) {
-
             *Length = sizeof(SECURITY_DESCRIPTOR_RELATIVE);
 
-
-            //  Now make sure it's large enough for the security descriptor
-            //  record
-
-
+            //  Now make sure it's large enough for the security descriptor record
             if (BufferLength < sizeof(SECURITY_DESCRIPTOR_RELATIVE)) {
-
                 return STATUS_BUFFER_TOO_SMALL;
-
             }
-
 
             //  It's large enough to make a blank security descriptor record
 
             //  Note that this parameter has been probed for write by the
-            //  object manager, however, we still have to be careful when
-            //  writing to it.
-
-
+            //  object manager, however, we still have to be careful when writing to it.
 
             // We do not have to probe this here, because the object
             // manager has probed it for length=BufferLength, which we
-            // know at this point is at least as large as a security
-            // descriptor.
-
-
-            RtlCreateSecurityDescriptorRelative(SecurityDescriptor,
-                                                SECURITY_DESCRIPTOR_REVISION);
-
+            // know at this point is at least as large as a security descriptor.
+            RtlCreateSecurityDescriptorRelative(SecurityDescriptor, SECURITY_DESCRIPTOR_REVISION);
 
             // Mark it as self-relative
-
-
             RtlpSetControlBits(ISecurityDescriptor, SE_SELF_RELATIVE);
 
-
             //  And return to our caller
-
-
             return STATUS_SUCCESS;
-
         }
-
 
         // Create an absolute format SD on the stack pointing into
         // user space to simplify the following code
@@ -508,7 +417,6 @@ Return Value:
         IObjectSecurity.Dacl = RtlpDaclAddrSecurityDescriptor((SECURITY_DESCRIPTOR *)*ObjectsSecurityDescriptor);
         IObjectSecurity.Sacl = RtlpSaclAddrSecurityDescriptor((SECURITY_DESCRIPTOR *)*ObjectsSecurityDescriptor);
         IObjectSecurity.Control &= ~SE_SELF_RELATIVE;
-
 
         //  This is not a blank descriptor so we need to determine the size
         //  needed to store the requested information.  It is the size of the
@@ -584,9 +492,7 @@ Return Value:
             RtlpPropagateControlBits(
                 ISecurityDescriptor,
                 &IObjectSecurity,
-                SE_DACL_PRESENT | SE_DACL_DEFAULTED | SE_DACL_PROTECTED | SE_DACL_AUTO_INHERITED
-            );
-
+                SE_DACL_PRESENT | SE_DACL_DEFAULTED | SE_DACL_PROTECTED | SE_DACL_AUTO_INHERITED);
 
             // Copy the acl if non-null  and update the NextFree pointer, keeping it longword aligned.
             if ((IObjectSecurity.Control & SE_DACL_PRESENT) != 0 && IObjectSecurity.Dacl != NULL) {

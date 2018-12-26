@@ -9,7 +9,8 @@ Module Name:
 
 Abstract:
     Auditing - Audit Record Queuing and Logging Routines
-    This file contains functions that construct Audit Records in self- relative form from supplied information, enqueue/dequeue them and write them to the log.
+    This file contains functions that construct Audit Records in self- relative form from supplied information, 
+    enqueue/dequeue them and write them to the log.
 */
 
 #include "pch.h"
@@ -64,7 +65,9 @@ Return Value:
     AuditWorkItem->CleanupFunction = NULL;
 
     // Build an Audit record in self-relative format from the supplied Audit Information.
-    Status = SepAdtMarshallAuditRecord(AuditParameters, (PSE_ADT_PARAMETER_ARRAY *)&AuditWorkItem->CommandParams.BaseAddress, &AuditWorkItem->CommandParamsMemoryType);
+    Status = SepAdtMarshallAuditRecord(AuditParameters,
+        (PSE_ADT_PARAMETER_ARRAY *)&AuditWorkItem->CommandParams.BaseAddress,
+                                       &AuditWorkItem->CommandParamsMemoryType);
     if (NT_SUCCESS(Status)) {
         // Extract the length of the Audit Record.  Store it as the length of the Command Parameters buffer.
         AuditWorkItem->CommandParamsLength = ((PSE_ADT_PARAMETER_ARRAY)AuditWorkItem->CommandParams.BaseAddress)->Length;
@@ -147,7 +150,9 @@ bugcheck:
 }
 
 
-NTSTATUS SepAdtMarshallAuditRecord(IN PSE_ADT_PARAMETER_ARRAY AuditParameters, OUT PSE_ADT_PARAMETER_ARRAY *MarshalledAuditParameters, OUT PSEP_RM_LSA_MEMORY_TYPE RecordMemoryType)
+NTSTATUS SepAdtMarshallAuditRecord(IN PSE_ADT_PARAMETER_ARRAY AuditParameters,
+                                   OUT PSE_ADT_PARAMETER_ARRAY *MarshalledAuditParameters,
+                                   OUT PSEP_RM_LSA_MEMORY_TYPE RecordMemoryType)
 /*
 Routine Description:
     This routine will take an AuditParameters structure and create a new AuditParameters structure that is suitable for sending to LSA.
@@ -175,8 +180,10 @@ Return Value:
 
     // Calculate the total size required for the passed AuditParameters block.
     // This calculation will probably be an overestimate of the
-    // amount of space needed, because data smaller that 2 dwords will be stored directly in the parameters structure, but their length will be counted here anyway.
-    // The overestimate can't be more than 24 dwords, and will never even approach that amount, so it isn't worth the time it would take to avoid it.
+    // amount of space needed, because data smaller that 2 dwords will be stored directly in the parameters structure,
+    // but their length will be counted here anyway.
+    // The overestimate can't be more than 24 dwords, and will never even approach that amount, 
+    // so it isn't worth the time it would take to avoid it.
     for (i = 0; i < AuditParameters->ParameterCount; i++) {
         Size = AuditParameters->Parameters[i].Length;
         TotalSize += PtrAlignSize(Size);
@@ -268,7 +275,10 @@ Return Value:
 }
 
 
-NTSTATUS SepAdtCopyToLsaSharedMemory(IN HANDLE LsaProcessHandle, IN PVOID Buffer, IN ULONG BufferLength, OUT PVOID *LsaBufferAddress)
+NTSTATUS SepAdtCopyToLsaSharedMemory(IN HANDLE LsaProcessHandle,
+                                     IN PVOID Buffer,
+                                     IN ULONG BufferLength,
+                                     OUT PVOID *LsaBufferAddress)
 /*
 Routine Description:
     This function allocates memory shared with the LSA and optionally copies a given buffer to it.
@@ -296,8 +306,7 @@ Return Value:
         0,             // do not apply zero bits constraint
         &RegionSize,
         MEM_COMMIT,
-        PAGE_READWRITE
-    );
+        PAGE_READWRITE);
     if (!NT_SUCCESS(Status)) {
         goto CopyToLsaSharedMemoryError;
     }

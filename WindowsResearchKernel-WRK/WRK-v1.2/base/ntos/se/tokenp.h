@@ -295,7 +295,10 @@ typedef struct _IOBJECT_TYPE_LIST {
     ULONG CurrentDenied;
 } IOBJECT_TYPE_LIST, *PIOBJECT_TYPE_LIST;
 
-NTSTATUS SeCaptureObjectTypeList (IN POBJECT_TYPE_LIST ObjectTypeList OPTIONAL, IN ULONG ObjectTypeListLength, IN KPROCESSOR_MODE RequestorMode, OUT PIOBJECT_TYPE_LIST *CapturedObjectTypeList);
+NTSTATUS SeCaptureObjectTypeList (IN POBJECT_TYPE_LIST ObjectTypeList OPTIONAL,
+                                  IN ULONG ObjectTypeListLength,
+                                  IN KPROCESSOR_MODE RequestorMode,
+                                  OUT PIOBJECT_TYPE_LIST *CapturedObjectTypeList);
 VOID SeFreeCapturedObjectTypeList(IN PVOID ObjectTypeList);
 
 // Token Specific Macros
@@ -441,7 +444,11 @@ VOID SepTokenDeleteMethod (IN  PVOID   Token);
 
 // These are here because if they are placed in sep.h, we don't have the PTOKEN datatype available.
 
-BOOLEAN SepPrivilegeCheck(IN PTOKEN Token, IN OUT PLUID_AND_ATTRIBUTES RequiredPrivileges, IN ULONG RequiredPrivilegeCount, IN ULONG PrivilegeSetControl, IN KPROCESSOR_MODE PreviousMode);
+BOOLEAN SepPrivilegeCheck(IN PTOKEN Token, 
+                          IN OUT PLUID_AND_ATTRIBUTES RequiredPrivileges,
+                          IN ULONG RequiredPrivilegeCount,
+                          IN ULONG PrivilegeSetControl,
+                          IN KPROCESSOR_MODE PreviousMode);
 
 BOOLEAN SepAccessCheck (
     IN PSECURITY_DESCRIPTOR SecurityDescriptor,
@@ -462,7 +469,10 @@ BOOLEAN SepAccessCheck (
     OUT PBOOLEAN ReturnSomeAccessDenied
     );
 
-BOOLEAN SepObjectInTypeList (IN GUID *ObjectType, IN PIOBJECT_TYPE_LIST ObjectTypeList, IN ULONG ObjectTypeListLength, OUT PULONG ReturnedIndex);
+BOOLEAN SepObjectInTypeList (IN GUID *ObjectType, 
+                             IN PIOBJECT_TYPE_LIST ObjectTypeList,
+                             IN ULONG ObjectTypeListLength,
+                             OUT PULONG ReturnedIndex);
 VOID SepModifyTokenPolicyCounter(PSEP_AUDIT_POLICY TokenPolicy, BOOLEAN bIncrement);
 
 NTSTATUS FORCEINLINE SepDuplicateLogonSessionReference(IN PTOKEN NewToken, IN PTOKEN ExistingToken)
