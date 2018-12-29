@@ -1148,7 +1148,12 @@ Environment:
         }
 
         if (StartPte->u.Long != 0 && StartPte->u.Long != MM_KERNEL_NOACCESS_PTE) {
-            DbgPrintEx(DPFLTR_MM_ID, DPFLTR_ERROR_LEVEL, "MiCheckSessionVirtualSpace: StartPte 0x%p is still valid! 0x%p, VA 0x%p\n", StartPte, StartPte->u.Long, MiGetVirtualAddressMappedByPte(StartPte));
+            DbgPrintEx(DPFLTR_MM_ID, 
+            DPFLTR_ERROR_LEVEL,
+            "MiCheckSessionVirtualSpace: StartPte 0x%p is still valid! 0x%p, VA 0x%p\n", 
+            StartPte,
+            StartPte->u.Long,
+            MiGetVirtualAddressMappedByPte(StartPte));
             DbgBreakPoint();
         }
 

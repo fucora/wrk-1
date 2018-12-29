@@ -957,7 +957,8 @@ Environment:
                     TempPte.u.Hard.PageFrameNumber = *Page;
                     MI_WRITE_VALID_PTE(PointerPte, TempPte);
 
-                    // We had to override the requested cache type for the current page, so reset the PTE for the next page back to the original entry requested cache type.
+                    // We had to override the requested cache type for the current page, 
+                    // so reset the PTE for the next page back to the original entry requested cache type.
                     TempPte = DefaultPte;
                 }
             } else {

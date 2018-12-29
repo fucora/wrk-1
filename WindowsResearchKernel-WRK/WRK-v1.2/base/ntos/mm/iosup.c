@@ -4569,9 +4569,8 @@ Environment:
             Status = STATUS_CONFLICTING_ADDRESSES;
             goto ErrorReturn;
         }
-    } else {
-        // Get the address creation mutex.
-        LOCK_ADDRESS_SPACE(Process);
+    } else {        
+        LOCK_ADDRESS_SPACE(Process);// Get the address creation mutex.
 
         // Make sure the address space was not deleted, if so, return an error.
         if (Process->Flags & PS_PROCESS_FLAGS_VM_DELETED) {

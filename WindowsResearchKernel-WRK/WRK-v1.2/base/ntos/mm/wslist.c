@@ -2350,7 +2350,11 @@ Environment:
 #else
             if (ContainingPageTablePage->u.Hard.Valid == 0) {
                 if (!NT_SUCCESS(MiCheckPdeForPagedPool(PointerPte))) {
-                    KeBugCheckEx(MEMORY_MANAGEMENT, 0x61940, (ULONG_PTR)PointerPte, (ULONG_PTR)ContainingPageTablePage->u.Long, (ULONG_PTR)MiGetVirtualAddressMappedByPte(PointerPte));
+                    KeBugCheckEx(MEMORY_MANAGEMENT,
+                    0x61940,
+                    (ULONG_PTR)PointerPte,
+                    (ULONG_PTR)ContainingPageTablePage->u.Long,
+                    (ULONG_PTR)MiGetVirtualAddressMappedByPte(PointerPte));
                 }
             }
 #endif
@@ -2616,7 +2620,11 @@ Environment:
 #else
         if (ContainingPageTablePage->u.Hard.Valid == 0) {
             if (!NT_SUCCESS(MiCheckPdeForPagedPool(PointerPte))) {
-                KeBugCheckEx(MEMORY_MANAGEMENT, 0x61940, (ULONG_PTR)PointerPte, (ULONG_PTR)ContainingPageTablePage->u.Long, (ULONG_PTR)MiGetVirtualAddressMappedByPte(PointerPte));
+                KeBugCheckEx(MEMORY_MANAGEMENT,
+                0x61940,
+                (ULONG_PTR)PointerPte,
+                (ULONG_PTR)ContainingPageTablePage->u.Long,
+                (ULONG_PTR)MiGetVirtualAddressMappedByPte(PointerPte));
             }
         }
 #endif

@@ -903,7 +903,11 @@ RetryPrivatePageAllocations:
 #if (_MI_PAGING_LEVELS < 3)
                             if (!NT_SUCCESS(MiCheckPdeForPagedPool(&ForkProtoPte->ProtoPte))) {
 #endif
-                                KeBugCheckEx(MEMORY_MANAGEMENT, 0x61940, (ULONG_PTR)&ForkProtoPte->ProtoPte, (ULONG_PTR)ContainingPte->u.Long, (ULONG_PTR)MiGetVirtualAddressMappedByPte(&ForkProtoPte->ProtoPte));
+                                KeBugCheckEx(MEMORY_MANAGEMENT, 
+                                0x61940,
+                                (ULONG_PTR)&ForkProtoPte->ProtoPte,
+                                (ULONG_PTR)ContainingPte->u.Long,
+                                (ULONG_PTR)MiGetVirtualAddressMappedByPte(&ForkProtoPte->ProtoPte));
 #if (_MI_PAGING_LEVELS < 3)
                             }
 #endif
@@ -1801,7 +1805,11 @@ ULONG MiHandleForkTransitionPte(IN PMMPTE PointerPte, IN PMMPTE PointerNewPte, I
 #if (_MI_PAGING_LEVELS < 3)
         if (!NT_SUCCESS(MiCheckPdeForPagedPool(&ForkProtoPte->ProtoPte))) {
 #endif
-            KeBugCheckEx(MEMORY_MANAGEMENT, 0x61940, (ULONG_PTR)&ForkProtoPte->ProtoPte, (ULONG_PTR)ContainingPte->u.Long, (ULONG_PTR)MiGetVirtualAddressMappedByPte(&ForkProtoPte->ProtoPte));
+            KeBugCheckEx(MEMORY_MANAGEMENT, 
+            0x61940, 
+            (ULONG_PTR)&ForkProtoPte->ProtoPte, 
+            (ULONG_PTR)ContainingPte->u.Long, 
+            (ULONG_PTR)MiGetVirtualAddressMappedByPte(&ForkProtoPte->ProtoPte));
 #if (_MI_PAGING_LEVELS < 3)
         }
 #endif
