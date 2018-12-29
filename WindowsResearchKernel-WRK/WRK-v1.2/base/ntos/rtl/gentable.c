@@ -38,11 +38,14 @@ static TABLE_SEARCH_RESULT FindNodeOrParent(IN PRTL_GENERIC_TABLE Table, IN PVOI
 /*
 Routine Description:
     This routine is used by all of the routines of the generic table package to locate the a node in the tree.
-    It will find and return (via the NodeOrParent parameter) the node with the given key, or if that node is not in the tree it will return (via the NodeOrParent parameter) a pointer to the parent.
+    It will find and return (via the NodeOrParent parameter) the node with the given key,
+    or if that node is not in the tree it will return (via the NodeOrParent parameter) a pointer to the parent.
 Arguments:
     Table - The generic table to search for the key.
-    Buffer - Pointer to a buffer holding the key.  The table package doesn't examine the key itself.  It leaves this up to the user supplied compare routine.
-    NodeOrParent - Will be set to point to the node containing the the key or what should be the parent of the node if it were in the tree.  Note that this will *NOT* be set if the search result is TableEmptyTree.
+    Buffer - Pointer to a buffer holding the key.  The table package doesn't examine the key itself.  
+             It leaves this up to the user supplied compare routine.
+    NodeOrParent - Will be set to point to the node containing the the key or what should be the parent of the node if it were in the tree.  
+                   Note that this will *NOT* be set if the search result is TableEmptyTree.
 Return Value:
     TABLE_SEARCH_RESULT - TableEmptyTree:     The tree was empty.                 NodeOrParent is *not* altered.
                           TableFoundNode:     A node with the key is in the tree. NodeOrParent points to that node.
@@ -83,8 +86,7 @@ Return Value:
 }
 
 
-VOID
-RtlInitializeGenericTable(
+VOID RtlInitializeGenericTable(
     IN PRTL_GENERIC_TABLE Table,
     IN PRTL_GENERIC_COMPARE_ROUTINE CompareRoutine,
     IN PRTL_GENERIC_ALLOCATE_ROUTINE AllocateRoutine,
@@ -148,8 +150,7 @@ Return Value:
 }
 
 
-PVOID
-RtlInsertElementGenericTableFull(
+PVOID RtlInsertElementGenericTableFull(
     IN PRTL_GENERIC_TABLE Table,
     IN PVOID Buffer,
     IN CLONG BufferSize,
@@ -160,10 +161,12 @@ RtlInsertElementGenericTableFull(
 /*
 Routine Description:
     The function InsertElementGenericTableFull will insert a new element in a table.
-    It does this by allocating space for the new element (this includes splay links), inserting the element in the table, and then returning to the user a pointer to the new element.
+    It does this by allocating space for the new element (this includes splay links), 
+    inserting the element in the table, and then returning to the user a pointer to the new element.
     If an element with the same key already exists in the table the return value is a pointer to the old element.
     The optional output parameter NewElement is used to indicate if the element previously existed in the table.
-    Note: the user supplied Buffer is only used for searching the table, upon insertion its contents are copied to the newly created element.
+    Note: the user supplied Buffer is only used for searching the table, 
+    upon insertion its contents are copied to the newly created element.
     This means that pointer to the input buffer will not point to the new element.
     This routine is passed the NodeOrParent and SearchResult from a previous RtlLookupElementGenericTableFull.
 Arguments:
@@ -229,11 +232,13 @@ BOOLEAN RtlDeleteElementGenericTable(IN PRTL_GENERIC_TABLE Table, IN PVOID Buffe
 /*
 Routine Description:
     The function DeleteElementGenericTable will find and delete an element from a generic table.
-    If the element is located and deleted the return value is TRUE, otherwise if the element is not located the return value is FALSE.
+    If the element is located and deleted the return value is TRUE, 
+    otherwise if the element is not located the return value is FALSE.
     The user supplied input buffer is only used as a key in locating the element in the table.
 Arguments:
     Table - Pointer to the table in which to (possibly) delete the memory accessed by the key buffer.
-    Buffer - Passed to the user comparasion routine.  Its contents are up to the user but one could imagine that it contains some sort of key value.
+    Buffer - Passed to the user comparasion routine.  
+             Its contents are up to the user but one could imagine that it contains some sort of key value.
 Return Value:
     BOOLEAN - If the table contained the key then true, otherwise false.
 */
@@ -267,7 +272,8 @@ PVOID RtlLookupElementGenericTable(IN PRTL_GENERIC_TABLE Table, IN PVOID Buffer)
 /*
 Routine Description:
     The function LookupElementGenericTable will find an element in a generic table.
-    If the element is located the return value is a pointer to the user defined structure associated with the element, otherwise if the element is not located the return value is NULL.
+    If the element is located the return value is a pointer to the user defined structure associated with the element,
+    otherwise if the element is not located the return value is NULL.
     The user supplied input buffer is only used as a key in locating the element in the table.
 Arguments:
     Table - Pointer to the users Generic table to search for the key.
@@ -283,7 +289,10 @@ Return Value:
 }
 
 
-PVOID NTAPI RtlLookupElementGenericTableFull(PRTL_GENERIC_TABLE Table, PVOID Buffer, OUT PVOID *NodeOrParent, OUT TABLE_SEARCH_RESULT *SearchResult)
+PVOID NTAPI RtlLookupElementGenericTableFull(PRTL_GENERIC_TABLE Table,
+                                             PVOID Buffer,
+                                             OUT PVOID *NodeOrParent,
+                                             OUT TABLE_SEARCH_RESULT *SearchResult)
 /*
 Routine Description:
     The function LookupElementGenericTableFull will find an element in a generic table.
@@ -433,7 +442,8 @@ Return Value:
         }
     } else {
         // When CurrentLocation is less than where we want to go, if moving backwards gets us there quicker than moving forwards
-        // then it follows that moving backwards from the listhead is going to take fewer steps. (This is because, moving backwards in this case must move *through* the listhead.)
+        // then it follows that moving backwards from the listhead is going to take fewer steps.
+        // (This is because, moving backwards in this case must move *through* the listhead.)
         ForwardDistance = NormalizedI - CurrentLocation;
 
         // Do the backwards calculation as if we are starting from the listhead.
@@ -481,12 +491,15 @@ Routine Description:
     If the are no more new elements to return the return value is NULL.
     As an example of its use, to enumerate all of the elements in a table the user would write:
         PVOID RestartKey = NULL;
-        for (ptr = RtlEnumerateGenericTableWithoutSplaying(Table, &RestartKey); ptr != NULL; ptr = RtlEnumerateGenericTableWithoutSplaying(Table, &RestartKey)) {
+        for (ptr = RtlEnumerateGenericTableWithoutSplaying(Table, &RestartKey);
+        ptr != NULL;
+        ptr = RtlEnumerateGenericTableWithoutSplaying(Table, &RestartKey)) {
                 :
         }
 Arguments:
     Table - Pointer to the generic table to enumerate.
-    RestartKey - Pointer that indicates if we should restart or return the next element.  If the contents of RestartKey is NULL, the search will be started from the beginning.
+    RestartKey - Pointer that indicates if we should restart or return the next element. 
+                 If the contents of RestartKey is NULL, the search will be started from the beginning.
 Return Value:
     PVOID - Pointer to the user data.
 */

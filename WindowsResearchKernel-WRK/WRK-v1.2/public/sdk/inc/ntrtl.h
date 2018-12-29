@@ -469,8 +469,7 @@ extern "C" {
         CLONG BufferSize,
         PBOOLEAN NewElement OPTIONAL,
         PVOID NodeOrParent,
-        TABLE_SEARCH_RESULT SearchResult
-    );
+        TABLE_SEARCH_RESULT SearchResult);
 
     //  The function DeleteElementGenericTable will find and delete an element from a generic table.
     //  If the element is located and deleted the return value is TRUE, otherwise if the element is not located the return value is FALSE.
@@ -796,7 +795,8 @@ extern "C" {
     );
 
     //  The function InsertElementGenericTable will insert a new element in a table.
-    //  It does this by allocating space for the new element (this includes splay links), inserting the element in the table, and then returning to the user a pointer to the new element.
+    //  It does this by allocating space for the new element (this includes splay links),
+    //  inserting the element in the table, and then returning to the user a pointer to the new element.
     //  If an element with the same key already exists in the table the return value is a pointer to the old element.
     //  The optional output parameter NewElement is used to indicate if the element previously existed in the table.
     //  Note: the user supplied Buffer is only used for searching the table, upon insertion its contents are copied to the newly created element.
@@ -805,7 +805,8 @@ extern "C" {
 
 
     //  The function InsertElementGenericTableFull will insert a new element in a table.
-    //  It does this by allocating space for the new element (this includes splay links), inserting the element in the table, and then returning to the user a pointer to the new element.
+    //  It does this by allocating space for the new element (this includes splay links),
+    //  inserting the element in the table, and then returning to the user a pointer to the new element.
     //  If an element with the same key already exists in the table the return value is a pointer to the old element.
     //  The optional output parameter NewElement is used to indicate if the element previously existed in the table.
     //  Note: the user supplied Buffer is only used for searching the table, upon insertion its contents are copied to the newly created element.
@@ -817,8 +818,7 @@ extern "C" {
         CLONG BufferSize,
         PBOOLEAN NewElement OPTIONAL,
         PVOID NodeOrParent,
-        TABLE_SEARCH_RESULT SearchResult
-    );
+        TABLE_SEARCH_RESULT SearchResult);
 
     //  The function DeleteElementGenericTable will find and delete an element from a generic table.
     //  If the element is located and deleted the return value is TRUE, otherwise if the element is not located the return value is FALSE.
@@ -826,7 +826,8 @@ extern "C" {
     NTSYSAPI BOOLEAN NTAPI RtlDeleteElementGenericTable(PRTL_GENERIC_TABLE Table, PVOID Buffer);
 
     //  The function LookupElementGenericTable will find an element in a generic table.
-    //  If the element is located the return value is a pointer to the user defined structure associated with the element, otherwise if the element is not located the return value is NULL.
+    //  If the element is located the return value is a pointer to the user defined structure associated with the element,
+    //  otherwise if the element is not located the return value is NULL.
     //  The user supplied input buffer is only used as a key in locating the element in the table.
     NTSYSAPI PVOID NTAPI RtlLookupElementGenericTable(PRTL_GENERIC_TABLE Table, PVOID Buffer);
 

@@ -88,12 +88,7 @@ typedef struct _TABLE_ENTRY_HEADER
 //  The default matching function which matches everything.
 
 
-NTSTATUS
-MatchAll(
-    IN PRTL_AVL_TABLE Table,
-    IN PVOID P1,
-    IN PVOID P2
-)
+NTSTATUS MatchAll(IN PRTL_AVL_TABLE Table, IN PVOID P1, IN PVOID P2)
 {
     return STATUS_SUCCESS;
     UNREFERENCED_PARAMETER(Table);
@@ -102,39 +97,23 @@ MatchAll(
 }
 
 
-TABLE_SEARCH_RESULT
-FindNodeOrParent(
-    IN PRTL_AVL_TABLE Table,
-    IN PVOID Buffer,
-    OUT PRTL_BALANCED_LINKS *NodeOrParent
-)
-
+TABLE_SEARCH_RESULT FindNodeOrParent(IN PRTL_AVL_TABLE Table, IN PVOID Buffer, OUT PRTL_BALANCED_LINKS *NodeOrParent)
 /*
-
 Routine Description:
-
     This routine is used by all of the routines of the generic
     table package to locate the a node in the tree.  It will
     find and return (via the NodeOrParent parameter) the node
     with the given key, or if that node is not in the tree it
-    will return (via the NodeOrParent parameter) a pointer to
-    the parent.
-
+    will return (via the NodeOrParent parameter) a pointer to the parent.
 Arguments:
-
     Table - The generic table to search for the key.
-
     Buffer - Pointer to a buffer holding the key.  The table
              package doesn't examine the key itself.  It leaves
              this up to the user supplied compare routine.
-
     NodeOrParent - Will be set to point to the node containing the
                    the key or what should be the parent of the node
-                   if it were in the tree.  Note that this will *NOT*
-                   be set if the search result is TableEmptyTree.
-
+                   if it were in the tree.  Note that this will *NOT* be set if the search result is TableEmptyTree.
 Return Value:
-
     TABLE_SEARCH_RESULT - TableEmptyTree: The tree was empty.  NodeOrParent
                                           is *not* altered.
 
@@ -143,107 +122,59 @@ Return Value:
 
                           TableInsertAsLeft: Node with key was not found.
                                              NodeOrParent points to what would be
-                                             parent.  The node would be the left
-                                             child.
+                                             parent.  The node would be the left child.
 
                           TableInsertAsRight: Node with key was not found.
                                               NodeOrParent points to what would be
-                                              parent.  The node would be the right
-                                              child.
-
+                                              parent.  The node would be the right child.
 */
-
 {
-
     if (RtlIsGenericTableEmptyAvl(Table)) {
-
         return TableEmptyTree;
-
     } else {
-
-
-        //  Used as the iteration variable while stepping through
-        //  the generic table.
-
-
+        //  Used as the iteration variable while stepping through the generic table.
         PRTL_BALANCED_LINKS NodeToExamine = Table->BalancedRoot.RightChild;
 
-
-        //  Just a temporary.  Hopefully a good compiler will get
-        //  rid of it.
-
-
+        //  Just a temporary.  Hopefully a good compiler will get rid of it.
         PRTL_BALANCED_LINKS Child;
 
-
         //  Holds the value of the comparasion.
-
-
         RTL_GENERIC_COMPARE_RESULTS Result;
 
         ULONG NumberCompares = 0;
 
         while (TRUE) {
-
-
             //  Compare the buffer with the key in the tree element.
-
-
-            Result = Table->CompareRoutine(
-                Table,
-                Buffer,
-                &((PTABLE_ENTRY_HEADER)NodeToExamine)->UserData
-            );
-
+            Result = Table->CompareRoutine(Table, Buffer, &((PTABLE_ENTRY_HEADER)NodeToExamine)->UserData);
 
             //  Make sure the depth of tree is correct.
-
-
             ASSERT(++NumberCompares <= Table->DepthOfTree);
 
             if (Result == GenericLessThan) {
-
                 if (Child = NodeToExamine->LeftChild) {
-
                     NodeToExamine = Child;
-
                 } else {
-
-
                     //  Node is not in the tree.  Set the output
                     //  parameter to point to what would be its
                     //  parent and return which child it would be.
-
 
                     *NodeOrParent = NodeToExamine;
                     return TableInsertAsLeft;
                 }
-
             } else if (Result == GenericGreaterThan) {
-
                 if (Child = NodeToExamine->RightChild) {
-
                     NodeToExamine = Child;
-
                 } else {
-
-
                     //  Node is not in the tree.  Set the output
                     //  parameter to point to what would be its
                     //  parent and return which child it would be.
 
-
                     *NodeOrParent = NodeToExamine;
                     return TableInsertAsRight;
                 }
-
             } else {
-
-
-                //  Node is in the tree (or it better be because of the
-                //  assert).  Set the output parameter to point to
-                //  the node and tell the caller that we found the node.
-
+                //  Node is in the tree (or it better be because of the assert). 
+                //  Set the output parameter to point to the node and tell the caller that we found the node.
 
                 ASSERT(Result == GenericEqual);
                 *NodeOrParent = NodeToExamine;
@@ -254,63 +185,40 @@ Return Value:
 }
 
 
-VOID
-PromoteNode(
-    IN PRTL_BALANCED_LINKS C
-)
-
+VOID PromoteNode(IN PRTL_BALANCED_LINKS C)
 /*
-
 Routine Description:
-
     This routine performs the fundamental adjustment required for balancing
     the binary tree during insert and delete operations.  Simply put, the designated
     node is promoted in such a way that it rises one level in the tree and its parent
     drops one level in the tree, becoming now the child of the designated node.
     Generally the path length to the subtree "opposite" the original parent.  Balancing
-    occurs as the caller chooses which nodes to promote according to the balanced tree
-    algorithms from Knuth.
+    occurs as the caller chooses which nodes to promote according to the balanced tree algorithms from Knuth.
 
-    This is not the same as a splay operation, typically a splay "promotes" a designated
-    node twice.
+    This is not the same as a splay operation, typically a splay "promotes" a designated node twice.
 
     Note that the pointer to the root node of the tree is assumed to be contained in a
     RTL_BALANCED_LINK structure itself, to allow the algorithms below to change the root
     of the tree without checking for special cases.  Note also that this is an internal
     routine, and the caller guarantees that it never requests to promote the root itself.
 
-    This routine only updates the tree links; the caller must update the balance factors
-    as appropriate.
+    This routine only updates the tree links; the caller must update the balance factors as appropriate.
 
 Arguments:
-
     C - pointer to the child node to be promoted in the tree.
-
 Return Value:
-
     None.
-
 */
-
 {
     PRTL_BALANCED_LINKS P, G;
 
-
     //  Capture the current parent and grandparent (may be the root).
-
-
     P = C->Parent;
     G = P->Parent;
 
-
     //  Break down the promotion into two cases based upon whether C is a left or right child.
-
-
     if (P->LeftChild == C) {
-
-
         //  This promotion looks like this:
-
         //          G           G
         //          |           |
         //          P           C
@@ -319,26 +227,18 @@ Return Value:
         //       / \             / \
         //      x   y           y   z
 
-
         P->LeftChild = checkit(C->RightChild);
-
         if (P->LeftChild != NULL) {
             P->LeftChild->Parent = checkit(P);
         }
 
         C->RightChild = checkit(P);
 
-
         //  Fall through to update parent and G <-> C relationship in common code.
-
-
     } else {
-
         ASSERT(P->RightChild == C);
 
-
         //  This promotion looks like this:
-
         //        G               G
         //        |               |
         //        P               C
@@ -347,9 +247,7 @@ Return Value:
         //         / \         / \
         //        y   z       x   y
 
-
         P->RightChild = checkit(C->LeftChild);
-
         if (P->RightChild != NULL) {
             P->RightChild->Parent = checkit(P);
         }
@@ -357,16 +255,10 @@ Return Value:
         C->LeftChild = checkit(P);
     }
 
-
     //  Update parent of P, for either case above.
-
-
     P->Parent = checkit(C);
 
-
     //  Finally update G <-> C links for either case above.
-
-
     if (G->LeftChild == P) {
         G->LeftChild = checkit(C);
     } else {
@@ -377,15 +269,9 @@ Return Value:
 }
 
 
-ULONG
-RebalanceNode(
-    IN PRTL_BALANCED_LINKS S
-)
-
+ULONG RebalanceNode(IN PRTL_BALANCED_LINKS S)
 /*
-
 Routine Description:
-
     This routine performs a rebalance around the input node S, for which the
     Balance factor has just effectively become +2 or -2.  When called, the
     Balance factor still has a value of +1 or -1, but the respective longer
@@ -401,30 +287,21 @@ Routine Description:
     Knuth says it is obvious!
 
 Arguments:
-
     S - pointer to the node which has just become unbalanced.
-
 Return Value:
-
     TRUE if Case 3 was detected (causes delete algorithm to terminate).
-
 */
-
 {
     PRTL_BALANCED_LINKS R, P;
     CHAR a;
 
-
     //  Capture which side is unbalanced.
-
-
     a = S->Balance;
     if (a == +1) {
         R = S->RightChild;
     } else {
         R = S->LeftChild;
     }
-
 
     //  If the balance of R and S are the same (Case 1 in Knuth) then a single
     //  promotion of R will do the single rotation.  (Step A8, A10)
@@ -442,21 +319,17 @@ Return Value:
 
     //  Note that on an insert we can hit this case by inserting an item in the
     //  right subtree of R.  The original height of the subtree before the insert
-    //  was h+2, and it is still h+2 after the rebalance, so insert rebalancing may
-    //  terminate.
+    //  was h+2, and it is still h+2 after the rebalance, so insert rebalancing may terminate.
 
     //  On a delete we can hit this case by deleting a node from the left subtree
     //  of S.  The height of the subtree before the delete was h+3, and after the
     //  rebalance it is h+2, so rebalancing must continue up the tree.
 
-
     if (R->Balance == a) {
-
         PromoteNode(R);
         R->Balance = 0;
         S->Balance = 0;
         return FALSE;
-
 
         //  Otherwise, we have to promote the appropriate child of R twice (Case 2
         //  in Knuth).  (Step A9, A10)
@@ -464,8 +337,7 @@ Return Value:
         //  Here is a diagram of the Case 2 transformation, for a == +1 (a mirror
         //  image transformation occurs when a == -1), and where the subtree
         //  heights are h and h-1 as shown.  There are actually two minor subcases,
-        //  differing only in the original balance of P (++ indicates the node out
-        //  of balance).
+        //  differing only in the original balance of P (++ indicates the node out of balance).
 
         //                  |                   |
         //                  S++                 P
@@ -492,37 +364,24 @@ Return Value:
 
         //  Note that on an insert we can hit this case by inserting an item in the
         //  left subtree of R.  The original height of the subtree before the insert
-        //  was h+2, and it is still h+2 after the rebalance, so insert rebalancing may
-        //  terminate.
+        //  was h+2, and it is still h+2 after the rebalance, so insert rebalancing may terminate.
 
         //  On a delete we can hit this case by deleting a node from the left subtree
         //  of S.  The height of the subtree before the delete was h+3, and after the
         //  rebalance it is h+2, so rebalancing must continue up the tree.
-
-
     } else if (R->Balance == -a) {
-
-
         //  Pick up the appropriate child P for the double rotation (Link(-a,R)).
-
-
         if (a == 1) {
             P = R->LeftChild;
         } else {
             P = R->RightChild;
         }
 
-
         //  Promote him twice to implement the double rotation.
-
-
         PromoteNode(P);
         PromoteNode(P);
-
 
         //  Now adjust the balance factors.
-
-
         S->Balance = 0;
         R->Balance = 0;
         if (P->Balance == a) {
@@ -533,7 +392,6 @@ Return Value:
 
         P->Balance = 0;
         return FALSE;
-
 
         //  Otherwise this is Case 3 which can only happen on Delete (identical to Case 1 except
         //  R->Balance == 0).  We do a single rotation, adjust the balance factors appropriately,
@@ -558,10 +416,7 @@ Return Value:
         //  On a delete we can hit this case by deleting a node from the left subtree
         //  of S.  The height of the subtree before the delete was h+3, and after the
         //  rebalance it is still h+3, so rebalancing may terminate in the delete path.
-
-
     } else {
-
         PromoteNode(R);
         R->Balance = -a;
         return TRUE;
@@ -569,90 +424,53 @@ Return Value:
 }
 
 
-VOID
-DeleteNodeFromTree(
-    IN PRTL_AVL_TABLE Table,
-    IN PRTL_BALANCED_LINKS NodeToDelete
-)
-
+VOID DeleteNodeFromTree(IN PRTL_AVL_TABLE Table, IN PRTL_BALANCED_LINKS NodeToDelete)
 /*
-
 Routine Description:
-
     This routine deletes the specified node from the balanced tree, rebalancing
     as necessary.  If the NodeToDelete has at least one NULL child pointers, then
     it is chosen as the EasyDelete, otherwise a subtree predecessor or successor
     is found as the EasyDelete.  In either case the EasyDelete is deleted
     and the tree is rebalanced.  Finally if the NodeToDelete was different
-    than the EasyDelete, then the EasyDelete is linked back into the tree in
-    place of the NodeToDelete.
-
+    than the EasyDelete, then the EasyDelete is linked back into the tree in place of the NodeToDelete.
 Arguments:
-
     Table - The generic table in which the delete is to occur.
-
     NodeToDelete - Pointer to the node which the caller wishes to delete.
-
 Return Value:
-
     None.
-
 */
-
 {
     PRTL_BALANCED_LINKS EasyDelete;
     PRTL_BALANCED_LINKS P;
     CHAR a;
 
-
-    //  If the NodeToDelete has at least one NULL child pointer, then we can
-    //  delete it directly.
-
-
+    //  If the NodeToDelete has at least one NULL child pointer, then we can delete it directly.
     if ((NodeToDelete->LeftChild == NULL) || (NodeToDelete->RightChild == NULL)) {
-
         EasyDelete = NodeToDelete;
-
 
         //  Otherwise, we may as well pick the longest side to delete from (if one is
         //  is longer), as that reduces the probability that we will have to rebalance.
-
-
     } else if (NodeToDelete->Balance >= 0) {
-
-
         //  Pick up the subtree successor.
-
-
         EasyDelete = NodeToDelete->RightChild;
         while (EasyDelete->LeftChild != NULL) {
             EasyDelete = EasyDelete->LeftChild;
         }
     } else {
-
-
         //  Pick up the subtree predecessor.
-
-
         EasyDelete = NodeToDelete->LeftChild;
         while (EasyDelete->RightChild != NULL) {
             EasyDelete = EasyDelete->RightChild;
         }
     }
 
-
     //  Rebalancing must know which side of the first parent the delete occurred
     //  on.  Assume it is the left side and otherwise correct below.
 
-
     a = -1;
 
-
     //  Now we can do the simple deletion for the no left child case.
-
-
     if (EasyDelete->LeftChild == NULL) {
-
         if (RtlIsLeftChild(EasyDelete)) {
             EasyDelete->Parent->LeftChild = checkit(EasyDelete->RightChild);
         } else {
@@ -664,13 +482,9 @@ Return Value:
             EasyDelete->RightChild->Parent = checkit(EasyDelete->Parent);
         }
 
-
         //  Now we can do the simple deletion for the no right child case,
         //  plus we know there is a left child.
-
-
     } else {
-
         if (RtlIsLeftChild(EasyDelete)) {
             EasyDelete->Parent->LeftChild = checkit(EasyDelete->LeftChild);
         } else {
@@ -681,67 +495,41 @@ Return Value:
         EasyDelete->LeftChild->Parent = checkit(EasyDelete->Parent);
     }
 
-
     //  For delete rebalancing, set the balance at the root to 0 to properly
     //  terminate the rebalance without special tests, and to be able to detect
     //  if the depth of the tree actually decreased.
 
-
     Table->BalancedRoot.Balance = 0;
     P = EasyDelete->Parent;
 
-
     //  Loop until the tree is balanced.
-
-
     while (TRUE) {
-
-
         //  First handle the case where the tree became more balanced.  Zero
-        //  the balance factor, calculate a for the next loop and move on to
-        //  the parent.
-
+        //  the balance factor, calculate a for the next loop and move on to the parent.
 
         if (P->Balance == a) {
-
             P->Balance = 0;
-
 
             //  If this node is curently balanced, we can show it is now unbalanced
             //  and terminate the scan since the subtree length has not changed.
             //  (This may be the root, since we set Balance to 0 above!)
-
-
         } else if (P->Balance == 0) {
-
             P->Balance = -a;
 
-
-            //  If we shortened the depth all the way back to the root, then the tree really
-            //  has one less level.
-
-
+            //  If we shortened the depth all the way back to the root, then the tree really has one less level.
             if (Table->BalancedRoot.Balance != 0) {
                 Table->DepthOfTree -= 1;
             }
 
             break;
 
-
             //  Otherwise we made the short side 2 levels less than the long side,
             //  and rebalancing is required.  On return, some node has been promoted
             //  to above node P.  If Case 3 from Knuth was not encountered, then we
             //  want to effectively resume rebalancing from P's original parent which
             //  is effectively its grandparent now.
-
-
         } else {
-
-
-            //  We are done if Case 3 was hit, i.e., the depth of this subtree is
-            //  now the same as before the delete.
-
-
+            //  We are done if Case 3 was hit, i.e., the depth of this subtree is now the same as before the delete.
             if (RebalanceNode(P)) {
                 break;
             }
@@ -756,12 +544,9 @@ Return Value:
         P = P->Parent;
     }
 
-
     //  Finally, if we actually deleted a predecessor/successor of the NodeToDelete,
     //  we will link him back into the tree to replace NodeToDelete before returning.
-    //  Note that NodeToDelete did have both child links filled in, but that may no
-    //  longer be the case at this point.
-
+    //  Note that NodeToDelete did have both child links filled in, but that may no longer be the case at this point.
 
     if (NodeToDelete != EasyDelete) {
         *EasyDelete = *NodeToDelete;
@@ -781,29 +566,17 @@ Return Value:
 }
 
 
-PRTL_BALANCED_LINKS
-RealSuccessor(
-    IN PRTL_BALANCED_LINKS Links
-)
-
+PRTL_BALANCED_LINKS RealSuccessor(IN PRTL_BALANCED_LINKS Links)
 /*
-
 Routine Description:
-
     The RealSuccessor function takes as input a pointer to a balanced link
     in a tree and returns a pointer to the successor of the input node within
     the entire tree.  If there is not a successor, the return value is NULL.
-
 Arguments:
-
     Links - Supplies a pointer to a balanced link in a tree.
-
 Return Value:
-
     PRTL_BALANCED_LINKS - returns a pointer to the successor in the entire tree
-
 */
-
 {
     PRTL_BALANCED_LINKS Ptr;
 
@@ -823,13 +596,11 @@ Return Value:
     */
 
     if ((Ptr = Links->RightChild) != NULL) {
-
         while (Ptr->LeftChild != NULL) {
             Ptr = Ptr->LeftChild;
         }
 
         return Ptr;
-
     }
 
     /*
@@ -858,13 +629,10 @@ Return Value:
         return Ptr->Parent;
     }
 
-
-    //  otherwise we are do not have a real successor so we simply return
-    //  NULL.
+    //  otherwise we are do not have a real successor so we simply return NULL.
 
     //  This can only occur when we get back to the root, and we can tell
     //  that since the Root is its own parent.
-
 
     ASSERT(Ptr->Parent == Ptr);
 
@@ -872,30 +640,17 @@ Return Value:
 }
 
 
-PRTL_BALANCED_LINKS
-RealPredecessor(
-    IN PRTL_BALANCED_LINKS Links
-)
-
+PRTL_BALANCED_LINKS RealPredecessor(IN PRTL_BALANCED_LINKS Links)
 /*
-
 Routine Description:
-
     The RealPredecessor function takes as input a pointer to a balanced link
     in a tree and returns a pointer to the predecessor of the input node
-    within the entire tree.  If there is not a predecessor, the return value
-    is NULL.
-
+    within the entire tree.  If there is not a predecessor, the return value is NULL.
 Arguments:
-
     Links - Supplies a pointer to a balanced link in a tree.
-
 Return Value:
-
     PRTL_BALANCED_LINKS - returns a pointer to the predecessor in the entire tree
-
 */
-
 {
     PRTL_BALANCED_LINKS Ptr;
 
@@ -914,13 +669,11 @@ Return Value:
     */
 
     if ((Ptr = Links->LeftChild) != NULL) {
-
         while (Ptr->RightChild != NULL) {
             Ptr = Ptr->RightChild;
         }
 
         return Ptr;
-
     }
 
     /*
@@ -949,57 +702,33 @@ Return Value:
         return Ptr->Parent;
     }
 
-
-    //  otherwise we are do not have a real predecessor so we simply return
-    //  NULL
-
-
+    //  otherwise we are do not have a real predecessor so we simply return NULL
     return NULL;
-
 }
 
 
-VOID
-RtlInitializeGenericTableAvl(
+VOID RtlInitializeGenericTableAvl(
     IN PRTL_AVL_TABLE Table,
     IN PRTL_AVL_COMPARE_ROUTINE CompareRoutine,
     IN PRTL_AVL_ALLOCATE_ROUTINE AllocateRoutine,
     IN PRTL_AVL_FREE_ROUTINE FreeRoutine,
     IN PVOID TableContext
 )
-
 /*
-
 Routine Description:
-
     The procedure InitializeGenericTableAvl takes as input an uninitialized
     generic table variable and pointers to the three user supplied routines.
-    This must be called for every individual generic table variable before
-    it can be used.
-
+    This must be called for every individual generic table variable before it can be used.
 Arguments:
-
     Table - Pointer to the generic table to be initialized.
-
-    CompareRoutine - User routine to be used to compare to keys in the
-                     table.
-
-    AllocateRoutine - User routine to call to allocate memory for a new
-                      node in the generic table.
-
-    FreeRoutine - User routine to call to deallocate memory for
-                        a node in the generic table.
-
+    CompareRoutine - User routine to be used to compare to keys in the table.
+    AllocateRoutine - User routine to call to allocate memory for a new node in the generic table.
+    FreeRoutine - User routine to call to deallocate memory for a node in the generic table.
     TableContext - Supplies user supplied context for the table.
-
 Return Value:
-
     None.
-
 */
-
 {
-
 #ifdef NTFS_FREE_ASSERTS
     ULONG i;
 
@@ -1008,34 +737,26 @@ Return Value:
     }
 #endif
 
-
     //  Initialize each field of the Table parameter.
-
-
     RtlZeroMemory(Table, sizeof(RTL_AVL_TABLE));
     Table->BalancedRoot.Parent = &Table->BalancedRoot;
     Table->CompareRoutine = CompareRoutine;
     Table->AllocateRoutine = AllocateRoutine;
     Table->FreeRoutine = FreeRoutine;
     Table->TableContext = TableContext;
-
 }
 
 
-PVOID
-RtlInsertElementGenericTableAvl(
+PVOID RtlInsertElementGenericTableAvl(
     IN PRTL_AVL_TABLE Table,
     IN PVOID Buffer,
     IN CLONG BufferSize,
     OUT PBOOLEAN NewElement OPTIONAL
 )
-
 /*
-
 Routine Description:
-
-    The function InsertElementGenericTableAvl will insert a new element
-    in a table.  It does this by allocating space for the new element
+    The function InsertElementGenericTableAvl will insert a new element in a table.  
+    It does this by allocating space for the new element
     (this includes splay links), inserting the element in the table, and
     then returning to the user a pointer to the new element (which is
     the first available space after the splay links).  If an element
@@ -1048,12 +769,10 @@ Routine Description:
 
 Arguments:
 
-    Table - Pointer to the table in which to (possibly) insert the
-            key buffer.
+    Table - Pointer to the table in which to (possibly) insert the key buffer.
 
     Buffer - Passed to the user comparasion routine.  Its contents are
-             up to the user but one could imagine that it contains some
-             sort of key value.
+             up to the user but one could imagine that it contains some sort of key value.
 
     BufferSize - The amount of space to allocate when the (possible)
                  insertion is made.  Note that if we actually do
@@ -1061,57 +780,29 @@ Arguments:
                  will add the size of the BALANCED_LINKS to this buffer
                  size.  The user should really take care not to depend
                  on anything in the first sizeof(BALANCED_LINKS) bytes
-                 of the memory allocated via the memory allocation
-                 routine.
+                 of the memory allocated via the memory allocation routine.
 
     NewElement - Optional Flag.  If present then it will be set to
-                 TRUE if the buffer was not "found" in the generic
-                 table.
+                 TRUE if the buffer was not "found" in the generic table.
 
 Return Value:
-
     PVOID - Pointer to the user defined data.
-
 */
-
 {
-
-
-    //  Holds a pointer to the node in the table or what would be the
-    //  parent of the node.
-
-
+    //  Holds a pointer to the node in the table or what would be the parent of the node.
     PRTL_BALANCED_LINKS NodeOrParent;
 
-
     //  Holds the result of the table lookup.
-
-
     TABLE_SEARCH_RESULT Lookup;
 
-    Lookup = FindNodeOrParent(
-        Table,
-        Buffer,
-        &NodeOrParent
-    );
-
+    Lookup = FindNodeOrParent(Table, Buffer, &NodeOrParent);
 
     //  Call the full routine to do the real work.
-
-
-    return RtlInsertElementGenericTableFullAvl(
-        Table,
-        Buffer,
-        BufferSize,
-        NewElement,
-        NodeOrParent,
-        Lookup
-    );
+    return RtlInsertElementGenericTableFullAvl(Table, Buffer, BufferSize, NewElement, NodeOrParent, Lookup);
 }
 
 
-PVOID
-RtlInsertElementGenericTableFullAvl(
+PVOID RtlInsertElementGenericTableFullAvl(
     IN PRTL_AVL_TABLE Table,
     IN PVOID Buffer,
     IN CLONG BufferSize,
@@ -1119,11 +810,8 @@ RtlInsertElementGenericTableFullAvl(
     IN PVOID NodeOrParent,
     IN TABLE_SEARCH_RESULT SearchResult
 )
-
 /*
-
 Routine Description:
-
     The function InsertElementGenericTableFullAvl will insert a new element
     in a table.  It does this by allocating space for the new element
     (this includes splay links), inserting the element in the table, and
@@ -1134,17 +822,14 @@ Routine Description:
     supplied Buffer is only used for searching the table, upon insertion its
     contents are copied to the newly created element.  This means that
     pointer to the input buffer will not point to the new element.
-    This routine is passed the NodeOrParent and SearchResult from a
-    previous RtlLookupElementGenericTableFullAvl.
+    This routine is passed the NodeOrParent and SearchResult from a previous RtlLookupElementGenericTableFullAvl.
 
 Arguments:
 
-    Table - Pointer to the table in which to (possibly) insert the
-            key buffer.
+    Table - Pointer to the table in which to (possibly) insert the key buffer.
 
     Buffer - Passed to the user comparasion routine.  Its contents are
-             up to the user but one could imagine that it contains some
-             sort of key value.
+             up to the user but one could imagine that it contains some sort of key value.
 
     BufferSize - The amount of space to allocate when the (possible)
                  insertion is made.  Note that if we actually do
@@ -1152,60 +837,33 @@ Arguments:
                  will add the size of the BALANCED_LINKS to this buffer
                  size.  The user should really take care not to depend
                  on anything in the first sizeof(BALANCED_LINKS) bytes
-                 of the memory allocated via the memory allocation
-                 routine.
+                 of the memory allocated via the memory allocation routine.
 
     NewElement - Optional Flag.  If present then it will be set to
-                 TRUE if the buffer was not "found" in the generic
-                 table.
+                 TRUE if the buffer was not "found" in the generic table.
 
    NodeOrParent - Result of prior RtlLookupElementGenericTableFullAvl.
 
    SearchResult - Result of prior RtlLookupElementGenericTableFullAvl.
 
 Return Value:
-
     PVOID - Pointer to the user defined data.
-
 */
-
 {
-
-    //  Node will point to the splay links of what
-    //  will be returned to the user.
-
-
+    //  Node will point to the splay links of what will be returned to the user.
     PTABLE_ENTRY_HEADER NodeToReturn;
 
     if (SearchResult != TableFoundNode) {
-
-
-        //  We just check that the table isn't getting
-        //  too big.
-
-
+        //  We just check that the table isn't getting too big.
         ASSERT(Table->NumberGenericTableElements != (MAXULONG - 1));
 
-
         //  The node wasn't in the (possibly empty) tree.
-        //  Call the user allocation routine to get space
-        //  for the new node.
+        //  Call the user allocation routine to get space for the new node.
+        NodeToReturn = Table->AllocateRoutine(Table, BufferSize + FIELD_OFFSET(TABLE_ENTRY_HEADER, UserData));
 
-
-        NodeToReturn = Table->AllocateRoutine(
-            Table,
-            BufferSize + FIELD_OFFSET(TABLE_ENTRY_HEADER, UserData)
-        );
-
-
-        //  If the return is NULL, return NULL from here to indicate that
-        //  the entry could not be added.
-
-
+        //  If the return is NULL, return NULL from here to indicate that the entry could not be added.
         if (NodeToReturn == NULL) {
-
             if (ARGUMENT_PRESENT(NewElement)) {
-
                 *NewElement = FALSE;
             }
 
@@ -1216,65 +874,42 @@ Return Value:
 
         Table->NumberGenericTableElements++;
 
-
         //  Insert the new node in the tree.
-
-
         if (SearchResult == TableEmptyTree) {
-
             Table->BalancedRoot.RightChild = &NodeToReturn->BalancedLinks;
             NodeToReturn->BalancedLinks.Parent = &Table->BalancedRoot;
             ASSERT(Table->DepthOfTree == 0);
             Table->DepthOfTree = 1;
-
         } else {
-
             PRTL_BALANCED_LINKS R = &NodeToReturn->BalancedLinks;
             PRTL_BALANCED_LINKS S = (PRTL_BALANCED_LINKS)NodeOrParent;
 
             if (SearchResult == TableInsertAsLeft) {
-
                 ((PRTL_BALANCED_LINKS)NodeOrParent)->LeftChild = checkit(&NodeToReturn->BalancedLinks);
-
             } else {
-
                 ((PRTL_BALANCED_LINKS)NodeOrParent)->RightChild = checkit(&NodeToReturn->BalancedLinks);
             }
 
             NodeToReturn->BalancedLinks.Parent = NodeOrParent;
 
-
             //  The above completes the standard binary tree insertion, which
             //  happens to correspond to steps A1-A5 of Knuth's "balanced tree
             //  search and insertion" algorithm.  Now comes the time to adjust
-            //  balance factors and possibly do a single or double rotation as
-            //  in steps A6-A10.
+            //  balance factors and possibly do a single or double rotation as in steps A6-A10.
 
-
-            //  Set the Balance factor in the root to a convenient value
-            //  to simplify loop control.
-
-
+            //  Set the Balance factor in the root to a convenient value to simplify loop control.
             Table->BalancedRoot.Balance = -1;
-
 
             //  Now loop to adjust balance factors and see if any balance operations
             //  must be performed, using NodeOrParent to ascend the tree.
-
-
             while (TRUE) {
-
                 CHAR a;
 
-
                 //  Calculate the next adjustment.
-
-
                 a = 1;
                 if (RtlIsLeftChild(R)) {
                     a = -1;
                 }
-
 
                 //  If this node was balanced, show that it is no longer and keep looping.
                 //  This is essentially A6 of Knuth's algorithm, where he updates all of
@@ -1282,31 +917,20 @@ Return Value:
                 //  balance factors of 0.  We are looping up the tree via Parent pointers
                 //  rather than down the tree as in Knuth.
 
-
                 if (S->Balance == 0) {
-
                     S->Balance = a;
                     R = S;
                     S = S->Parent;
 
-
                     //  If this node has the opposite balance, then the tree got more balanced
                     //  (or we hit the root) and we are done.
-
-
                 } else if (S->Balance != a) {
-
-
                     //  Step A7.ii
-
-
                     S->Balance = 0;
-
 
                     //  If S is actually the root, then this means the depth of the tree
                     //  just increased by 1!  (This is essentially A7.i, but we just
                     //  initialized the root balance to force it through here.)
-
 
                     if (Table->BalancedRoot.Balance == 0) {
                         Table->DepthOfTree += 1;
@@ -1314,50 +938,32 @@ Return Value:
 
                     break;
 
-
                     //  Otherwise the tree became unbalanced (path length differs by 2 below us)
                     //  and we need to do one of the balancing operations, and then we are done.
                     //  The RebalanceNode routine does steps A7.iii, A8 and A9.
-
-
                 } else {
-
                     RebalanceNode(S);
                     break;
                 }
             }
         }
 
-
         //  Copy the users buffer into the user data area of the table.
-
-
         RtlCopyMemory(&NodeToReturn->UserData, Buffer, BufferSize);
-
     } else {
-
         NodeToReturn = NodeOrParent;
     }
 
-
     //  Optionally return the NewElement boolean.
-
-
     if (ARGUMENT_PRESENT(NewElement)) {
         *NewElement = ((SearchResult == TableFoundNode) ? (FALSE) : (TRUE));
     }
 
-
     //  Sanity check tree size and depth.
-
-
     ASSERT((Table->NumberGenericTableElements >= WorstCaseFill[Table->DepthOfTree]) &&
         (Table->NumberGenericTableElements <= BestCaseFill[Table->DepthOfTree]));
 
-
     //  Insert the element on the ordered list;
-
-
     return &NodeToReturn->UserData;
 }
 
@@ -1366,11 +972,13 @@ BOOLEAN RtlDeleteElementGenericTableAvl(IN PRTL_AVL_TABLE Table, IN PVOID Buffer
 /*
 Routine Description:
     The function DeleteElementGenericTableAvl will find and delete an element from a generic table.
-    If the element is located and deleted the return value is TRUE, otherwise if the element is not located the return value is FALSE.
+    If the element is located and deleted the return value is TRUE, 
+    otherwise if the element is not located the return value is FALSE.
     The user supplied input buffer is only used as a key in locating the element in the table.
 Arguments:
     Table - Pointer to the table in which to (possibly) delete the memory accessed by the key buffer.
-    Buffer - Passed to the user comparasion routine.  Its contents are up to the user but one could imagine that it contains some sort of key value.
+    Buffer - Passed to the user comparasion routine. 
+             Its contents are up to the user but one could imagine that it contains some sort of key value.
 Return Value:
     BOOLEAN - If the table contained the key then true, otherwise false.
 */
@@ -1400,7 +1008,8 @@ Return Value:
         Table->OrderedPointer = NULL;
 
         //  Sanity check tree size and depth.
-        ASSERT((Table->NumberGenericTableElements >= WorstCaseFill[Table->DepthOfTree]) && (Table->NumberGenericTableElements <= BestCaseFill[Table->DepthOfTree]));
+        ASSERT((Table->NumberGenericTableElements >= WorstCaseFill[Table->DepthOfTree]) && 
+            (Table->NumberGenericTableElements <= BestCaseFill[Table->DepthOfTree]));
 
         //  The node has been deleted from the splay table.
         //  Now give the node to the user deletion routine.
@@ -1412,129 +1021,68 @@ Return Value:
 }
 
 
-PVOID
-RtlLookupElementGenericTableAvl(
-    IN PRTL_AVL_TABLE Table,
-    IN PVOID Buffer
-)
-
+PVOID RtlLookupElementGenericTableAvl(IN PRTL_AVL_TABLE Table, IN PVOID Buffer)
 /*
-
 Routine Description:
-
     The function LookupElementGenericTable will find an element in a generic
     table.  If the element is located the return value is a pointer to
     the user defined structure associated with the element, otherwise if
     the element is not located the return value is NULL.  The user supplied
     input buffer is only used as a key in locating the element in the table.
-
 Arguments:
-
     Table - Pointer to the users Generic table to search for the key.
-
     Buffer - Used for the comparasion.
-
 Return Value:
-
     PVOID - returns a pointer to the user data.
-
 */
-
 {
-
-    //  Holds a pointer to the node in the table or what would be the
-    //  parent of the node.
-
+    //  Holds a pointer to the node in the table or what would be the parent of the node.
     PRTL_BALANCED_LINKS NodeOrParent;
 
-
     //  Holds the result of the table lookup.
-
     TABLE_SEARCH_RESULT Lookup;
 
-    return RtlLookupElementGenericTableFullAvl(
-        Table,
-        Buffer,
-        &NodeOrParent,
-        &Lookup
-    );
+    return RtlLookupElementGenericTableFullAvl(Table, Buffer, &NodeOrParent, &Lookup);
 }
 
 
-PVOID
-NTAPI
-RtlLookupElementGenericTableFullAvl(
+PVOID NTAPI RtlLookupElementGenericTableFullAvl(
     PRTL_AVL_TABLE Table,
     PVOID Buffer,
     OUT PVOID *NodeOrParent,
     OUT TABLE_SEARCH_RESULT *SearchResult
 )
-
 /*
-
 Routine Description:
-
     The function LookupElementGenericTableFullAvl will find an element in a generic
     table.  If the element is located the return value is a pointer to
     the user defined structure associated with the element.  If the element is not
     located then a pointer to the parent for the insert location is returned.  The
     user must look at the SearchResult value to determine which is being returned.
-    The user can use the SearchResult and parent for a subsequent FullInsertElement
-    call to optimize the insert.
-
+    The user can use the SearchResult and parent for a subsequent FullInsertElement call to optimize the insert.
 Arguments:
-
     Table - Pointer to the users Generic table to search for the key.
-
     Buffer - Used for the comparasion.
-
     NodeOrParent - Address to store the desired Node or parent of the desired node.
-
     SearchResult - Describes the relationship of the NodeOrParent with the desired Node.
-
 Return Value:
-
     PVOID - returns a pointer to the user data.
-
 */
-
 {
-
-
     //  Lookup the element and save the result.
-
-
-    *SearchResult = FindNodeOrParent(
-        Table,
-        Buffer,
-        (PRTL_BALANCED_LINKS *)NodeOrParent
-    );
-
+    *SearchResult = FindNodeOrParent(Table, Buffer, (PRTL_BALANCED_LINKS *)NodeOrParent);
     if (*SearchResult != TableFoundNode) {
-
         return NULL;
-
     } else {
-
-
         //  Return a pointer to the user data.
-
-
         return &((PTABLE_ENTRY_HEADER)*NodeOrParent)->UserData;
     }
 }
 
 
-PVOID
-RtlEnumerateGenericTableAvl(
-    IN PRTL_AVL_TABLE Table,
-    IN BOOLEAN Restart
-)
-
+PVOID RtlEnumerateGenericTableAvl(IN PRTL_AVL_TABLE Table, IN BOOLEAN Restart)
 /*
-
 Routine Description:
-
     The function EnumerateGenericTableAvl will return to the caller one-by-one
     the elements of of a table.  The return value is a pointer to the user
     defined structure associated with the element.  The input parameter
@@ -1553,26 +1101,16 @@ Routine Description:
     RtlEnumerateGenericTableLikeADirectory.
 
 Arguments:
-
     Table - Pointer to the generic table to enumerate.
-
     Restart - Flag that if true we should start with the least
               element in the tree otherwise, return we return
               a pointer to the user data for the root and make
               the real successor to the root the new root.
-
 Return Value:
-
     PVOID - Pointer to the user data.
-
 */
-
 {
-
-    //  If he said Restart, then zero Table->RestartKey before calling the
-    //  common routine.
-
-
+    //  If he said Restart, then zero Table->RestartKey before calling the common routine.
     if (Restart) {
         Table->RestartKey = NULL;
     }
@@ -1581,49 +1119,25 @@ Return Value:
 }
 
 
-BOOLEAN
-RtlIsGenericTableEmptyAvl(
-    IN PRTL_AVL_TABLE Table
-)
-
+BOOLEAN RtlIsGenericTableEmptyAvl(IN PRTL_AVL_TABLE Table)
 /*
-
 Routine Description:
-
     The function IsGenericTableEmptyAvl will return to the caller TRUE if
-    the input table is empty (i.e., does not contain any elements) and
-    FALSE otherwise.
-
+    the input table is empty (i.e., does not contain any elements) and FALSE otherwise.
 Arguments:
-
     Table - Supplies a pointer to the Generic Table.
-
 Return Value:
-
     BOOLEAN - if enabled the tree is empty.
-
 */
-
 {
-
     //  Table is empty if the root pointer is null.
-
-
     return ((Table->NumberGenericTableElements) ? (FALSE) : (TRUE));
 }
 
 
-PVOID
-RtlGetElementGenericTableAvl(
-    IN PRTL_AVL_TABLE Table,
-    IN ULONG I
-)
-
+PVOID RtlGetElementGenericTableAvl(IN PRTL_AVL_TABLE Table, IN ULONG I)
 /*
-
 Routine Description:
-
-
     The function GetElementGenericTableAvl will return the i'th element in the
     generic table by collation order.  I = 0 implies the first/lowest element,
     I = (RtlNumberGenericTableElements2(Table)-1) will return the last/highest
@@ -1647,89 +1161,49 @@ Routine Description:
     COMMENTS FOR RtlEnumerateGenericTableLikeADirectory.
 
 Arguments:
-
     Table - Pointer to the generic table from which to get the ith element.
-
     I - Which element to get.
-
-
 Return Value:
-
     PVOID - Pointer to the user data.
-
 */
-
 {
-
     //  Current location in the table, 0-based like I.
-
-
     ULONG CurrentLocation = Table->WhichOrderedElement;
 
-
     //  Hold the number of elements in the table.
-
-
     ULONG NumberInTable = Table->NumberGenericTableElements;
 
-
     //  Will hold distances to travel to the desired node;
-
-
     ULONG ForwardDistance, BackwardDistance;
 
-
     //  Will point to the current element in the linked list.
-
-
     PRTL_BALANCED_LINKS CurrentNode = (PRTL_BALANCED_LINKS)Table->OrderedPointer;
 
-
     //  If it's out of bounds get out quick.
-
-
     if ((I == MAXULONG) || ((I + 1) > NumberInTable)) return NULL;
-
 
     //  NULL means first node.  We just loop until we find the leftmost child of the root.
     //  Because of the above test, we know there is at least one element in the table.
-
-
     if (CurrentNode == NULL) {
-
-        for (
-            CurrentNode = Table->BalancedRoot.RightChild;
+        for (CurrentNode = Table->BalancedRoot.RightChild;
             CurrentNode->LeftChild;
-            CurrentNode = CurrentNode->LeftChild
-            ) {
+            CurrentNode = CurrentNode->LeftChild) {
             NOTHING;
         }
         CurrentLocation = 0;
 
-
         //  Update the table to save repeating this loop on a subsequent call.
-
-
         Table->OrderedPointer = CurrentNode;
         Table->WhichOrderedElement = 0;
     }
 
-
     //  If we're already at the node then return it.
-
-
     if (I == CurrentLocation) {
-
         return &((PTABLE_ENTRY_HEADER)CurrentNode)->UserData;
     }
 
-
     //  Calculate the forward and backward distance to the node.
-
-
     if (CurrentLocation > I) {
-
-
         //  When CurrentLocation is greater than where we want to go,
         //  if moving forward gets us there quicker than moving backward
         //  then it follows that moving forward from the first node in tree is
@@ -1739,179 +1213,96 @@ Return Value:
         //  The work here is to figure out if moving backward would be quicker.
 
         //  Moving backward would be quicker only if the location we wish  to
-        //  go to is half way or more between the listhead and where we
-        //  currently are.
-
-
+        //  go to is half way or more between the listhead and where we currently are.
         if (I >= (CurrentLocation / 2)) {
-
-
             //  Where we want to go is more than half way from the listhead
             //  We can traval backwards from our current location.
-
-
-            for (
-                BackwardDistance = CurrentLocation - I;
+            for (BackwardDistance = CurrentLocation - I;
                 BackwardDistance;
-                BackwardDistance--
-                ) {
-
+                BackwardDistance--) {
                 CurrentNode = RealPredecessor(CurrentNode);
             }
-
         } else {
-
-
             //  We just loop until we find the leftmost child of the root,
             //  which is the lowest entry in the tree.
-
-
-            for (
-                CurrentNode = Table->BalancedRoot.RightChild;
+            for (CurrentNode = Table->BalancedRoot.RightChild;
                 CurrentNode->LeftChild;
-                CurrentNode = CurrentNode->LeftChild
-                ) {
+                CurrentNode = CurrentNode->LeftChild) {
                 NOTHING;
             }
-
 
             //  Where we want to go is less than halfway between the start
             //  and where we currently are.  Start from the first node.
-
-
-            for (
-                ;
-                I;
-                I--
-                ) {
-
+            for (; I; I--) {
                 CurrentNode = RealSuccessor(CurrentNode);
             }
         }
-
     } else {
-
-
-
         //  When CurrentLocation is less than where we want to go,
         //  if moving backwards gets us there quicker than moving forwards
-        //  then it follows that moving backwards from the last node is
-        //  going to take fewer steps.
-
+        //  then it follows that moving backwards from the last node is going to take fewer steps.
 
         ForwardDistance = I - CurrentLocation;
 
-
         //  Do the backwards calculation assuming we are starting with the
-        //  last element in the table.  (Thus BackwardDistance is 0 for the
-        //  last element in the table.)
-
+        //  last element in the table.  (Thus BackwardDistance is 0 for the last element in the table.)
 
         BackwardDistance = NumberInTable - (I + 1);
 
-
         //  For our heuristic check, bias BackwardDistance by 1, so that we
-        //  do not always have to loop down the right side of the tree to
-        //  return the last element in the table!
-
+        //  do not always have to loop down the right side of the tree to return the last element in the table!
 
         if (ForwardDistance <= (BackwardDistance + 1)) {
-
-            for (
-                ;
-                ForwardDistance;
-                ForwardDistance--
-                ) {
-
+            for (; ForwardDistance; ForwardDistance--) {
                 CurrentNode = RealSuccessor(CurrentNode);
             }
-
         } else {
-
-
             //  We just loop until we find the rightmost child of the root,
             //  which is the highest entry in the tree.
-
-
-            for (
-                CurrentNode = Table->BalancedRoot.RightChild;
+            for (CurrentNode = Table->BalancedRoot.RightChild;
                 CurrentNode->RightChild;
-                CurrentNode = CurrentNode->RightChild
-                ) {
+                CurrentNode = CurrentNode->RightChild) {
                 NOTHING;
             }
 
-            for (
-                ;
-                BackwardDistance;
-                BackwardDistance--
-                ) {
-
+            for (; BackwardDistance; BackwardDistance--) {
                 CurrentNode = RealPredecessor(CurrentNode);
             }
         }
     }
 
-
-    //  We're where we want to be.  Save our current location and return
-    //  a pointer to the data to the user.
-
-
+    //  We're where we want to be.  Save our current location and return a pointer to the data to the user.
     Table->OrderedPointer = CurrentNode;
     Table->WhichOrderedElement = I;
-
     return &((PTABLE_ENTRY_HEADER)CurrentNode)->UserData;
 }
 
 
-ULONG
-RtlNumberGenericTableElementsAvl(
-    IN PRTL_AVL_TABLE Table
-)
-
+ULONG RtlNumberGenericTableElementsAvl(IN PRTL_AVL_TABLE Table)
 /*
-
 Routine Description:
-
     The function NumberGenericTableElements2 returns a ULONG value
-    which is the number of generic table elements currently inserted
-    in the generic table.
-
+    which is the number of generic table elements currently inserted in the generic table.
 Arguments:
-
-    Table - Pointer to the generic table from which to find out the number
-    of elements.
-
-
+    Table - Pointer to the generic table from which to find out the number of elements.
 Return Value:
-
     ULONG - The number of elements in the generic table.
-
 */
-
 {
     return Table->NumberGenericTableElements;
 }
 
 
-PVOID
-RtlEnumerateGenericTableWithoutSplayingAvl(
-    IN PRTL_AVL_TABLE Table,
-    IN PVOID *RestartKey
-)
-
+PVOID RtlEnumerateGenericTableWithoutSplayingAvl(IN PRTL_AVL_TABLE Table, IN PVOID *RestartKey)
 /*
-
 Routine Description:
-
     The function EnumerateGenericTableWithoutSplayingAvl will return to the
     caller one-by-one the elements of of a table.  The return value is a
     pointer to the user defined structure associated with the element.
     The input parameter RestartKey indicates if the enumeration should
     start from the beginning or should return the next element.  If the
     are no more new elements to return the return value is NULL.  As an
-    example of its use, to enumerate all of the elements in a table the
-    user would write:
+    example of its use, to enumerate all of the elements in a table the user would write:
 
         *RestartKey = NULL;
 
@@ -1925,86 +1316,50 @@ Routine Description:
     RtlEnumerateGenericTableLikeADirectory.
 
 Arguments:
-
     Table - Pointer to the generic table to enumerate.
-
     RestartKey - Pointer that indicates if we should restart or return the next
-                element.  If the contents of RestartKey is NULL, the search
-                will be started from the beginning.
-
+                element.  If the contents of RestartKey is NULL, the search will be started from the beginning.
 Return Value:
-
     PVOID - Pointer to the user data.
-
 */
-
 {
     if (RtlIsGenericTableEmptyAvl(Table)) {
-
-
         //  Nothing to do if the table is empty.
-
-
         return NULL;
-
     } else {
-
-
         //  Will be used as the "iteration" through the tree.
-
         PRTL_BALANCED_LINKS NodeToReturn;
 
-
-        //  If the restart flag is true then go to the least element
-        //  in the tree.
-
-
+        //  If the restart flag is true then go to the least element in the tree.
         if (*RestartKey == NULL) {
-
-
             //  We just loop until we find the leftmost child of the root.
-
-
-            for (
-                NodeToReturn = Table->BalancedRoot.RightChild;
+            for (NodeToReturn = Table->BalancedRoot.RightChild;
                 NodeToReturn->LeftChild;
-                NodeToReturn = NodeToReturn->LeftChild
-                ) {
+                NodeToReturn = NodeToReturn->LeftChild) {
                 ;
             }
 
             *RestartKey = NodeToReturn;
-
         } else {
-
-
             //  The caller has passed in the previous entry found
             //  in the table to enable us to continue the search.  We call
             //  RealSuccessor to step to the next element in the tree.
 
-
             NodeToReturn = RealSuccessor(*RestartKey);
-
             if (NodeToReturn) {
                 *RestartKey = NodeToReturn;
             }
         }
 
-
         //  If there actually is a next element in the enumeration
         //  then the pointer to return is right after the list links.
 
-
-        return ((NodeToReturn) ?
-            ((PVOID)&((PTABLE_ENTRY_HEADER)NodeToReturn)->UserData)
-                : ((PVOID)(NULL)));
+        return ((NodeToReturn) ? ((PVOID)&((PTABLE_ENTRY_HEADER)NodeToReturn)->UserData) : ((PVOID)(NULL)));
     }
 }
 
 
-PVOID
-NTAPI
-RtlEnumerateGenericTableLikeADirectory(
+PVOID NTAPI RtlEnumerateGenericTableLikeADirectory(
     IN PRTL_AVL_TABLE Table,
     IN PRTL_AVL_MATCH_FUNCTION MatchFunction OPTIONAL,
     IN PVOID MatchData OPTIONAL,
@@ -2013,11 +1368,8 @@ RtlEnumerateGenericTableLikeADirectory(
     IN OUT PULONG DeleteCount,
     IN PVOID Buffer
 )
-
 /*
-
 Routine Description:
-
     The function EnumerateGenericTableLikeADirectory will return to the
     caller one-by-one the elements of a table in collation order.  The
     return value is a pointer to the user defined structure associated
@@ -2077,8 +1429,7 @@ Routine Description:
         calls, use RtlEnumerateGenericTableLikeADirectory.  This is the only routine
         that supports collation order and synchronization only over individual calls
         without erroneously dropping or repeating names due to inserts or deletes.
-        Use this routine also if a matching function or flexible resume semantics are
-        required.
+        Use this routine also if a matching function or flexible resume semantics are required.
 
 Arguments:
 
@@ -2173,7 +1524,6 @@ Return Value:
             }
         }
     }
-
 
     //  Now see if we are supposed to skip one.
     if (NextFlag) {
