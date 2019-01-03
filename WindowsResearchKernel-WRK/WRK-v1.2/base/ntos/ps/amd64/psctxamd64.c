@@ -23,7 +23,9 @@ PXMM_SAVE_AREA32 PspGetSetContextInternal(IN PKAPC Apc, IN PVOID OperationType, 
 #pragma alloc_text(PAGE, PspSetContext)
 
 
-VOID PspGetContext(IN PKTRAP_FRAME TrapFrame, IN PKNONVOLATILE_CONTEXT_POINTERS ContextPointers, IN OUT PCONTEXT ContextRecord)
+VOID PspGetContext(IN PKTRAP_FRAME TrapFrame,
+                   IN PKNONVOLATILE_CONTEXT_POINTERS ContextPointers,
+                   IN OUT PCONTEXT ContextRecord)
 /*
 Routine Description:
     This function selectively moves the contents of the specified trap frame and nonvolatile context to the specified context record.
@@ -151,7 +153,10 @@ Arguments:
 }
 
 
-VOID PspSetContext(OUT PKTRAP_FRAME TrapFrame, OUT PKNONVOLATILE_CONTEXT_POINTERS ContextPointers, IN PCONTEXT ContextRecord, KPROCESSOR_MODE PreviousMode)
+VOID PspSetContext(OUT PKTRAP_FRAME TrapFrame, 
+                   OUT PKNONVOLATILE_CONTEXT_POINTERS ContextPointers,
+                   IN PCONTEXT ContextRecord, 
+                   KPROCESSOR_MODE PreviousMode)
 /*
 Routine Description:
     This function selectively moves the contents of the specified context record to the specified trap frame and nonvolatile context.
@@ -270,7 +275,9 @@ Arguments:
         A value of NULL specifies a get context operation and a nonNULL value a set context operation.
     Event - Supplies a pointer to a variable that receives the completion event address.
 Return Value:
-    If the context operation is a set context and the legacy floating state is switched for the current thread, then the address of the legacy floating save area is returned as the function value. Otherwise, NULL is returned.
+    If the context operation is a set context and the legacy floating state is switched for the current thread, 
+    then the address of the legacy floating save area is returned as the function value. 
+    Otherwise, NULL is returned.
 */
 {
     PGETSETCONTEXT ContextBlock;
@@ -337,7 +344,14 @@ Return Value:
         // If there is a function table entry for the routine, then virtually unwind to the caller of the current routine to obtain the address where control left the caller.
         // Otherwise, the function is a leaf function and the return address register contains the address of where control left the caller.
         if (FunctionEntry != NULL) {
-            RtlVirtualUnwind(UNW_FLAG_EHANDLER, ImageBase, ControlPc, FunctionEntry, &ContextRecord, &HandlerData, &EstablisherFrame, ContextPointers);
+            RtlVirtualUnwind(UNW_FLAG_EHANDLER, 
+                             ImageBase,
+                             ControlPc,
+                             FunctionEntry,
+                             &ContextRecord,
+                             &HandlerData,
+                             &EstablisherFrame,
+                             ContextPointers);
         } else {
             ContextRecord.Rip = *(PULONG64)(ContextRecord.Rsp);
             ContextRecord.Rsp += 8;

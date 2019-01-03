@@ -130,7 +130,8 @@ __forceinline BOOLEAN KiSwapProcess (IN PKPROCESS NewProcess, IN PKPROCESS OldPr
 /*
 Routine Description:
     This function swaps the address space to another process by flushing the
-    the translation buffer and establishings a new directory table base. It also swaps the I/O permission map to the new process.
+    the translation buffer and establishings a new directory table base.
+    It also swaps the I/O permission map to the new process.
 
     N.B. There is code similar to this code in swap context.
     N.B. This code is executed at DPC level.
@@ -154,14 +155,12 @@ Return Value:
     ASSERT((OldProcess->ActiveProcessors & SetMember) == 0);
 
     // Set the processor bit in the new process.
-
     InterlockedXor64((LONG64 volatile *)&NewProcess->ActiveProcessors, SetMember);
 
     ASSERT((NewProcess->ActiveProcessors & SetMember) != 0);
 #endif
 
     // Load the new directory table base.
-
     WriteCR3(NewProcess->DirectoryTableBase[0]);
 
 #if defined(NT_UP)
@@ -211,11 +210,14 @@ Return Value:
 #endif
 
 // Define thread startup routine prototypes.
-
 VOID KiStartSystemThread (VOID);
 VOID KiStartUserThread (VOID);
 VOID KiStartUserThreadReturn (VOID);
-PXMM_SAVE_AREA32 KxContextToKframes (IN OUT PKTRAP_FRAME TrapFrame, IN OUT PKEXCEPTION_FRAME ExceptionFrame, IN PCONTEXT ContextRecord, IN ULONG ContextFlags, IN KPROCESSOR_MODE PreviousMode);
+PXMM_SAVE_AREA32 KxContextToKframes (IN OUT PKTRAP_FRAME TrapFrame,
+                                     IN OUT PKEXCEPTION_FRAME ExceptionFrame,
+                                     IN PCONTEXT ContextRecord,
+                                     IN ULONG ContextFlags, 
+                                     IN KPROCESSOR_MODE PreviousMode);
 
 // Define unexpected interrupt structure and table.
 

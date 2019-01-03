@@ -2735,8 +2735,8 @@ Arguments:
 
             // Make sure the next pool header is consistent with respect to the one being freed to ensure we at least catch pool corruptors at the time of the free.
 
-            // It would be nice to also check the previous pool header as
-            // if this is not consistent, it's likely the previous allocation's owner is the corruptor and it's also likely he has not yet freed the block either.
+            // It would be nice to also check the previous pool header as if this is not consistent,
+            // it's likely the previous allocation's owner is the corruptor and it's also likely he has not yet freed the block either.
             // However, this cannot be done safely with mutex or lock synchronization and this would be too high a performance penalty to pay.
             NextEntry = (PPOOL_HEADER)((PPOOL_BLOCK)Entry + Entry->BlockSize);
             if ((PAGE_END(NextEntry) == FALSE) && (Entry->BlockSize != NextEntry->PreviousSize)) {
@@ -2775,7 +2775,8 @@ Arguments:
         Tag = ExpFindAndRemoveTagBigPages(P, &BigPages, PoolType);
         if (BigPages == 0) {
             // This means the allocator wasn't able to insert this entry into the big page tag table.
-            // This allocation must have been re-tagged as BIG at the time, our problem here is that we don't know the size (or the real original tag).
+            // This allocation must have been re-tagged as BIG at the time,
+            // our problem here is that we don't know the size (or the real original tag).
 
             // Ask Mm directly for the size.
             BigPages = MmGetSizeOfBigPoolAllocation(P);
@@ -2787,7 +2788,11 @@ Arguments:
 
         NumberOfBytes = (SIZE_T)BigPages << PAGE_SHIFT;
         ExpRemovePoolTracker(Tag, NumberOfBytes, PoolType);
-        if (ExpPoolFlags & (EX_CHECK_POOL_FREES_FOR_ACTIVE_TIMERS | EX_CHECK_POOL_FREES_FOR_ACTIVE_WORKERS | EX_CHECK_POOL_FREES_FOR_ACTIVE_RESOURCES | EX_VERIFIER_DEADLOCK_DETECTION_ENABLED)) {
+        if (ExpPoolFlags & 
+            (EX_CHECK_POOL_FREES_FOR_ACTIVE_TIMERS |
+             EX_CHECK_POOL_FREES_FOR_ACTIVE_WORKERS | 
+             EX_CHECK_POOL_FREES_FOR_ACTIVE_RESOURCES | 
+             EX_VERIFIER_DEADLOCK_DETECTION_ENABLED)) {
             if (ExpPoolFlags & EX_VERIFIER_DEADLOCK_DETECTION_ENABLED) {
                 VerifierDeadlockFreePool(P, NumberOfBytes);
             }

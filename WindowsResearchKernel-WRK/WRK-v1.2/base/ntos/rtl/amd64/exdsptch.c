@@ -16,7 +16,11 @@ Abstract:
 // Define function address table for kernel mode.
 
 // This table is used to initialize the global history table.
-VOID KiDispatchException(IN PEXCEPTION_RECORD ExceptionRecord, IN PKEXCEPTION_FRAME ExceptionFrame, IN PKTRAP_FRAME TrapFrame, IN KPROCESSOR_MODE PreviousMode, IN BOOLEAN FirstChance);
+VOID KiDispatchException(IN PEXCEPTION_RECORD ExceptionRecord, 
+                         IN PKEXCEPTION_FRAME ExceptionFrame,
+                         IN PKTRAP_FRAME TrapFrame,
+                         IN KPROCESSOR_MODE PreviousMode,
+                         IN BOOLEAN FirstChance);
 VOID KiExceptionDispatch(VOID);
 
 
@@ -73,15 +77,18 @@ Routine Description:
     The search begins with the frame specified in the context record and continues backward until either a handler is found that handles the
     exception, the stack is found to be invalid (i.e., out of limits or unaligned), or the end of the call hierarchy is reached.
 
-    As each frame is encounter, the PC where control left the corresponding function is determined and used to lookup exception handler information
+    As each frame is encounter, 
+    the PC where control left the corresponding function is determined and used to lookup exception handler information
     in the runtime function table built by the linker.
     If the respective routine has an exception handler, then the handler is called.
-    If the handler does not handle the exception, then the prologue of the routine is executed backwards to "unwind" the effect of the prologue and then the next frame is examined.
+    If the handler does not handle the exception, 
+    then the prologue of the routine is executed backwards to "unwind" the effect of the prologue and then the next frame is examined.
 Arguments:
     ExceptionRecord - Supplies a pointer to an exception record.
     ContextRecord - Supplies a pointer to a context record.
 Return Value:
-    If the exception is handled by one of the frame based handlers, then a value of TRUE is returned. Otherwise a value of FALSE is returned.
+    If the exception is handled by one of the frame based handlers, 
+    then a value of TRUE is returned. Otherwise a value of FALSE is returned.
 */
 {
     BOOLEAN Completion = FALSE;
@@ -104,7 +111,8 @@ Return Value:
     ULONG ScopeIndex;
     UNWIND_HISTORY_TABLE UnwindTable;
 
-    // Get current stack limits, copy the context record, get the initial PC value, capture the exception flags, and set the nested exception frame pointer.
+    // Get current stack limits, copy the context record, get the initial PC value, 
+    // capture the exception flags, and set the nested exception frame pointer.
     RtlpGetStackLimits(&LowLimit, &HighLimit);
     RtlpCopyContext(&ContextRecord1, ContextRecord);
     ControlPc = (ULONG64)ExceptionRecord->ExceptionAddress;
@@ -125,9 +133,17 @@ Return Value:
         // If there is a function table entry for the routine, then virtually unwind to the caller of the current routine to obtain the virtual
         // frame pointer of the establisher and check if there is an exception handler for the frame.
         if (FunctionEntry != NULL) {
-            ExceptionRoutine = RtlVirtualUnwind(UNW_FLAG_EHANDLER, ImageBase, ControlPc, FunctionEntry, &ContextRecord1, &HandlerData, &EstablisherFrame, NULL);
+            ExceptionRoutine = RtlVirtualUnwind(UNW_FLAG_EHANDLER,
+                                                ImageBase,
+                                                ControlPc,
+                                                FunctionEntry,
+                                                &ContextRecord1,
+                                                &HandlerData,
+                                                &EstablisherFrame,
+                                                NULL);
             // If the establisher frame pointer is not within the specified stack limits or the established frame pointer is unaligned,
-            // then set the stack invalid flag in the exception record and return exception not handled. Otherwise, check if the current routine has an exception handler.
+            // then set the stack invalid flag in the exception record and return exception not handled.
+            // Otherwise, check if the current routine has an exception handler.
             if (RtlpIsFrameInBounds(&LowLimit, EstablisherFrame, &HighLimit) == FALSE) {
                 ExceptionFlags |= EXCEPTION_STACK_INVALID;
                 break;
@@ -143,7 +159,11 @@ Return Value:
                     ExceptionRecord->ExceptionFlags = ExceptionFlags;// Log the exception if exception logging is enabled.
 
                     if ((NtGlobalFlag & FLG_ENABLE_EXCEPTION_LOGGING) != 0) {
-                        Index = RtlpLogExceptionHandler(ExceptionRecord, &ContextRecord1, ControlPc, FunctionEntry, sizeof(RUNTIME_FUNCTION));
+                        Index = RtlpLogExceptionHandler(ExceptionRecord,
+                                                        &ContextRecord1,
+                                                        ControlPc,
+                                                        FunctionEntry,
+                                                        sizeof(RUNTIME_FUNCTION));
                     }
 
                     // Clear repeat, set the dispatcher context, and call the exception handler.
@@ -157,7 +177,10 @@ Return Value:
                     DispatcherContext.HandlerData = HandlerData;
                     DispatcherContext.HistoryTable = HistoryTable;
                     DispatcherContext.ScopeIndex = ScopeIndex;
-                    Disposition = RtlpExecuteHandlerForException(ExceptionRecord, EstablisherFrame, ContextRecord, &DispatcherContext);
+                    Disposition = RtlpExecuteHandlerForException(ExceptionRecord, 
+                                                                 EstablisherFrame,
+                                                                 ContextRecord,
+                                                                 &DispatcherContext);
                     if ((NtGlobalFlag & FLG_ENABLE_EXCEPTION_LOGGING) != 0) {
                         RtlpLogLastExceptionDisposition(Index, Disposition);
                     }
@@ -191,7 +214,8 @@ Return Value:
                         break;
                         // The disposition is nested exception.
 
-                        // Set the nested context frame to the establisher frame address and set the nested exception flag in the exception flags.
+                        // Set the nested context frame to the establisher frame address and 
+                        // set the nested exception flag in the exception flags.
                     case ExceptionNestedException:
                         ExceptionFlags |= EXCEPTION_NESTED_CALL;
                         if (DispatcherContext.EstablisherFrame > NestedFrame) {
@@ -220,14 +244,14 @@ Return Value:
                         break;
 
                         // All other disposition values are invalid.
-
                     default:
                         RtlRaiseStatus(STATUS_INVALID_DISPOSITION);// Raise invalid disposition exception.
                     }
                 } while (Repeat != FALSE);
             }
         } else {
-            // If the old control PC is the same as the return address, then no progress is being made and the function tables are most likely malformed.
+            // If the old control PC is the same as the return address, 
+            // then no progress is being made and the function tables are most likely malformed.
             if (ControlPc == *(PULONG64)(ContextRecord1.Rsp)) {
                 break;
             }
@@ -249,7 +273,11 @@ DispatchExit:
 }
 
 
-VOID RtlUnwind(IN PVOID TargetFrame OPTIONAL, IN PVOID TargetIp OPTIONAL, IN PEXCEPTION_RECORD ExceptionRecord OPTIONAL, IN PVOID ReturnValue)
+VOID RtlUnwind(IN PVOID TargetFrame OPTIONAL,
+               IN PVOID TargetIp OPTIONAL,
+               IN PEXCEPTION_RECORD ExceptionRecord OPTIONAL,
+               IN PVOID ReturnValue
+)
 /*
 Routine Description:
     This function initiates an unwind of procedure call frames.
@@ -338,7 +366,8 @@ Arguments:
         HistoryTable->Search = UNWIND_HISTORY_TABLE_GLOBAL;
     }
 
-    // If an exception record is not specified, then build a local exception record for use in calling exception handlers during the unwind operation.
+    // If an exception record is not specified, 
+    // then build a local exception record for use in calling exception handlers during the unwind operation.
     if (ARGUMENT_PRESENT(ExceptionRecord) == FALSE) {
         ExceptionRecord = &ExceptionRecord1;
         ExceptionRecord1.ExceptionCode = STATUS_UNWIND;
@@ -347,7 +376,8 @@ Arguments:
         ExceptionRecord1.NumberParameters = 0;
     }
 
-    // If the target frame of the unwind is specified, then a normal unwind is being performed. Otherwise, an exit unwind is being performed.
+    // If the target frame of the unwind is specified, then a normal unwind is being performed.
+    // Otherwise, an exit unwind is being performed.
     ExceptionFlags = EXCEPTION_UNWINDING;
     if (ARGUMENT_PRESENT(TargetFrame) == FALSE) {
         ExceptionFlags |= EXCEPTION_EXIT_UNWIND;
@@ -360,10 +390,18 @@ Arguments:
         FunctionEntry = RtlLookupFunctionEntry(ControlPc, &ImageBase, HistoryTable);
 
         // If there is a function table entry for the routine, 
-        // then virtually unwind to the caller of the routine to obtain the virtual frame pointer of the establisher, but don't update the context record.
+        // then virtually unwind to the caller of the routine to obtain the virtual frame pointer of the establisher, 
+        // but don't update the context record.
         if (FunctionEntry != NULL) {
             RtlpCopyContext(PreviousContext, CurrentContext);
-            ExceptionRoutine = RtlVirtualUnwind(UNW_FLAG_UHANDLER, ImageBase, ControlPc, FunctionEntry, PreviousContext, &HandlerData, &EstablisherFrame, NULL);
+            ExceptionRoutine = RtlVirtualUnwind(UNW_FLAG_UHANDLER,
+                                                ImageBase,
+                                                ControlPc,
+                                                FunctionEntry,
+                                                PreviousContext,
+                                                &HandlerData,
+                                                &EstablisherFrame,
+                                                NULL);
 
             // If the establisher frame pointer is not within the specified stack limits, the establisher frame pointer is unaligned, or
             // the target frame is below the establisher frame and an exit unwind is not being performed, then raise a bad stack status.
@@ -427,7 +465,14 @@ Arguments:
                         CurrentContext = OriginalContext;
                         PreviousContext = &LocalContext;
                         RtlpCopyContext(PreviousContext, CurrentContext);
-                        RtlVirtualUnwind(UNW_FLAG_NHANDLER, ImageBase, ControlPc, FunctionEntry, PreviousContext, &HandlerData, &EstablisherFrame, NULL);
+                        RtlVirtualUnwind(UNW_FLAG_NHANDLER,
+                                         ImageBase,
+                                         ControlPc,
+                                         FunctionEntry,
+                                         PreviousContext,
+                                         &HandlerData, 
+                                         &EstablisherFrame,
+                                         NULL);
 
                         EstablisherFrame = DispatcherContext.EstablisherFrame;
                         ExceptionRoutine = DispatcherContext.LanguageHandler;
@@ -453,7 +498,8 @@ Arguments:
         }
     } while ((RtlpIsFrameInBounds(&LowLimit, EstablisherFrame, &HighLimit) == TRUE) && (EstablisherFrame != (ULONG64)TargetFrame));
 
-    // If the establisher stack pointer is equal to the target frame pointer, then continue execution. Otherwise, an exit unwind was performed or the
+    // If the establisher stack pointer is equal to the target frame pointer, then continue execution. 
+    // Otherwise, an exit unwind was performed or the
     // target of the unwind did not exist and the debugger and subsystem are given a second chance to handle the unwind.
     if (EstablisherFrame == (ULONG64)TargetFrame) {
         CurrentContext->Rax = (ULONG64)ReturnValue;
@@ -463,7 +509,8 @@ Arguments:
 
         RtlRestoreContext(CurrentContext, ExceptionRecord);
     } else {
-        // If the old control PC is the same as the new control PC, then no progress is being made and the function tables are most likely malformed.
+        // If the old control PC is the same as the new control PC,
+        // then no progress is being made and the function tables are most likely malformed.
         // Otherwise, give the debugger and subsystem a second chance to handle the exception.
         if (ControlPc == CurrentContext->Rip) {
             RtlRaiseStatus(STATUS_BAD_FUNCTION_TABLE);
@@ -474,8 +521,7 @@ Arguments:
 }
 
 
-PRUNTIME_FUNCTION
-RtlpUnwindPrologue(
+PRUNTIME_FUNCTION RtlpUnwindPrologue(
     IN ULONG64 ImageBase,
     IN ULONG64 ControlPc,
     IN ULONG64 FrameBase,
@@ -485,9 +531,10 @@ RtlpUnwindPrologue(
 )
 /*
 Routine Description:
-    This function processes unwind codes and reverses the state change effects of a prologue. If the specified unwind information contains
-    chained unwind information, then that prologue is unwound recursively.
-    As the prologue is unwound state changes are recorded in the specified context structure and optionally in the specified context pointers structures.
+    This function processes unwind codes and reverses the state change effects of a prologue.
+    If the specified unwind information contains chained unwind information, then that prologue is unwound recursively.
+    As the prologue is unwound state changes are recorded in the specified context structure and 
+    optionally in the specified context pointers structures.
 Arguments:
     ImageBase - Supplies the base address of the image that contains the function being unwound.
     ControlPc - Supplies the address where control left the specified function.
@@ -644,10 +691,8 @@ Arguments:
 
                 ContextRecord->Rip = *ReturnAddress;
                 ContextRecord->Rsp = *StackAddress;
-                break;
-
-                // Unused codes.
-            default:
+                break;                
+            default:// Unused codes.
                 ASSERT(FALSE);
                 break;
             }
@@ -665,17 +710,15 @@ Arguments:
                     Index += 1;
                 }
 
-                break;
-
-                // No other special cases.
-            default:
+                break;                
+            default:// No other special cases.
                 break;
             }
         }
     }
 
-    // If chained unwind information is specified, then recursively unwind the chained information. Otherwise, determine the return address if
-    // a machine frame was not encountered during the scan of the unwind codes.
+    // If chained unwind information is specified, then recursively unwind the chained information.
+    // Otherwise, determine the return address if a machine frame was not encountered during the scan of the unwind codes.
     if ((UnwindInfo->Flags & UNW_FLAG_CHAININFO) != 0) {
         Index = UnwindInfo->CountOfCodes;
         if ((Index & 1) != 0) {
@@ -695,8 +738,7 @@ Arguments:
 }
 
 
-PEXCEPTION_ROUTINE
-RtlVirtualUnwind(
+PEXCEPTION_ROUTINE RtlVirtualUnwind(
     IN ULONG HandlerType,
     IN ULONG64 ImageBase,
     IN ULONG64 ControlPc,
@@ -710,7 +752,8 @@ RtlVirtualUnwind(
 Routine Description:
     This function virtually unwinds the specified function by executing its prologue code backward or its epilogue code forward.
 
-    If a context pointers record is specified, then the address where each nonvolatile registers is restored from is recorded in the appropriate element of the context pointers record.
+    If a context pointers record is specified, 
+    then the address where each nonvolatile registers is restored from is recorded in the appropriate element of the context pointers record.
 Arguments:
     HandlerType - Supplies the handler type expected for the virtual unwind. This may be either an exception or an unwind handler.
     ImageBase - Supplies the base address of the image that contains the function being unwound.
@@ -721,8 +764,10 @@ Arguments:
     EstablisherFrame - Supplies a pointer to a variable that receives the the establisher frame pointer value.
     ContextPointers - Supplies an optional pointer to a context pointers record.
 Return Value:
-    If control did not leave the specified function in either the prologue or an epilogue and a handler of the proper type is associated with the function,
-    then the address of the language specific exception handler is returned. Otherwise, NULL is returned.
+    If control did not leave the specified function in either the prologue or an epilogue and 
+    a handler of the proper type is associated with the function,
+    then the address of the language specific exception handler is returned.
+    Otherwise, NULL is returned.
 */
 {
     ULONG64 BranchBase;
@@ -742,7 +787,8 @@ Return Value:
     // If the specified function does not use a frame pointer, then the establisher frame is the contents of the stack pointer. 
     // This may not actually be the real establisher frame if control left the function from within the prologue.
     // In this case the establisher frame may be not required since control has not actually entered the function and prologue entries cannot refer to the establisher
-    // frame before it has been established, i.e., if it has not been established, then no save unwind codes should be encountered during the unwind operation.
+    // frame before it has been established, i.e., if it has not been established, 
+    // then no save unwind codes should be encountered during the unwind operation.
 
     // If the specified function uses a frame pointer and control left the function outside of the prologue or the unwind information contains
     // a chained information structure, then the establisher frame is the contents of the frame pointer.
@@ -751,7 +797,8 @@ Return Value:
     // code must be looked up in the unwind codes to determine if the contents of the stack pointer or the contents of the frame pointer
     // should be used for the establisher frame. This may not actually be the real establisher frame. In this case the establisher frame may
     // not be required since control has not actually entered the function and prologue entries cannot refer to the establisher frame before it
-    // has been established, i.e., if it has not been established, then no save unwind codes should be encountered during the unwind operation.
+    // has been established, i.e., if it has not been established, 
+    // then no save unwind codes should be encountered during the unwind operation.
 
     // N.B. The correctness of these assumptions is based on the ordering of unwind codes.
 
@@ -780,7 +827,8 @@ Return Value:
         }
     }
 
-    // If the point at which control left the specified function is in an epilogue, then emulate the execution of the epilogue forward and return no exception handler.
+    // If the point at which control left the specified function is in an epilogue, 
+    // then emulate the execution of the epilogue forward and return no exception handler.
     IntegerRegister = &ContextRecord->Rax;
     NextByte = (PUCHAR)ControlPc;
 
@@ -839,7 +887,8 @@ Return Value:
             BranchTarget += 5 + *((LONG UNALIGNED *)&NextByte[1]);
         }
 
-        // Determine whether the branch target refers to code within this function. If not, then it is an epilogue indicator.
+        // Determine whether the branch target refers to code within this function.
+        // If not, then it is an epilogue indicator.
 
         // A branch to the start of self implies a recursive call, so is treated as an epilogue.
         if (BranchTarget < FunctionEntry->BeginAddress || BranchTarget >= FunctionEntry->EndAddress) {
@@ -948,8 +997,8 @@ Return Value:
     // Control left the specified function outside an epilogue. Unwind the subject function and any chained unwind information.
     FunctionEntry = RtlpUnwindPrologue(ImageBase, ControlPc, *EstablisherFrame, FunctionEntry, ContextRecord, ContextPointers);
 
-    // If control left the specified function outside of the prologue and the function has a handler that matches the specified type, then
-    // return the address of the language specific exception handler.
+    // If control left the specified function outside of the prologue and the function has a handler that matches the specified type,
+    // then return the address of the language specific exception handler.
     // Otherwise, return NULL.
     UnwindInfo = (PUNWIND_INFO)(FunctionEntry->UnwindData + ImageBase);
     PrologOffset = (ULONG)(ControlPc - (FunctionEntry->BeginAddress + ImageBase));
@@ -981,7 +1030,11 @@ Arguments:
 
     WithinLimits = KeQueryCurrentStackInformation(&Type, LowLimit, HighLimit);
     if (WithinLimits == FALSE) {
-        KeBugCheckEx(DRIVER_VERIFIER_DETECTED_VIOLATION, 0x91, (ULONG64)KeGetCurrentIrql(), (ULONG64)KeGetCurrentThread(), 0);
+        KeBugCheckEx(DRIVER_VERIFIER_DETECTED_VIOLATION,
+                     0x91, 
+                     (ULONG64)KeGetCurrentIrql(),
+                     (ULONG64)KeGetCurrentThread(),
+                     0);
     }
 }
 
@@ -992,7 +1045,8 @@ Routine Description:
     This function checks whether the specified frame address is properly aligned and within the specified limits.
     In kernel mode an additional check is made if the frame is not within the specified limits since the kernel stack can be expanded.
     For this case the next entry in the expansion list, if any, is checked.
-    If the frame is within the next expansion extent, then the extent values are stored in the low and high limit before returning to the caller.
+    If the frame is within the next expansion extent, 
+    then the extent values are stored in the low and high limit before returning to the caller.
 
     N.B. It is assumed that the supplied high limit is the stack base.
 
@@ -1001,7 +1055,8 @@ Arguments:
     Frame - Supplies the frame address to check.
     HighLimit - Supplies a pointer to a variable that contains the current high stack limit.
 Return Value:
-    If the specified stack frame is within limits, then a value of TRUE is returned as the function value. Otherwise, a value of FALSE is returned.
+    If the specified stack frame is within limits, then a value of TRUE is returned as the function value.
+    Otherwise, a value of FALSE is returned.
 */
 {
     PKERNEL_STACK_CONTROL Control;
@@ -1041,11 +1096,13 @@ Arguments:
     FunctionEntry - Supplies a pointer to a function table entry.
     ImageBase - Supplies the image base address.
 Return Value:
-    If the function entry address is NULL or the function table entry does not specify indirection, then the original function table entry is returned.
+    If the function entry address is NULL or the function table entry does not specify indirection, 
+    then the original function table entry is returned.
     Otherwise, the indirected function table entry is returned.
 */
 {
-    // If the specified function entry is not NULL and specifies indirection, then compute the address of the master function table entry.
+    // If the specified function entry is not NULL and specifies indirection,
+    // then compute the address of the master function table entry.
     if ((FunctionEntry != NULL) && ((FunctionEntry->UnwindData & RUNTIME_FUNCTION_INDIRECT) != 0)) {
         FunctionEntry = (PRUNTIME_FUNCTION)(FunctionEntry->UnwindData + ImageBase - 1);
     }
@@ -1054,7 +1111,10 @@ Return Value:
 }
 
 
-PRUNTIME_FUNCTION RtlLookupFunctionEntry(IN ULONG64 ControlPc, OUT PULONG64 ImageBase, IN OUT PUNWIND_HISTORY_TABLE HistoryTable OPTIONAL)
+PRUNTIME_FUNCTION RtlLookupFunctionEntry(IN ULONG64 ControlPc,
+                                         OUT PULONG64 ImageBase, 
+                                         IN OUT PUNWIND_HISTORY_TABLE HistoryTable OPTIONAL
+)
 /*
 Routine Description:
     This function searches the currently active function tables for an entry that corresponds to the specified control PC.
@@ -1083,7 +1143,8 @@ Return Value:
     // If an image is found, then search its function table for a function table entry that contains the specified control PC.
     // If an image is not found then search the dynamic function table for an image that contains the specified control PC.
 
-    // If a history table is supplied and search is specfied, then the current operation that is being performed is the unwind phase of an exception dispatch followed by a unwind.
+    // If a history table is supplied and search is specfied, 
+    // then the current operation that is being performed is the unwind phase of an exception dispatch followed by a unwind.
     if ((ARGUMENT_PRESENT(HistoryTable)) && (HistoryTable->Search != UNWIND_HISTORY_TABLE_NONE)) {
         // Search the global unwind history table if there is a chance of a match.
         // N.B. The global unwind history table never contains indirect entries.
@@ -1130,7 +1191,8 @@ Return Value:
         RelativePc = (ULONG)(ControlPc - *ImageBase);
         while (High >= Low) {
             // Compute next probe index and test entry.
-            // If the specified control PC is greater than of equal to the beginning address and less than the ending address of the function table entry,
+            // If the specified control PC is greater than of equal to the beginning address and 
+            // less than the ending address of the function table entry,
             // then return the address of the function table entry. Otherwise, continue the search.
             Middle = (Low + High) >> 1;
             FunctionEntry = &FunctionTable[Middle];
@@ -1151,9 +1213,12 @@ Return Value:
         FunctionEntry = NULL;// There was not a match in the loaded module list so attempt to find a matching entry in the dynamic function table list.
     }
 
-    // If a function table entry was located, search is not specified, and the specfied history table is not full, then attempt to make an entry in the history table.
+    // If a function table entry was located, search is not specified, and the specfied history table is not full, 
+    // then attempt to make an entry in the history table.
     if (FunctionEntry != NULL) {
-        if (ARGUMENT_PRESENT(HistoryTable) && (HistoryTable->Search == UNWIND_HISTORY_TABLE_NONE) && (HistoryTable->Count < UNWIND_HISTORY_TABLE_SIZE)) {
+        if (ARGUMENT_PRESENT(HistoryTable) && 
+            (HistoryTable->Search == UNWIND_HISTORY_TABLE_NONE) && 
+            (HistoryTable->Count < UNWIND_HISTORY_TABLE_SIZE)) {
             Index = HistoryTable->Count;
             HistoryTable->Count += 1;
             HistoryTable->Entry[Index].ImageBase = *ImageBase;
@@ -1177,7 +1242,8 @@ Return Value:
 VOID RtlpCopyContext(OUT PCONTEXT Destination, IN PCONTEXT Source)
 /*
 Routine Description:
-    This function copies the nonvolatile context required for exception dispatch and unwind from the specified source context record to the specified destination context record.
+    This function copies the nonvolatile context required for exception dispatch and 
+    unwind from the specified source context record to the specified destination context record.
 Arguments:
     Destination - Supplies a pointer to the destination context record.
     Source - Supplies a pointer to the source context record.
@@ -1211,7 +1277,10 @@ Arguments:
 }
 
 
-PUNWIND_INFO RtlpLookupPrimaryUnwindInfo(IN PRUNTIME_FUNCTION FunctionEntry, IN ULONG64 ImageBase, OUT PRUNTIME_FUNCTION *PrimaryEntry)
+PUNWIND_INFO RtlpLookupPrimaryUnwindInfo(IN PRUNTIME_FUNCTION FunctionEntry,
+                                         IN ULONG64 ImageBase,
+                                         OUT PRUNTIME_FUNCTION *PrimaryEntry
+)
 /*
 Routine Description:
     This function determines whether the supplied function entry is a primary function entry or a chained function entry.

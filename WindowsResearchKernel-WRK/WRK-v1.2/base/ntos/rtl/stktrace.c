@@ -91,7 +91,6 @@ KSPIN_LOCK_EX RtlpStackTraceDataBaseLock;
 // Runtime stack trace database
 
 
-
 // The following section implements a trace database used to store stack traces captured with RtlCaptureStackBackTrace().
 // The database is implemented as a hash table and does not allow deletions.
 // It is sensitive to "garbage" in the sense that spurious garbage (partially correct stacks) will hash in different buckets and will tend to fill the whole table.

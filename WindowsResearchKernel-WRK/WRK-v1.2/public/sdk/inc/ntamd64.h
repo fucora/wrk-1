@@ -793,8 +793,7 @@ typedef struct _UNWIND_INFO {
 // The unwind codes are followed by an optional DWORD aligned field that
 // contains the exception handler address or a function table entry if
 // chained unwind information is specified. If an exception handler address
-// is specified, then it is followed by the language specified exception
-// handler data.
+// is specified, then it is followed by the language specified exception handler data.
 
 //  union {
 //      struct {
@@ -934,9 +933,7 @@ NTSYSAPI BOOLEAN __cdecl RtlDeleteFunctionTable (IN PRUNTIME_FUNCTION FunctionTa
 
 // end_winnt
 
-NTSYSAPI
-PEXCEPTION_ROUTINE
-RtlVirtualUnwind (
+NTSYSAPI PEXCEPTION_ROUTINE RtlVirtualUnwind (
     IN ULONG HandlerType,
     IN ULONG64 ImageBase,
     IN ULONG64 ControlPc,
@@ -944,8 +941,7 @@ RtlVirtualUnwind (
     IN OUT PCONTEXT ContextRecord,
     OUT PVOID *HandlerData,
     OUT PULONG64 EstablisherFrame,
-    IN OUT PKNONVOLATILE_CONTEXT_POINTERS ContextPointers OPTIONAL
-    );
+    IN OUT PKNONVOLATILE_CONTEXT_POINTERS ContextPointers OPTIONAL);
 
 // Define exception filter and termination handler function types.
 typedef LONG (*PEXCEPTION_FILTER) (struct _EXCEPTION_POINTERS *ExceptionPointers, PVOID EstablisherFrame);

@@ -1,18 +1,14 @@
         TITLE  "Interrupt Object Support Routines"
 
-
 ; Copyright (c) Microsoft Corporation. All rights reserved.
 
 ; You may only use this code if you agree to the terms of the Windows Research Kernel Source Code License agreement (see License.txt).
 ; If you do not agree to the terms, do not use the code.
 
-
 ; Module Name:
-
 ;    intsup.asm
 
 ; Abstract:
-
 ;    This module implements the platform specific code to support interrupt
 ;    objects. It contains the interrupt dispatch code and the code template
 ;    that gets copied into an interrupt object.
@@ -38,34 +34,22 @@ include ksamd64.inc
         subttl  "Synchronize Execution"
 
 
-; BOOLEAN
-; KeSynchronizeExecution (
+; BOOLEAN KeSynchronizeExecution (
 ;     IN PKINTERRUPT Interrupt,
 ;     IN PKSYNCHRONIZE_ROUTINE SynchronizeRoutine,
-;     IN PVOID SynchronizeContext
-;     )
-
+;     IN PVOID SynchronizeContext)
 ; Routine Description:
-
 ;   This function synchronizes the execution of the specified routine with
-;   the execution of the service routine associated with the specified
-;   interrupt object.
-
+;   the execution of the service routine associated with the specified interrupt object.
 ; Arguments:
-
 ;   Interrupt (rcx) - Supplies a pointer to an interrupt object.
-
 ;   SynchronizeRoutine (rdx) - Supplies a pointer to the function whose
 ;       execution is to be synchronized with the execution of the service
 ;       routine associated with the specified interrupt object.
-
 ;   SynchronizeContext (r8) - Supplies a context pointer which is to be
 ;       passed to the synchronization function as a parameter.
-
 ; Return Value:
-
-;   The value returned by the synchronization routine is returned as the
-;   function value.
+;   The value returned by the synchronization routine is returned as the function value.
 
 
 
@@ -114,36 +98,21 @@ SyFrame ends
         subttl  "Interrupt Exception Handler"
 
 
-; EXCEPTION_DISPOSITION
-; KiInterruptHandler (
+; EXCEPTION_DISPOSITION KiInterruptHandler (
 ;    IN PEXCEPTION_RECORD ExceptionRecord,
 ;    IN PVOID EstablisherFrame,
 ;    IN OUT PCONTEXT ContextRecord,
-;    IN OUT PDISPATCHER_CONTEXT DispatcherContext
-;    )
-
+;    IN OUT PDISPATCHER_CONTEXT DispatcherContext)
 ; Routine Description:
-
 ;   This routine is the exception handler for the interrupt dispatcher. The
-;   dispatching or unwinding of an exception across an interrupt causes a
-;   bugcheck.
-
+;   dispatching or unwinding of an exception across an interrupt causes a bugcheck.
 ; Arguments:
-
 ;   ExceptionRecord (rcx) - Supplies a pointer to an exception record.
-
-;   EstablisherFrame (rdx) - Supplies the frame pointer of the establisher
-;       of this exception handler.
-
+;   EstablisherFrame (rdx) - Supplies the frame pointer of the establisher of this exception handler.
 ;   ContextRecord (r8) - Supplies a pointer to a context record.
-
-;   DispatcherContext (r9) - Supplies a pointer to  the dispatcher context
-;       record.
-
+;   DispatcherContext (r9) - Supplies a pointer to  the dispatcher context record.
 ; Return Value:
-
 ;   There is no return from this routine.
-
 
 
 IhFrame struct
@@ -176,24 +145,14 @@ KiIH10: call    KiBugCheckDispatch      ; bugcheck system - no return
         subttl  "Chained Dispatch"
 
 
-; VOID
-; KiChainedDispatch (
-;     VOID
-;     );
-
+; VOID KiChainedDispatch (VOID);
 ; Routine Description:
-
 ;   This routine is entered as the result of an interrupt being generated
 ;   via a vector that is connected to more than one interrupt object.
-
 ; Arguments:
-
 ;   rbp - Supplies a pointer to the interrupt object.
-
 ; Return Value:
-
 ;   None.
-
 
 
         NESTED_ENTRY KiChainedDispatch, _TEXT$00, KiInterruptHandler
@@ -217,24 +176,16 @@ KiIH10: call    KiBugCheckDispatch      ; bugcheck system - no return
 
 
 ; Routine Description:
-
 ;   This routine scans the list of interrupt objects for chained interrupt
 ;   dispatch. If the mode of the interrupt is latched, then a complete scan
 ;   of the list must be performed. Otherwise, the scan can be cut short as
 ;   soon as an interrupt routine returns
-
 ; Arguments:
-
 ;   rsi - Supplies a pointer to the interrupt object.
-
 ; Implicit Arguments:
-
 ;   rbp - Supplies the address of the interrupt trap frame.
-
 ; Return Value:
-
 ;   None.
-
 
 
 SiFrame struct
@@ -350,24 +301,18 @@ KiSI50: mov     rbx, SiFrame.SavedRbx[rsp] ; restore nonvolatile register
 
 
 ; Routine Description:
-
 ;   This routine is entered as the result of an interrupt being generated
 ;   via a vector that is connected to an interrupt object. Its function is
 ;   to directly call the specified interrupt service routine.
 
-;   This routine is identical to interrupt dispatch no lock except that
-;   the interrupt spinlock is taken.
+;   This routine is identical to interrupt dispatch no lock except that the interrupt spinlock is taken.
 
 ;   N.B. On entry rbp and rsi have been saved on the stack.
 
 ; Arguments:
-
 ;   rbp - Supplies a pointer to the interrupt object.
-
 ; Return Value:
-
 ;   None.
-
 
 
         NESTED_ENTRY KiInterruptDispatch, _TEXT$00, KiInterruptHandler
@@ -440,27 +385,21 @@ KiID20: EXIT_INTERRUPT                  ; do EOI, lower IRQL, and restore state
 
 
 ; Routine Description:
-
 ;   This routine is entered as the result of an interrupt being generated
 ;   via a vector that is connected to an interrupt object. Its function is
 ;   to save the last branch control MSR, disable last branch recording, and
 ;   directly call the specified interrupt service routine.
 
-;   This routine is identical to interrupt dispatch except that no spinlock
-;   is taken.
+;   This routine is identical to interrupt dispatch except that no spinlock is taken.
 
 ;   N.B. On entry rbp and rsi have been saved on the stack.
-
 ;   N.B. This routine is only executed on EM64T based systems.
 
 ; Arguments:
-
 ;   rbp - Supplies a pointer to the interrupt object.
 
 ; Return Value:
-
 ;   None.
-
 
 
         NESTED_ENTRY KiInterruptDispatchLBControl, _TEXT$00, KiInterruptHandler
@@ -527,22 +466,18 @@ KiLB20: EXIT_INTERRUPT <>, <>, <>, <>, <LBranch> ; do EOI, lower IRQL, and resto
 
 
 ; Routine Description:
-
 ;   This routine is entered as the result of an interrupt being generated
 ;   via a vector that is connected to an interrupt object. Its function is
 ;   to directly call the specified interrupt service routine.
 
-;   This routine is identical to interrupt dispatch except that no spinlock
-;   is taken.
+;   This routine is identical to interrupt dispatch except that no spinlock is taken.
 
 ;   N.B. On entry rbp and rsi have been saved on the stack.
 
 ; Arguments:
-
 ;   rbp - Supplies a pointer to the interrupt object.
 
 ; Return Value:
-
 ;   None.
 
 
@@ -611,7 +546,6 @@ KiNL20: EXIT_INTERRUPT                  ; do EOI, lower IRQL, and restore state
 
 
 ; Routine Description:
-
 ;   This routine is entered as the result of an interrupt being generated
 ;   via a vector that is connected to an interrupt object. Its function is
 ;   to directly call the specified interrupt service routine.
@@ -622,13 +556,9 @@ KiNL20: EXIT_INTERRUPT                  ; do EOI, lower IRQL, and restore state
 ;   N.B. On entry rbp and rsi have been saved on the stack.
 
 ; Arguments:
-
 ;   rbp - Supplies a pointer to the interrupt object.
-
 ; Return Value:
-
 ;   None.
-
 
 
         NESTED_ENTRY KiInterruptDispatchNoEOI, _TEXT$00, KiInterruptHandler
@@ -695,20 +625,13 @@ KiNE20: EXIT_INTERRUPT <NoEOI>          ; lower IRQL, and restore state
 
 
 ; Routine Description:
-
 ;   This routine is a template that is copied into each interrupt object.
 ;   Its function is to save volatile machine state, compute the interrupt
-;   object address, and transfer control to the appropriate interrupt
-;   dispatcher.
-
+;   object address, and transfer control to the appropriate interrupt dispatcher.
 ;   N.B. Interrupts are disabled on entry to this routine.
-
 ; Arguments:
-
 ;    None.
-
 ; Return Value:
-
 ;    N.B. Control does not return to this routine. The respective interrupt
 ;         dispatcher dismisses the interrupt directly.
 
@@ -727,20 +650,13 @@ KiNE20: EXIT_INTERRUPT <NoEOI>          ; lower IRQL, and restore state
 
 
 ; Routine Description:
-
 ;   This routine is a template that is copied into the spurious interrupt
 ;   objects.  Its function is to immediately iret.
-
 ;   N.B. Interrupts are disabled on entry to this routine.
-
 ; Arguments:
-
 ;    None.
-
 ; Return Value:
-
 ;    None.
-
 
 
         LEAF_ENTRY KiSpuriousInterruptTemplate, _TEXT$00
@@ -762,16 +678,12 @@ KiNE20: EXIT_INTERRUPT <NoEOI>          ; lower IRQL, and restore state
 
 
 ; RoutineDescription:
-
 ;   An entry in the following table is generated for each vector that can
 ;   receive an unexpected interrupt. Each entry in the table contains code
 ;   to push the vector number on the stack and then jump to common code to
 ;   process the unexpected interrupt.
-
 ; Arguments:
-
 ;    None.
-
 
 
         NESTED_ENTRY KiUnexpectedInterrupt, _TEXT$00

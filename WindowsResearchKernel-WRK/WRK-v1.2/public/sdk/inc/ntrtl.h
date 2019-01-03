@@ -1044,7 +1044,10 @@ extern "C" {
 
     // end_winnt
 
-    NTSYSAPI USHORT NTAPI RtlCaptureStackBackTrace(IN ULONG FramesToSkip, IN ULONG FramesToCapture, OUT PVOID *BackTrace, OUT PULONG BackTraceHash OPTIONAL);
+    NTSYSAPI USHORT NTAPI RtlCaptureStackBackTrace(IN ULONG FramesToSkip, 
+                                                   IN ULONG FramesToCapture,
+                                                   OUT PVOID *BackTrace, 
+                                                   OUT PULONG BackTraceHash OPTIONAL);
 
 #define MAX_STACK_DEPTH 32
 

@@ -15,8 +15,7 @@ Abstract:
 #include "ki.h"
 
 
-VOID
-KeInitializeInterrupt(
+VOID KeInitializeInterrupt(
     __out PKINTERRUPT Interrupt,
     __in PKSERVICE_ROUTINE ServiceRoutine,
     __in_opt PVOID ServiceContext,
@@ -61,7 +60,8 @@ Arguments:
     Interrupt->Type = InterruptObject;
     Interrupt->Size = sizeof(KINTERRUPT);
 
-    // Initialize the address of the service routine, the service context, the address of the spin lock, the address of the actual spinlock that will be used,
+    // Initialize the address of the service routine, the service context, 
+    // the address of the spin lock, the address of the actual spinlock that will be used,
     // the vector number, the IRQL of the interrupting source, the IRQL used for synchronize execution, 
     // the interrupt mode, the processor number, and the floating context save flag.
     Interrupt->ServiceRoutine = ServiceRoutine;
@@ -91,7 +91,8 @@ Arguments:
         Interrupt->DispatchCode[Index] = InterruptTemplate[Index];
     }
 
-    // If this is the performance interrupt, and we're on a processor that supports the LB MSR, then route the interrupt to the special interrupt handler.
+    // If this is the performance interrupt, and we're on a processor that supports the LB MSR, 
+    // then route the interrupt to the special interrupt handler.
     // Otherwise, route to the standard no lock interrupt handler.
     if ((SpinLock == INTERRUPT_PERFORMANCE) && (KeGetCurrentPrcb()->CpuVendor != CPU_INTEL)) {
         SpinLock = NO_INTERRUPT_SPINLOCK;
@@ -133,8 +134,10 @@ Return Value:
     PVOID Unexpected;
     ULONG Vector;
 
-    // If the interrupt object is already connected, the interrupt vector number is invalid, an attempt is being made to connect to a vector
-    // that cannot be connected, the interrupt request level is invalid, or the processor number is invalid, then do not connect the interrupt object.
+    // If the interrupt object is already connected, the interrupt vector number is invalid,
+    // an attempt is being made to connect to a vector that cannot be connected,
+    // the interrupt request level is invalid, 
+    // or the processor number is invalid, then do not connect the interrupt object.
     // Otherwise, connect the interrupt object to the specified vector and establish the proper interrupt dispatcher.
     Connected = FALSE;
     Irql = Interrupt->Irql;
@@ -146,12 +149,14 @@ Return Value:
          (Irql != (IdtIndex >> 4)) ||
          (Number >= KeNumberProcessors) ||
          (Interrupt->SynchronizeIrql < Irql)) == FALSE) {
-        // Set the system affinity to the specified processor, raise IRQL to dispatcher level, and lock the dispatcher database.
+        // Set the system affinity to the specified processor, raise IRQL to dispatcher level, 
+        // and lock the dispatcher database.
         KeSetSystemAffinityThread(AFFINITY_MASK(Number));
         KiLockDispatcherDatabase(&OldIrql);
 
         // If the specified interrupt vector is not connected, then
-        // connect the interrupt vector to the interrupt object dispatch code, establish the dispatcher address, and set the new interrupt mode and enable masks.
+        // connect the interrupt vector to the interrupt object dispatch code, establish the dispatcher address,
+        // and set the new interrupt mode and enable masks.
         // Otherwise, if the interrupt is already chained, then add the new interrupt object at the end of the chain.
         // If the interrupt vector is not chained, then start a chain with the previous interrupt object at the front of the chain.
         // The interrupt mode of all interrupt objects in a chain must be the same.
@@ -173,9 +178,12 @@ Return Value:
 
                 KeLowerIrql(OldIrql);
             } else if (IdtIndex >= PRIMARY_VECTOR_BASE) {
-                // The interrupt vector is connected. Make sure the interrupt mode matchs and that both interrupt objects allow sharing of the interrupt vector.
+                // The interrupt vector is connected.
+                // Make sure the interrupt mode matchs and that both interrupt objects allow sharing of the interrupt vector.
                 Interruptx = CONTAINING_RECORD(Dispatch, KINTERRUPT, DispatchCode[0]);
-                if ((Interrupt->Mode == Interruptx->Mode) && (Interrupt->ShareVector != FALSE) && (Interruptx->ShareVector != FALSE) &&
+                if ((Interrupt->Mode == Interruptx->Mode) && 
+                    (Interrupt->ShareVector != FALSE) && 
+                    (Interruptx->ShareVector != FALSE) &&
                     ((Interruptx->DispatchAddress == KiInterruptDispatch) || (Interruptx->DispatchAddress == KiChainedDispatch))) {
                     Connected = TRUE;
 
@@ -190,7 +198,8 @@ Return Value:
             }
         }
 
-        // Unlock dispatcher database, lower IRQL to its previous value, and set the system affinity back to the original value.
+        // Unlock dispatcher database, lower IRQL to its previous value, 
+        // and set the system affinity back to the original value.
         KiUnlockDispatcherDatabase(OldIrql);
         KeRevertToUserAffinityThread();
     }
@@ -208,7 +217,8 @@ Routine Description:
 Arguments:
     Interrupt - Supplies a pointer to a control object of type interrupt.
 Return Value:
-    If the interrupt object is not connected, then a value of FALSE is returned. Otherwise, a value of TRUE is returned.
+    If the interrupt object is not connected, then a value of FALSE is returned.
+    Otherwise, a value of TRUE is returned.
 */
 {
     BOOLEAN Disconnected;
@@ -221,7 +231,8 @@ Return Value:
     PVOID Unexpected;
     ULONG Vector;
 
-    // Set the system affinity to the specified processor, raise IRQL to dispatcher level, and lock dispatcher database.
+    // Set the system affinity to the specified processor, 
+    // raise IRQL to dispatcher level, and lock dispatcher database.
     KeSetSystemAffinityThread(AFFINITY_MASK(Interrupt->Number));
     KiLockDispatcherDatabase(&OldIrql);
 
@@ -262,7 +273,8 @@ Return Value:
         Interrupt->Connected = FALSE;
     }
 
-    // Unlock dispatcher database, lower IRQL to its previous value, and set the system affinity back to the original value.
+    // Unlock dispatcher database, lower IRQL to its previous value,
+    // and set the system affinity back to the original value.
     KiUnlockDispatcherDatabase(OldIrql);
     KeRevertToUserAffinityThread();
     return Disconnected;// Return whether interrupt was disconnected from the specified vector.

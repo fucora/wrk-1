@@ -53,7 +53,8 @@ Return Value:
     // an image is found, then search its function table for a function table
     // entry that contains the specified control PC.
     // If an image is not found then do not search the dynamic function table.
-    // The dynamic function table has the same lock as the loader lock, and searching that table could deadlock a caller of RtlpWalkFrameChain
+    // The dynamic function table has the same lock as the loader lock, 
+    // and searching that table could deadlock a caller of RtlpWalkFrameChain
 
     // attempt to find a matching entry in the loaded module list.
     FunctionTable = RtlLookupFunctionTable((PVOID)ControlPc, (PVOID *)ImageBase, &SizeOfTable);
@@ -91,56 +92,34 @@ Return Value:
 }
 
 
-DECLSPEC_NOINLINE
-USHORT
-RtlCaptureStackBackTrace(
-    IN ULONG FramesToSkip,
-    IN ULONG FramesToCapture,
-    OUT PVOID *BackTrace,
-    OUT PULONG BackTraceHash OPTIONAL
+DECLSPEC_NOINLINE USHORT RtlCaptureStackBackTrace(IN ULONG FramesToSkip,
+                                                  IN ULONG FramesToCapture,
+                                                  OUT PVOID *BackTrace,
+                                                  OUT PULONG BackTraceHash OPTIONAL
 )
-
 /*
-
 Routine Description:
-
-    This routine captures a stack back trace by walking up the stack and
-    recording the information for each frame.
-
-     N.B. This is an exported function that MUST probe the ability to take
-          page faults.
-
+    This routine captures a stack back trace by walking up the stack and recording the information for each frame.
+     N.B. This is an exported function that MUST probe the ability to take page faults.
 Arguments:
-
-    FramesToSkip - Supplies the number of frames to skip over at the start
-        of the back trace.
-
+    FramesToSkip - Supplies the number of frames to skip over at the start of the back trace.
     FramesToCapture - Supplies the number of frames to be captured.
-
     BackTrace - Supplies a pointer to the back trace buffer.
-
     BackTraceHash - Optionally supples a pointer to the computed hash value.
-
 Return Value:
-
      The number of captured frames is returned as the function value.
-
 */
-
 {
-
     ULONG FramesFound;
     ULONG HashValue;
     ULONG Index;
     PVOID Trace[2 * MAX_STACK_DEPTH];
-
 
     // In kernel mode avoid running at IRQL levels where page faults cannot
     // be taken. The walking code will access various sections from driver
     // and system images and this will cause page faults. Also the walking
     // code needs to bail out if the current thread is processing a page
     // fault since collided faults may occur.
-
 
     if (MmCanThreadFault() == FALSE) {
         return 0;
@@ -150,39 +129,25 @@ Return Value:
         return 0;
     }
 
-
     // If the number of frames to capture plus the number of frames to skip
-    // (one additional frame is skipped for the call to walk the chain), then
-    // return zero.
-
+    // (one additional frame is skipped for the call to walk the chain), then return zero.
 
     FramesToSkip += 1;
     if ((FramesToCapture + FramesToSkip) >= (2 * MAX_STACK_DEPTH)) {
         return 0;
     }
 
-
     // Capture the stack back trace.
-
-
     FramesFound = RtlWalkFrameChain(&Trace[0],
                                     FramesToCapture + FramesToSkip,
                                     0);
 
-
-    // If the number of frames found is less than the number of frames to
-    // skip, then return zero.
-
-
+    // If the number of frames found is less than the number of frames to skip, then return zero.
     if (FramesFound <= FramesToSkip) {
         return 0;
     }
 
-
-    // Compute the hash value and transfer the captured trace to the back
-    // trace buffer.
-
-
+    // Compute the hash value and transfer the captured trace to the back trace buffer.
     HashValue = 0;
     for (Index = 0; Index < FramesToCapture; Index += 1) {
         if (FramesToSkip + Index >= FramesFound) {
@@ -256,7 +221,14 @@ Note:
 
     //  Attempt to unwind to the caller of this routine (C).
     if (FunctionEntry != NULL) {
-        RtlVirtualUnwind(UNW_FLAG_NHANDLER, ImageBase, ContextRecord.Rip, FunctionEntry, &ContextRecord, &HandlerData, &EstablisherFrame, NULL);
+        RtlVirtualUnwind(UNW_FLAG_NHANDLER, 
+                         ImageBase, 
+                         ContextRecord.Rip,
+                         FunctionEntry, 
+                         &ContextRecord, 
+                         &HandlerData,
+                         &EstablisherFrame,
+                         NULL);
 
         // Attempt to unwind to the caller of the caller of this routine (B).
         FunctionEntry = RtlpLookupFunctionEntryForStackWalks(ContextRecord.Rip, &ImageBase);
@@ -288,8 +260,6 @@ Note:
             }
         }
     }
-
-    return;
 }
 
 
@@ -297,7 +267,8 @@ DECLSPEC_NOINLINE ULONG RtlpWalkFrameChain(OUT PVOID *Callers, IN ULONG Count, I
 /*
 Routine Description:
     This function attempts to walk the call chain and capture a vector with a specified number of return addresses.
-    It is possible that the function cannot capture the requested number of callers, in which case, the number of captured return addresses will be returned.
+    It is possible that the function cannot capture the requested number of callers, in which case, 
+    the number of captured return addresses will be returned.
 
     N.B. The ability to take page faults is checked in the wrapper function.
 Arguments:
@@ -347,7 +318,14 @@ Return value:
             // within limits, then virtually unwind to the caller of the routine
             // to obtain the return address. Otherwise, discontinue the stack walk.
             if ((FunctionEntry != NULL) && ((RtlpIsFrameInBounds(&LowLimit, ContextRecord.Rsp, &HighLimit) == TRUE))) {
-                RtlVirtualUnwind(UNW_FLAG_NHANDLER, ImageBase, ContextRecord.Rip, FunctionEntry, &ContextRecord, &HandlerData, &EstablisherFrame, NULL);
+                RtlVirtualUnwind(UNW_FLAG_NHANDLER,
+                                 ImageBase,
+                                 ContextRecord.Rip,
+                                 FunctionEntry,
+                                 &ContextRecord,
+                                 &HandlerData,
+                                 &EstablisherFrame,
+                                 NULL);
                 if (FramesToSkip != 0) {
                     FramesToSkip -= 1;
                 } else {

@@ -35,7 +35,14 @@ Arguments:
     ControlPc = ContextRecord.Rip;
     FunctionEntry = RtlLookupFunctionEntry(ControlPc, &ImageBase, NULL);
     if (FunctionEntry != NULL) {
-        RtlVirtualUnwind(UNW_FLAG_NHANDLER, ImageBase, ControlPc, FunctionEntry, &ContextRecord, &HandlerData, &EstablisherFrame, NULL);
+        RtlVirtualUnwind(UNW_FLAG_NHANDLER,
+                         ImageBase,
+                         ControlPc,
+                         FunctionEntry,
+                         &ContextRecord,
+                         &HandlerData,
+                         &EstablisherFrame,
+                         NULL);
         ExceptionRecord->ExceptionAddress = (PVOID)ContextRecord.Rip;
         if (RtlDispatchException(ExceptionRecord, &ContextRecord) != FALSE) {
             return;

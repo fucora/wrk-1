@@ -31,7 +31,10 @@ ULONG RtlpWalkFrameChainExceptionFilter(ULONG ExceptionCode, PVOID ExceptionReco
 ULONG RtlpWalkFrameChainFuzzy(OUT PVOID *Callers, IN ULONG Count);
 
 
-USHORT RtlCaptureStackBackTrace(IN ULONG FramesToSkip, IN ULONG FramesToCapture, OUT PVOID *BackTrace, OUT PULONG BackTraceHash)
+USHORT RtlCaptureStackBackTrace(IN ULONG FramesToSkip,
+                                IN ULONG FramesToCapture,
+                                OUT PVOID *BackTrace,
+                                OUT PULONG BackTraceHash)
 /*
 Routine Description:
     This routine walks up the stack frames, capturing the return address from each frame requested.
