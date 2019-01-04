@@ -35,20 +35,20 @@ USHORT RtlCaptureStackBackTrace(IN ULONG FramesToSkip,
                                 IN ULONG FramesToCapture,
                                 OUT PVOID *BackTrace,
                                 OUT PULONG BackTraceHash)
-/*
-Routine Description:
-    This routine walks up the stack frames, capturing the return address from each frame requested.
-Arguments:
-    FramesToSkip - frames detected but not included in the stack trace
-    FramesToCapture - frames to be captured in the stack trace buffer.
-        One of the frames will be for RtlCaptureStackBackTrace.
-    BackTrace - stack trace buffer
-    BackTraceHash - very simple hash value that can be used to organize
-      hash tables. It is just an arithmetic sum of the pointers in the
-      stack trace buffer. If NULL then no hash value is computed.
-Return Value:
-     Number of return addresses returned in the stack trace buffer.
-*/
+    /*
+    Routine Description:
+        This routine walks up the stack frames, capturing the return address from each frame requested.
+    Arguments:
+        FramesToSkip - frames detected but not included in the stack trace
+        FramesToCapture - frames to be captured in the stack trace buffer.
+            One of the frames will be for RtlCaptureStackBackTrace.
+        BackTrace - stack trace buffer
+        BackTraceHash - very simple hash value that can be used to organize hash tables.
+          It is just an arithmetic sum of the pointers in the stack trace buffer.
+          If NULL then no hash value is computed.
+    Return Value:
+         Number of return addresses returned in the stack trace buffer.
+    */
 {
     PVOID Trace[2 * MAX_STACK_DEPTH];
     ULONG FramesFound;
@@ -84,8 +84,8 @@ Return Value:
     }
 
     // Zero the temporary buffer used to get the stack trace
-    // so that we do not leave garbage on the stack. This will
-    // improve debugging when we need to look manually at a stack.
+    // so that we do not leave garbage on the stack.
+    // This will improve debugging when we need to look manually at a stack.
 
     // N.B. We cannot use here a simple call to RtlZeroMemory because the
     //      compiler will optimize away that call since it is performed for a buffer that gets out of scope.
@@ -124,13 +124,13 @@ Routine Description:
     with a smaller stack trace. In kernel mode the function should not take
     any exceptions (page faults) because it can be called at all sorts of irql levels.
 
-    The `Flags' parameter is used for future extensions. 
+    The `Flags' parameter is used for future extensions.
     A zero value will be compatible with new stack walking algorithms.
 
     A value of 1 for `Flags' means we are running in K-mode and we want to get the user mode stack trace.
 
 Return value:
-    The number of identified return addresses on the stack. 
+    The number of identified return addresses on the stack.
     This can be less then the Count requested.
 */
 {
@@ -379,9 +379,7 @@ Return value:
 }
 
 
-
 /// Dll ranges bitmap
-
 
 
 // DLL ranges bitmap

@@ -1,9 +1,7 @@
-//
 // Copyright (c) Microsoft Corporation. All rights reserved. 
-//
+
 // You may only use this code if you agree to the terms of the Windows Research Kernel Source Code License agreement (see License.txt).
 // If you do not agree to the terms, do not use the code.
-//
 
 #undef RtlMoveMemory
 #undef RtlCopyMemory
@@ -563,9 +561,9 @@ EXPORTS
     KdPowerTransition
     KdRefreshDebuggerNotPresent
     KdSystemDebugControl
-    //
+
     // Spin lock functions
-    //
+
 
 #if defined(_X86_)
     KeInitializeSpinLock
@@ -736,11 +734,11 @@ EXPORTS
     KeWaitForSingleObject
     KiBugCheckData CONSTANT              // Data - use pointer for access
 
-    //
+
     // This export is obsolete, however it needs to remain in order to support
     // custom HALs built for Server 2003 RTM.  See the definition of this
     // variable in ke\kernldat.c for more details.
-    //
+
 
 #if defined(_X86_)
     KiEnableTimerWatchdog CONSTANT       // Data - use pointer for access
@@ -1140,24 +1138,18 @@ EXPORTS
     RtlEqualUnicodeString
 
 #if !defined(_WIN64)
-
     RtlExtendedIntegerMultiply
     RtlExtendedLargeIntegerDivide
-
 #endif
 
 #if defined(_X86_)
-
     RtlExtendedMagicDivide
-
 #endif
 
     RtlFillMemory
 
 #if !defined(_AMD64_)
-
     RtlFillMemoryUlong
-
 #endif
 
     RtlFindClearBits
@@ -1264,11 +1256,8 @@ EXPORTS
     RtlMergeRangeLists
 
 #if defined(_AMD64_)
-
     RtlMoveMemory = memmove
-
 #else
-
     RtlMoveMemory
 #endif
 
@@ -1336,12 +1325,9 @@ EXPORTS
     RtlUnlockBootStatusData
     RtlGetSetBootStatusData
 
-
 #if !defined(_AMD64_)
-
     RtlUlongByteSwap
     RtlUlonglongByteSwap
-
 #endif
 
     RtlUnicodeStringToAnsiSize=RtlxUnicodeStringToAnsiSize
@@ -1367,9 +1353,7 @@ EXPORTS
     RtlUpperString
 
 #if !defined(_AMD64_)
-
     RtlUshortByteSwap
-
 #endif
 
     RtlValidSecurityDescriptor
@@ -1404,12 +1388,12 @@ EXPORTS
     SeDeassignSecurity
     SeDeleteAccessState
     SeDeleteObjectAuditAlarm
-    //
+
     // Pointer to structure containing security
     // exports
-    //
 
-    //
+
+
     // Use SeEnableAccessToExports() before
     // using (see se.h)
     SeExports DATA
@@ -1424,10 +1408,10 @@ EXPORTS
     SePrivilegeCheck
     SePrivilegeObjectAuditAlarm
 
-    //
+
     // SePublicDefaultDacl - is for protecting things so that
     // normal users can use it.
-    //
+
     SePublicDefaultDacl CONSTANT
 
     SeQueryAuthenticationIdToken
@@ -1444,10 +1428,10 @@ EXPORTS
     SeSetSecurityDescriptorInfoEx
     SeSinglePrivilegeCheck
 
-    //
+
     // SeSystemDefaultDacl - is for protecting things so that
     // only the system (and administrators) can get to it.
-    //
+
     SeSystemDefaultDacl CONSTANT
 
     SeTokenImpersonationLevel
@@ -1598,10 +1582,7 @@ EXPORTS
     ZwWriteFile
     ZwYieldExecution
 
-
-//
 // ntcrt.lib
-//
 
 #if defined(_X86_)
     _alloca_probe
@@ -1671,14 +1652,10 @@ EXPORTS
     wcstombs
     wctomb
 
-//
 // Get rid of these if we can someday.
-//
     atol
     atoi
 
-//
 // Export CreateLiveDump function to use in videoprt.sys EA recovery
-//
     KeCapturePersistentThreadState
 

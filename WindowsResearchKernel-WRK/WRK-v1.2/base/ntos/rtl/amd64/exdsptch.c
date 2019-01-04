@@ -16,7 +16,7 @@ Abstract:
 // Define function address table for kernel mode.
 
 // This table is used to initialize the global history table.
-VOID KiDispatchException(IN PEXCEPTION_RECORD ExceptionRecord, 
+VOID KiDispatchException(IN PEXCEPTION_RECORD ExceptionRecord,
                          IN PKEXCEPTION_FRAME ExceptionFrame,
                          IN PKTRAP_FRAME TrapFrame,
                          IN KPROCESSOR_MODE PreviousMode,
@@ -66,7 +66,9 @@ UCHAR RtlpUnwindOpSlotTable[] = {
 
 // Define forward referenced function prototypes.
 VOID RtlpCopyContext(OUT PCONTEXT Destination, IN PCONTEXT Source);
-PUNWIND_INFO RtlpLookupPrimaryUnwindInfo(IN PRUNTIME_FUNCTION FunctionEntry, IN ULONG64 ImageBase, OUT PRUNTIME_FUNCTION *PrimaryEntry);
+PUNWIND_INFO RtlpLookupPrimaryUnwindInfo(IN PRUNTIME_FUNCTION FunctionEntry,
+                                         IN ULONG64 ImageBase,
+                                         OUT PRUNTIME_FUNCTION *PrimaryEntry);
 PRUNTIME_FUNCTION RtlpSameFunction(IN PRUNTIME_FUNCTION FunctionEntry, IN ULONG64 ImageBase, IN ULONG64 ControlPc);
 
 
@@ -77,17 +79,17 @@ Routine Description:
     The search begins with the frame specified in the context record and continues backward until either a handler is found that handles the
     exception, the stack is found to be invalid (i.e., out of limits or unaligned), or the end of the call hierarchy is reached.
 
-    As each frame is encounter, 
+    As each frame is encounter,
     the PC where control left the corresponding function is determined and used to lookup exception handler information
     in the runtime function table built by the linker.
     If the respective routine has an exception handler, then the handler is called.
-    If the handler does not handle the exception, 
+    If the handler does not handle the exception,
     then the prologue of the routine is executed backwards to "unwind" the effect of the prologue and then the next frame is examined.
 Arguments:
     ExceptionRecord - Supplies a pointer to an exception record.
     ContextRecord - Supplies a pointer to a context record.
 Return Value:
-    If the exception is handled by one of the frame based handlers, 
+    If the exception is handled by one of the frame based handlers,
     then a value of TRUE is returned. Otherwise a value of FALSE is returned.
 */
 {
@@ -177,7 +179,7 @@ Return Value:
                     DispatcherContext.HandlerData = HandlerData;
                     DispatcherContext.HistoryTable = HistoryTable;
                     DispatcherContext.ScopeIndex = ScopeIndex;
-                    Disposition = RtlpExecuteHandlerForException(ExceptionRecord, 
+                    Disposition = RtlpExecuteHandlerForException(ExceptionRecord,
                                                                  EstablisherFrame,
                                                                  ContextRecord,
                                                                  &DispatcherContext);
@@ -470,7 +472,7 @@ Arguments:
                                          ControlPc,
                                          FunctionEntry,
                                          PreviousContext,
-                                         &HandlerData, 
+                                         &HandlerData,
                                          &EstablisherFrame,
                                          NULL);
 
@@ -533,7 +535,7 @@ PRUNTIME_FUNCTION RtlpUnwindPrologue(
 Routine Description:
     This function processes unwind codes and reverses the state change effects of a prologue.
     If the specified unwind information contains chained unwind information, then that prologue is unwound recursively.
-    As the prologue is unwound state changes are recorded in the specified context structure and 
+    As the prologue is unwound state changes are recorded in the specified context structure and
     optionally in the specified context pointers structures.
 Arguments:
     ImageBase - Supplies the base address of the image that contains the function being unwound.
@@ -568,7 +570,8 @@ Arguments:
     PrologOffset = (ULONG)(ControlPc - (FunctionEntry->BeginAddress + ImageBase));
     UnwindInfo = (PUNWIND_INFO)(FunctionEntry->UnwindData + ImageBase);
     while (Index < UnwindInfo->CountOfCodes) {
-        // If the prologue offset is greater than the next unwind code offset, then simulate the effect of the unwind code.
+        // If the prologue offset is greater than the next unwind code offset,
+        // then simulate the effect of the unwind code.
         UnwindOp = UnwindInfo->UnwindCode[Index].UnwindOp;
         OpInfo = UnwindInfo->UnwindCode[Index].OpInfo;
         if (PrologOffset >= UnwindInfo->UnwindCode[Index].CodeOffset) {
@@ -691,7 +694,7 @@ Arguments:
 
                 ContextRecord->Rip = *ReturnAddress;
                 ContextRecord->Rsp = *StackAddress;
-                break;                
+                break;
             default:// Unused codes.
                 ASSERT(FALSE);
                 break;
@@ -710,7 +713,7 @@ Arguments:
                     Index += 1;
                 }
 
-                break;                
+                break;
             default:// No other special cases.
                 break;
             }
@@ -752,7 +755,7 @@ PEXCEPTION_ROUTINE RtlVirtualUnwind(
 Routine Description:
     This function virtually unwinds the specified function by executing its prologue code backward or its epilogue code forward.
 
-    If a context pointers record is specified, 
+    If a context pointers record is specified,
     then the address where each nonvolatile registers is restored from is recorded in the appropriate element of the context pointers record.
 Arguments:
     HandlerType - Supplies the handler type expected for the virtual unwind. This may be either an exception or an unwind handler.
@@ -764,7 +767,7 @@ Arguments:
     EstablisherFrame - Supplies a pointer to a variable that receives the the establisher frame pointer value.
     ContextPointers - Supplies an optional pointer to a context pointers record.
 Return Value:
-    If control did not leave the specified function in either the prologue or an epilogue and 
+    If control did not leave the specified function in either the prologue or an epilogue and
     a handler of the proper type is associated with the function,
     then the address of the language specific exception handler is returned.
     Otherwise, NULL is returned.
@@ -795,7 +798,8 @@ Return Value:
 
     // If the specified function uses a frame pointer and control left the function from within the prologue, then the set frame pointer unwind
     // code must be looked up in the unwind codes to determine if the contents of the stack pointer or the contents of the frame pointer
-    // should be used for the establisher frame. This may not actually be the real establisher frame. In this case the establisher frame may
+    // should be used for the establisher frame.
+    // This may not actually be the real establisher frame. In this case the establisher frame may
     // not be required since control has not actually entered the function and prologue entries cannot refer to the establisher frame before it
     // has been established, i.e., if it has not been established, 
     // then no save unwind codes should be encountered during the unwind operation.
@@ -872,8 +876,9 @@ Return Value:
         }
     }
 
-    // If the next instruction is a return or an appropriate jump, then control is currently in an epilogue and execution of the epilogue
-    // should be emulated. Otherwise, execution is not in an epilogue and the prologue should be unwound.
+    // If the next instruction is a return or an appropriate jump,
+    // then control is currently in an epilogue and execution of the epilogue should be emulated.
+    // Otherwise, execution is not in an epilogue and the prologue should be unwound.
     InEpilogue = FALSE;
     if ((NextByte[0] == RET_OP) || (NextByte[0] == RET_OP_2) || ((NextByte[0] == REP_PREFIX) && (NextByte[1] == RET_OP))) {
         // A return is an unambiguous indication of an epilogue.
@@ -892,8 +897,8 @@ Return Value:
 
         // A branch to the start of self implies a recursive call, so is treated as an epilogue.
         if (BranchTarget < FunctionEntry->BeginAddress || BranchTarget >= FunctionEntry->EndAddress) {
-            // The branch target is outside of the region described by this function entry. See whether it is contained within 
-            // an indirect function entry associated with this same function.
+            // The branch target is outside of the region described by this function entry. 
+            // See whether it is contained within an indirect function entry associated with this same function.
 
             // If not, then the branch target really is outside of this function.
             PrimaryFunctionEntry = RtlpSameFunction(FunctionEntry, ImageBase, BranchTarget + ImageBase);
@@ -994,10 +999,17 @@ Return Value:
         return NULL;
     }
 
-    // Control left the specified function outside an epilogue. Unwind the subject function and any chained unwind information.
-    FunctionEntry = RtlpUnwindPrologue(ImageBase, ControlPc, *EstablisherFrame, FunctionEntry, ContextRecord, ContextPointers);
+    // Control left the specified function outside an epilogue. 
+    // Unwind the subject function and any chained unwind information.
+    FunctionEntry = RtlpUnwindPrologue(ImageBase,
+                                       ControlPc,
+                                       *EstablisherFrame,
+                                       FunctionEntry,
+                                       ContextRecord,
+                                       ContextPointers);
 
-    // If control left the specified function outside of the prologue and the function has a handler that matches the specified type,
+    // If control left the specified function outside of the prologue and 
+    // the function has a handler that matches the specified type,
     // then return the address of the language specific exception handler.
     // Otherwise, return NULL.
     UnwindInfo = (PUNWIND_INFO)(FunctionEntry->UnwindData + ImageBase);
@@ -1031,7 +1043,7 @@ Arguments:
     WithinLimits = KeQueryCurrentStackInformation(&Type, LowLimit, HighLimit);
     if (WithinLimits == FALSE) {
         KeBugCheckEx(DRIVER_VERIFIER_DETECTED_VIOLATION,
-                     0x91, 
+                     0x91,
                      (ULONG64)KeGetCurrentIrql(),
                      (ULONG64)KeGetCurrentThread(),
                      0);
@@ -1045,7 +1057,7 @@ Routine Description:
     This function checks whether the specified frame address is properly aligned and within the specified limits.
     In kernel mode an additional check is made if the frame is not within the specified limits since the kernel stack can be expanded.
     For this case the next entry in the expansion list, if any, is checked.
-    If the frame is within the next expansion extent, 
+    If the frame is within the next expansion extent,
     then the extent values are stored in the low and high limit before returning to the caller.
 
     N.B. It is assumed that the supplied high limit is the stack base.
@@ -1096,7 +1108,7 @@ Arguments:
     FunctionEntry - Supplies a pointer to a function table entry.
     ImageBase - Supplies the image base address.
 Return Value:
-    If the function entry address is NULL or the function table entry does not specify indirection, 
+    If the function entry address is NULL or the function table entry does not specify indirection,
     then the original function table entry is returned.
     Otherwise, the indirected function table entry is returned.
 */
@@ -1112,7 +1124,7 @@ Return Value:
 
 
 PRUNTIME_FUNCTION RtlLookupFunctionEntry(IN ULONG64 ControlPc,
-                                         OUT PULONG64 ImageBase, 
+                                         OUT PULONG64 ImageBase,
                                          IN OUT PUNWIND_HISTORY_TABLE HistoryTable OPTIONAL
 )
 /*
@@ -1209,15 +1221,15 @@ Return Value:
         if (High < Low) {
             FunctionEntry = NULL;
         }
-    } else {
-        FunctionEntry = NULL;// There was not a match in the loaded module list so attempt to find a matching entry in the dynamic function table list.
+    } else {// There was not a match in the loaded module list so attempt to find a matching entry in the dynamic function table list.
+        FunctionEntry = NULL;
     }
 
     // If a function table entry was located, search is not specified, and the specfied history table is not full, 
     // then attempt to make an entry in the history table.
     if (FunctionEntry != NULL) {
-        if (ARGUMENT_PRESENT(HistoryTable) && 
-            (HistoryTable->Search == UNWIND_HISTORY_TABLE_NONE) && 
+        if (ARGUMENT_PRESENT(HistoryTable) &&
+            (HistoryTable->Search == UNWIND_HISTORY_TABLE_NONE) &&
             (HistoryTable->Count < UNWIND_HISTORY_TABLE_SIZE)) {
             Index = HistoryTable->Count;
             HistoryTable->Count += 1;
@@ -1242,7 +1254,7 @@ Return Value:
 VOID RtlpCopyContext(OUT PCONTEXT Destination, IN PCONTEXT Source)
 /*
 Routine Description:
-    This function copies the nonvolatile context required for exception dispatch and 
+    This function copies the nonvolatile context required for exception dispatch and
     unwind from the specified source context record to the specified destination context record.
 Arguments:
     Destination - Supplies a pointer to the destination context record.
@@ -1326,8 +1338,9 @@ Arguments:
     ImageBase - Supplies the base address of the image containing the supplied function entry.
     ControlPc - Supplies the address that will be tested for inclusion within the function associated with FunctionEntry.
 Return Value:
-    If the address of the unwind information for the specified function is equal to the address of the unwind information for the control PC, then
-    a pointer to a function table entry that describes the primary function table entry is returned as the function value. Otherwise, NULL is returned.
+    If the address of the unwind information for the specified function is equal to the address of the unwind information for the control PC,
+    then a pointer to a function table entry that describes the primary function table entry is returned as the function value.
+    Otherwise, NULL is returned.
 */
 {
     PRUNTIME_FUNCTION PrimaryFunctionEntry;
@@ -1336,7 +1349,8 @@ Return Value:
     PUNWIND_INFO UnwindInfo1;
     PUNWIND_INFO UnwindInfo2;
 
-    UnwindInfo1 = RtlpLookupPrimaryUnwindInfo(FunctionEntry, ImageBase, &PrimaryFunctionEntry);// Lookup the primary function entry associated with the specified function entry.
+    // Lookup the primary function entry associated with the specified function entry.
+    UnwindInfo1 = RtlpLookupPrimaryUnwindInfo(FunctionEntry, ImageBase, &PrimaryFunctionEntry);
 
     // Determine the function entry containing the control Pc and similarly resolve its primary function entry. 
     // If no function entry can be found then the control pc resides in a different function.
@@ -1345,9 +1359,11 @@ Return Value:
         return NULL;
     }
 
-    UnwindInfo2 = RtlpLookupPrimaryUnwindInfo(TargetFunctionEntry, TargetImageBase, &PrimaryFunctionEntry);// Lookup the primary function entry associated with the target function entry.
+    // Lookup the primary function entry associated with the target function entry.
+    UnwindInfo2 = RtlpLookupPrimaryUnwindInfo(TargetFunctionEntry, TargetImageBase, &PrimaryFunctionEntry);
 
-    // If the address of the two sets of unwind information are equal, then return the address of the primary function entry. Otherwise, return NULL.
+    // If the address of the two sets of unwind information are equal, 
+    // then return the address of the primary function entry. Otherwise, return NULL.
     if (UnwindInfo1 == UnwindInfo2) {
         return PrimaryFunctionEntry;
     } else {

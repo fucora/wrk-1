@@ -665,13 +665,18 @@ LOGICAL MmUpdateMdlTracker (IN PMDL MemoryDescriptorList, IN PVOID CallingAddres
 
 // begin_ntddk begin_ntifs begin_wdm begin_ntosp
 
-NTKERNELAPI VOID MmProbeAndLockProcessPages (__inout PMDL MemoryDescriptorList, __in PEPROCESS Process, __in KPROCESSOR_MODE AccessMode, __in LOCK_OPERATION Operation);
+NTKERNELAPI VOID MmProbeAndLockProcessPages (__inout PMDL MemoryDescriptorList,
+                                             __in PEPROCESS Process,
+                                             __in KPROCESSOR_MODE AccessMode,
+                                             __in LOCK_OPERATION Operation);
 
 
 // begin_nthal
 
 // I/O support routines.
-NTKERNELAPI VOID MmProbeAndLockPages (__inout PMDL MemoryDescriptorList, __in KPROCESSOR_MODE AccessMode, __in LOCK_OPERATION Operation);
+NTKERNELAPI VOID MmProbeAndLockPages (__inout PMDL MemoryDescriptorList, 
+                                      __in KPROCESSOR_MODE AccessMode, 
+                                      __in LOCK_OPERATION Operation);
 NTKERNELAPI VOID MmUnlockPages (__inout PMDL MemoryDescriptorList);
 NTKERNELAPI VOID MmBuildMdlForNonPagedPool (__inout PMDL MemoryDescriptorList);
 NTKERNELAPI PVOID MmMapLockedPages (__in PMDL MemoryDescriptorList, __in KPROCESSOR_MODE AccessMode);
@@ -752,9 +757,7 @@ NTKERNELAPI NTSTATUS MmMarkPhysicalMemoryAsBad (__in PPHYSICAL_ADDRESS StartAddr
 #define MM_DONT_ZERO_ALLOCATION             0x00000001
 #define MM_ALLOCATE_FROM_LOCAL_NODE_ONLY    0x00000002
 
-NTKERNELAPI
-PMDL
-MmAllocatePagesForMdlEx (
+NTKERNELAPI PMDL MmAllocatePagesForMdlEx (
     __in PHYSICAL_ADDRESS LowAddress,
     __in PHYSICAL_ADDRESS HighAddress,
     __in PHYSICAL_ADDRESS SkipBytes,
@@ -807,13 +810,10 @@ DECLSPEC_DEPRECATED_DDK NTKERNELAPI BOOLEAN MmIsNonPagedSystemAddressValid (__in
 NTKERNELAPI SIZE_T MmSizeOfMdl (__in_bcount_opt(Length) PVOID Base, __in SIZE_T Length);
 
 DECLSPEC_DEPRECATED_DDK                 // Use IoAllocateMdl
-NTKERNELAPI
-PMDL
-MmCreateMdl (
+NTKERNELAPI PMDL MmCreateMdl (
     __in_opt PMDL MemoryDescriptorList,
     __in_bcount_opt(Length) PVOID Base,
-    __in SIZE_T Length
-    );
+    __in SIZE_T Length);
 
 NTKERNELAPI PVOID MmLockPageableDataSection (__in PVOID AddressWithinSection);
 
@@ -1005,8 +1005,7 @@ NTKERNELAPI NTSTATUS MmSetBankedSection (
     __in ULONG BankLength,
     __in BOOLEAN ReadWriteBank,
     __in PBANKED_SECTION_ROUTINE BankRoutine,
-    __in PVOID Context
-    );
+    __in PVOID Context);
 
 // end_ntosp
 

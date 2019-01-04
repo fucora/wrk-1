@@ -1,21 +1,16 @@
         TITLE   "Capture Stack Back Trace"
 
-
 ; Copyright (c) Microsoft Corporation. All rights reserved.
 
 ; You may only use this code if you agree to the terms of the Windows Research Kernel Source Code License agreement (see License.txt).
 ; If you do not agree to the terms, do not use the code.
 
-
 ; Module Name:
-
 ;    stkwalk.asm
 
 ; Abstract:
-
 ;    This module implements the routine RtlCaptureStackBackTrace.  It will
 ;    walker the stack back trace and capture a portion of it.
-
 
 
 .386p
@@ -96,9 +91,7 @@ RgcaExit:
         pop     ebp
         stdRET  _RtlGetCallersAddress
 
-
 ; We may be executing on the DPC stack for this processor which is ok.
-
 
 RgcaCheckForDpcStack:
 
@@ -111,9 +104,8 @@ RgcaCheckForDpcStack:
         ; Check if address if below DPC stack upper bound
 
         ; Note: If we ARE on the DPC stack, we need to adjust this function's
-        ; idea of the initial stack pointer so it will succeed the check at
-        ; the next level.   We do not support transitioning across stacks in
-        ; this function.
+        ; idea of the initial stack pointer so it will succeed the check at the next level.  
+        ; We do not support transitioning across stacks in this function.
 
         cmp     edx, eax
         mov     RcbtInitialStack, eax
@@ -130,8 +122,7 @@ RgcaCheckForDpcStack:
 RgcaFault:
 
 ; Quick and dirty exception handler.  This will not unwind properly, which
-; is ok because this function is a leaf except for calling KeGetCurrentIrql,
-; which has no exception handler.
+; is ok because this function is a leaf except for calling KeGetCurrentIrql, which has no exception handler.
 
         mov     eax,[esp+0Ch]           ; (esp)->Context
         mov     edi,CsEdi[eax]          ; restore buffer pointer
@@ -143,4 +134,3 @@ RcbtInitialStack        EQU [ebp-10h]
 
 _TEXT   ends
         end
-
