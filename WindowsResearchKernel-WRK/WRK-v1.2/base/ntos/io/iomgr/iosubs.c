@@ -1306,7 +1306,9 @@ NTSTATUS FASTCALL IofCallDriver(IN PDEVICE_OBJECT DeviceObject, IN OUT PIRP Irp)
 }
 
 
-NTSTATUS FASTCALL IofCallDriverSpecifyReturn(IN PDEVICE_OBJECT DeviceObject, IN OUT PIRP Irp, IN PVOID ReturnAddress OPTIONAL)
+NTSTATUS FASTCALL IofCallDriverSpecifyReturn(IN PDEVICE_OBJECT DeviceObject,
+                                             IN OUT PIRP Irp,
+                                             IN PVOID ReturnAddress OPTIONAL)
 {
     if (pIofCallDriver != NULL) {
         // This routine will either jump immediately to IovCallDriver or IoPerfCallDriver.

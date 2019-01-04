@@ -104,17 +104,13 @@ EXPORTS
     ExfTryToWakePushLock
 
 #if defined (_X86_)
-
     ExiAcquireFastMutex=ExAcquireFastMutex
     ExiReleaseFastMutex=ExReleaseFastMutex
     ExiTryToAcquireFastMutex=ExTryToAcquireFastMutex
-
 #else
-
     ExAcquireFastMutex
     ExReleaseFastMutex
     ExTryToAcquireFastMutex
-
 #endif
 
     ExAllocatePool
@@ -146,26 +142,20 @@ EXPORTS
     ExInterlockedAddLargeInteger
 
 #if !defined(_AMD64_)
-
     ExInterlockedAddLargeStatistic
-
 #endif
 
     ExInterlockedAddUlong
 
 #if !defined(_AMD64_)
-
     ExInterlockedDecrementLong
     ExInterlockedExchangeUlong
-
 #endif
 
     ExInterlockedExtendZone
 
 #if !defined(_AMD64_)
-
     ExInterlockedIncrementLong
-
 #endif
 
     ExInterlockedInsertHeadList
@@ -573,13 +563,11 @@ EXPORTS
     KeReleaseInterruptSpinLock
 
 #if defined(_WIN64)
-
     KeAcquireQueuedSpinLock
     KeReleaseQueuedSpinLock
     KeTryToAcquireQueuedSpinLock
     KeAcquireInStackQueuedSpinLock
     KeReleaseInStackQueuedSpinLock
-
 #endif
 
     KeAcquireInStackQueuedSpinLockAtDpcLevel
@@ -592,10 +580,8 @@ EXPORTS
     KeReleaseSpinLockForDpc
 
 #if !defined(_AMD64_)
-
     KiAcquireSpinLock
     KiReleaseSpinLock
-
 #endif
 
     KeTestSpinLock
@@ -663,10 +649,8 @@ EXPORTS
     KeQueryActiveProcessors
 
 #if !defined(_AMD64_)
-
     KeQueryInterruptTime
     KeQuerySystemTime
-
 #endif
 
     KeQueryPriorityThread
@@ -719,10 +703,8 @@ EXPORTS
     KeTerminateThread
 
 #if !defined(_AMD64_)
-
     KeTickCount CONSTANT                // Data - use pointer for access
     KeQueryTickCount
-
 #endif
 
     KeTryToAcquireGuardedMutex
@@ -734,11 +716,9 @@ EXPORTS
     KeWaitForSingleObject
     KiBugCheckData CONSTANT              // Data - use pointer for access
 
-
     // This export is obsolete, however it needs to remain in order to support
     // custom HALs built for Server 2003 RTM.  See the definition of this
     // variable in ke\kernldat.c for more details.
-
 
 #if defined(_X86_)
     KiEnableTimerWatchdog CONSTANT       // Data - use pointer for access
@@ -996,10 +976,8 @@ EXPORTS
     PsGetCurrentProcessWin32Process
 
 #ifdef _WIN64
-
     PsGetCurrentProcessWow64Process
     PsGetProcessWow64Process
-
 #endif
 
     PsGetThreadId
@@ -1392,8 +1370,6 @@ EXPORTS
     // Pointer to structure containing security
     // exports
 
-
-
     // Use SeEnableAccessToExports() before
     // using (see se.h)
     SeExports DATA
@@ -1407,7 +1383,6 @@ EXPORTS
     SeOpenObjectForDeleteAuditAlarm
     SePrivilegeCheck
     SePrivilegeObjectAuditAlarm
-
 
     // SePublicDefaultDacl - is for protecting things so that
     // normal users can use it.
@@ -1658,4 +1633,3 @@ EXPORTS
 
 // Export CreateLiveDump function to use in videoprt.sys EA recovery
     KeCapturePersistentThreadState
-

@@ -260,7 +260,8 @@ struct _ADAPTER_OBJECT;
 
 
 // This is the information passed from the system to the disk dump driver during the driver's initialization.
-typedef struct _DUMP_INITIALIZATION_CONTEXT{
+typedef struct _DUMP_INITIALIZATION_CONTEXT
+{
     ULONG Length;
     ULONG Reserved;             // Was MBR Checksum. Should be zero now.
     PVOID MemoryBlock;
@@ -313,7 +314,8 @@ typedef NTSTATUS(*PIO_QUERY_DEVICE_ROUTINE)(
 
 
 // Defines the order of the information in the array of PKEY_VALUE_FULL_INFORMATION.
-typedef enum _IO_QUERY_DEVICE_DATA_FORMAT{
+typedef enum _IO_QUERY_DEVICE_DATA_FORMAT
+{
     IoQueryDeviceIdentifier = 0,
     IoQueryDeviceConfigurationData,
     IoQueryDeviceComponentInformation,
@@ -323,7 +325,8 @@ typedef enum _IO_QUERY_DEVICE_DATA_FORMAT{
 // begin_wdm begin_ntifs
 
 // Define the objects that can be created by IoCreateFile.
-typedef enum _CREATE_FILE_TYPE{
+typedef enum _CREATE_FILE_TYPE
+{
     CreateFileTypeNone,
     CreateFileTypeNamedPipe,
     CreateFileTypeMailslot
@@ -334,7 +337,8 @@ typedef enum _CREATE_FILE_TYPE{
 
 // Define the named pipe create parameters structure used for internal calls to IoCreateFile when a named pipe is being created.
 // This structure allows code invoking this routine to pass information specific to this function when creating a named pipe.
-typedef struct _NAMED_PIPE_CREATE_PARAMETERS{
+typedef struct _NAMED_PIPE_CREATE_PARAMETERS
+{
     ULONG NamedPipeType;
     ULONG ReadMode;
     ULONG CompletionMode;
@@ -350,7 +354,8 @@ typedef struct _NAMED_PIPE_CREATE_PARAMETERS{
 
 // Define the mailslot create parameters structure used for internal calls to IoCreateFile when a mailslot is being created.
 // This structure allows code invoking this routine to pass information specific to this function when creating a mailslot.
-typedef struct _MAILSLOT_CREATE_PARAMETERS{
+typedef struct _MAILSLOT_CREATE_PARAMETERS
+{
     ULONG MailslotQuota;
     ULONG MaximumMessageSize;
     LARGE_INTEGER ReadTimeout;
@@ -359,14 +364,16 @@ typedef struct _MAILSLOT_CREATE_PARAMETERS{
 
 
 // Define the dump driver stack context structure
-typedef struct DUMP_STACK_IMAGE{
+typedef struct DUMP_STACK_IMAGE
+{
     LIST_ENTRY                  Link;
     PLDR_DATA_TABLE_ENTRY       Image;
     PVOID                       ImageBase;
     ULONG                       SizeOfImage;
 } DUMP_STACK_IMAGE, *PDUMP_STACK_IMAGE;
 
-typedef struct _DUMP_STACK_CONTEXT{
+typedef struct _DUMP_STACK_CONTEXT
+{
     DUMP_INITIALIZATION_CONTEXT Init;
     LARGE_INTEGER               PartitionOffset;
     PVOID                       DumpPointers;
@@ -385,12 +392,13 @@ typedef struct _DUMP_STACK_CONTEXT{
 #define IO_DUMP_COMMON_BUFFER_SIZE      0x2000
 
 NTSTATUS IoGetDumpStack(IN PWCHAR ModulePrefix,
-                        OUT PDUMP_STACK_CONTEXT *DumpStack, 
-                        IN enum _DEVICE_USAGE_NOTIFICATION_TYPE UsageType, 
+                        OUT PDUMP_STACK_CONTEXT *DumpStack,
+                        IN enum _DEVICE_USAGE_NOTIFICATION_TYPE UsageType,
                         IN ULONG IgnoreDeviceUsageFailure);
 NTSTATUS IoInitializeDumpStack(IN PDUMP_STACK_CONTEXT  DumpStack, IN PUCHAR MessageBuffer OPTIONAL);
 
-typedef enum _CRASHDUMP_CONFIGURATION{
+typedef enum _CRASHDUMP_CONFIGURATION
+{
     CrashDumpDisable = 0,
     CrashDumpReconfigure
 } CRASHDUMP_CONFIGURATION;
@@ -717,7 +725,8 @@ typedef BOOLEAN(*PFAST_IO_QUERY_OPEN) (IN struct _IRP *Irp, OUT PFILE_NETWORK_OP
 // Define the structure to describe the Fast I/O dispatch routines.
 // Any additions made to this structure MUST be added monotonically to the end of the structure, and fields CANNOT be removed from the middle.
 
-typedef struct _FAST_IO_DISPATCH{
+typedef struct _FAST_IO_DISPATCH
+{
     ULONG SizeOfFastIoDispatch;
     PFAST_IO_CHECK_IF_POSSIBLE FastIoCheckIfPossible;
     PFAST_IO_READ FastIoRead;
@@ -2272,9 +2281,7 @@ VOID IoControlPnpDeviceActionQueue(BOOLEAN Lock);
 
 // begin_ntddk begin_nthal begin_wdm begin_ntifs begin_ntosp
 
-NTKERNELAPI
-PIRP
-IoBuildSynchronousFsdRequest(
+NTKERNELAPI PIRP IoBuildSynchronousFsdRequest(
     IN ULONG MajorFunction,
     IN PDEVICE_OBJECT DeviceObject,
     IN OUT PVOID Buffer OPTIONAL,
@@ -2285,11 +2292,13 @@ IoBuildSynchronousFsdRequest(
 );
 
 NTKERNELAPI NTSTATUS FASTCALL IofCallDriver(IN PDEVICE_OBJECT DeviceObject, IN OUT PIRP Irp);
-#define IoCallDriver(a,b)           IofCallDriver(a,b)
+#define IoCallDriver(a,b)     IofCallDriver(a,b)
 
 // end_ntddk end_wdm end_nthal end_ntifs end_ntosp
 
-NTSTATUS FASTCALL IofCallDriverSpecifyReturn(IN PDEVICE_OBJECT  DeviceObject, IN OUT PIRP Irp, IN PVOID ReturnAddress OPTIONAL);
+NTSTATUS FASTCALL IofCallDriverSpecifyReturn(IN PDEVICE_OBJECT  DeviceObject,
+                                             IN OUT PIRP Irp,
+                                             IN PVOID ReturnAddress OPTIONAL);
 
 // begin_ntddk begin_wdm begin_nthal begin_ntifs begin_ntosp
 
@@ -2395,7 +2404,9 @@ NTKERNELAPI NTSTATUS IoCreateFile(
 // end_ntddk end_wdm end_ntosp
 
 NTKERNELAPI PFILE_OBJECT IoCreateStreamFileObject(IN PFILE_OBJECT FileObject OPTIONAL, IN PDEVICE_OBJECT DeviceObject OPTIONAL);
-NTKERNELAPI PFILE_OBJECT IoCreateStreamFileObjectEx(IN PFILE_OBJECT FileObject OPTIONAL, IN PDEVICE_OBJECT DeviceObject OPTIONAL, OUT PHANDLE FileObjectHandle OPTIONAL);
+NTKERNELAPI PFILE_OBJECT IoCreateStreamFileObjectEx(IN PFILE_OBJECT FileObject OPTIONAL,
+                                                    IN PDEVICE_OBJECT DeviceObject OPTIONAL,
+                                                    OUT PHANDLE FileObjectHandle OPTIONAL);
 NTKERNELAPI PFILE_OBJECT IoCreateStreamFileObjectLite(IN PFILE_OBJECT FileObject OPTIONAL, IN PDEVICE_OBJECT DeviceObject OPTIONAL);
 
 // begin_nthal begin_ntddk begin_wdm begin_ntosp
@@ -2500,7 +2511,10 @@ NTKERNELAPI PEPROCESS IoGetCurrentProcess(VOID);
 
 // begin_nthal
 
-NTKERNELAPI NTSTATUS IoGetDeviceObjectPointer(IN PUNICODE_STRING ObjectName, IN ACCESS_MASK DesiredAccess, OUT PFILE_OBJECT *FileObject, OUT PDEVICE_OBJECT *DeviceObject);
+NTKERNELAPI NTSTATUS IoGetDeviceObjectPointer(IN PUNICODE_STRING ObjectName,
+                                              IN ACCESS_MASK DesiredAccess,
+                                              OUT PFILE_OBJECT *FileObject,
+                                              OUT PDEVICE_OBJECT *DeviceObject);
 NTKERNELAPI struct _DMA_ADAPTER * IoGetDmaAdapter(
     IN PDEVICE_OBJECT PhysicalDeviceObject, OPTIONAL // required for PnP drivers
     IN struct _DEVICE_DESCRIPTION *DeviceDescription,
@@ -2798,7 +2812,8 @@ BOOLEAN IoTranslateBusAddress(
 //     CancelRoutine - Address of the cancel routine that is to be invoked if the IRP is cancelled.
 // Return Value:
 //     Previous value of CancelRoutine field in the IRP.
-#define IoSetCancelRoutine( Irp, NewCancelRoutine ) ((PDRIVER_CANCEL) (ULONG_PTR) InterlockedExchangePointer( (PVOID *) &(Irp)->CancelRoutine, (PVOID) (ULONG_PTR)(NewCancelRoutine) ) )
+#define IoSetCancelRoutine( Irp, NewCancelRoutine ) \
+((PDRIVER_CANCEL) (ULONG_PTR) InterlockedExchangePointer( (PVOID *) &(Irp)->CancelRoutine, (PVOID) (ULONG_PTR)(NewCancelRoutine) ) )
 
 
 // VOID IoSetCompletionRoutine(
@@ -2850,9 +2865,9 @@ NTKERNELAPI VOID IoSetHardErrorOrVerifyDevice(IN PIRP Irp, IN PDEVICE_OBJECT Dev
 
 // end_ntddk end_nthal
 
-NTKERNELAPI NTSTATUS IoSetInformation(IN PFILE_OBJECT FileObject, 
-                                      IN FILE_INFORMATION_CLASS FileInformationClass, 
-                                      IN ULONG Length, 
+NTKERNELAPI NTSTATUS IoSetInformation(IN PFILE_OBJECT FileObject,
+                                      IN FILE_INFORMATION_CLASS FileInformationClass,
+                                      IN ULONG Length,
                                       IN PVOID FileInformation);
 
 // end_ntosp
@@ -2874,7 +2889,7 @@ NTKERNELAPI NTSTATUS IoSetInformation(IN PFILE_OBJECT FileObject,
 //     This routine is invoked to copy the IRP stack arguments and file pointer from the current IrpStackLocation to the next in an I/O Request Packet (IRP).
 
 //     If the caller wants to call IoCallDriver with a completion routine but does not wish to change the arguments otherwise, 
-/      the caller first calls IoCopyCurrentIrpStackLocationToNext, then IoSetCompletionRoutine, then IoCallDriver.
+/ the caller first calls IoCopyCurrentIrpStackLocationToNext, then IoSetCompletionRoutine, then IoCallDriver.
 // Arguments:
 //     Irp - Pointer to the I/O Request Packet.
 #define IoCopyCurrentIrpStackLocationToNext( Irp ) { \
@@ -2899,7 +2914,7 @@ NTKERNELAPI NTSTATUS IoSetInformation(IN PFILE_OBJECT FileObject,
     (Irp)->Tail.Overlay.CurrentStackLocation++; }
 
 
-NTKERNELAPI VOID IoSetShareAccess(IN ACCESS_MASK DesiredAccess, 
+NTKERNELAPI VOID IoSetShareAccess(IN ACCESS_MASK DesiredAccess,
                                   IN ULONG DesiredShareAccess,
                                   IN OUT PFILE_OBJECT FileObject,
                                   OUT PSHARE_ACCESS ShareAccess);
@@ -3265,10 +3280,10 @@ extern BOOLEAN IoCscInitializationFailed;
 NTSTATUS IoGetRelatedTargetDevice(IN PFILE_OBJECT FileObject, OUT PDEVICE_OBJECT *DeviceObject);
 
 // begin_ntosp
-NTKERNELAPI NTSTATUS IoSetIoCompletion(IN PVOID IoCompletion, 
-                                       IN PVOID KeyContext, 
-                                       IN PVOID ApcContext, 
-                                       IN NTSTATUS IoStatus, 
+NTKERNELAPI NTSTATUS IoSetIoCompletion(IN PVOID IoCompletion,
+                                       IN PVOID KeyContext,
+                                       IN PVOID ApcContext,
+                                       IN NTSTATUS IoStatus,
                                        IN ULONG_PTR IoStatusInformation,
                                        IN BOOLEAN Quota);
 
@@ -3581,7 +3596,7 @@ NTKERNELAPI NTSTATUS IoCreateFileSpecifyDeviceObjectHint(
     IN ULONG Options,
     IN PVOID DeviceObject);
 
-NTKERNELAPI NTSTATUS IoAttachDeviceToDeviceStackSafe(IN PDEVICE_OBJECT SourceDevice, 
+NTKERNELAPI NTSTATUS IoAttachDeviceToDeviceStackSafe(IN PDEVICE_OBJECT SourceDevice,
                                                      IN PDEVICE_OBJECT TargetDevice,
                                                      OUT PDEVICE_OBJECT *AttachedToDeviceObject);
 

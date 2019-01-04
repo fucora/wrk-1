@@ -8,11 +8,8 @@ Module Name:
     vfpacket.h
 
 Abstract:
-    This header exposes functions used to manage the verifier packet data that
-    tracks IRPs.
+    This header exposes functions used to manage the verifier packet data that tracks IRPs.
 */
-
-
 
 // Currently, ntddk.h uses up to 0x2000 for Irp->Flags
 

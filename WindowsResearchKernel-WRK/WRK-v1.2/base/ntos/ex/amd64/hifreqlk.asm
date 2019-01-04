@@ -36,11 +36,10 @@ _DATA$00 SEGMENT PAGE 'DATA'
 KiInitialPCR    db ProcessorControlRegisterLength dup (0)
 
 
-; These values are referenced together so they are defined in a single cache
-; line. They are never modified after they are initialized on during boot.
+; These values are referenced together so they are defined in a single cache line.
+; They are never modified after they are initialized on during boot.
 
 ; pIofCallDriver - This is a pointer to the function to call a driver.
-
 
         align   ALIGN_VALUE
 
@@ -48,24 +47,17 @@ KiInitialPCR    db ProcessorControlRegisterLength dup (0)
 pIofCallDriver  dq 0
 
 
-; pIofCompleteRequest - This is a pointer to the function to call to complete
-;      an I/O request.
-
-
+; pIofCompleteRequest - This is a pointer to the function to call to complete an I/O request.
         public  pIofCompleteRequest
 pIofCompleteRequest dq 0
 
 
 ; pIoAllocateIrp - This is pointer to the function to call to allocate an IRP.
-
-
         public  pIoAllocateIrp
 pIoAllocateIrp  dq 0
 
 
 ; pIoFreeIrp - This is a pointer to a function to call to free an IRP.
-
-
         public  pIoFreeIrp
 pIoFreeIrp      dq 0
 

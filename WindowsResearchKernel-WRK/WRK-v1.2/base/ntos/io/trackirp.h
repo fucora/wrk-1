@@ -102,8 +102,13 @@ typedef struct _DEFERRAL_CONTEXT {
 // These are in trackirp.c
 VOID FASTCALL IovpPacketFromIrp(IN  PIRP Irp, OUT PIOV_REQUEST_PACKET *IovPacket);
 BOOLEAN FASTCALL IovpCheckIrpForCriticalTracking(IN  PIRP Irp);
-VOID FASTCALL IovpCallDriver1(IN PDEVICE_OBJECT DeviceObject, IN OUT PIRP *IrpPointer, IN OUT PIOFCALLDRIVER_STACKDATA IofCallDriverStackData OPTIONAL, IN PVOID CallerAddress);
-VOID FASTCALL IovpCallDriver2(IN PDEVICE_OBJECT DeviceObject, IN OUT NTSTATUS *FinalStatus, IN PIOFCALLDRIVER_STACKDATA IofCallDriverStackData  OPTIONAL);
+VOID FASTCALL IovpCallDriver1(IN PDEVICE_OBJECT DeviceObject,
+                              IN OUT PIRP *IrpPointer,
+                              IN OUT PIOFCALLDRIVER_STACKDATA IofCallDriverStackData OPTIONAL,
+                              IN PVOID CallerAddress);
+VOID FASTCALL IovpCallDriver2(IN PDEVICE_OBJECT DeviceObject,
+                              IN OUT NTSTATUS *FinalStatus, 
+                              IN PIOFCALLDRIVER_STACKDATA IofCallDriverStackData  OPTIONAL);
 VOID FASTCALL IovpCompleteRequest1(IN PIRP Irp, IN CCHAR PriorityBoost, IN OUT PIOFCOMPLETEREQUEST_STACKDATA CompletionPacket);
 VOID FASTCALL IovpCompleteRequest2(IN PIRP Irp, IN OUT PIOFCOMPLETEREQUEST_STACKDATA CompletionPacket);
 VOID FASTCALL IovpCompleteRequest3(IN PIRP Irp, IN PVOID Routine, IN OUT PIOFCOMPLETEREQUEST_STACKDATA CompletionPacket);

@@ -16,22 +16,14 @@ Abstract:
 
 
 // Deadlock detection package initialization.
-
-
 VOID VfDeadlockDetectionInitialize();
-
 
 // Functions called from IovCallDriver (driver verifier replacement for
 // IoCallDriver) just before and after the real call to the driver is made.
-
-
 BOOLEAN VfDeadlockBeforeCallDriver (IN PDEVICE_OBJECT DeviceObject, IN OUT PIRP Irp);
 VOID VfDeadlockAfterCallDriver (IN PDEVICE_OBJECT DeviceObject, IN OUT PIRP Irp, IN BOOLEAN PagingIrp);
 
-
 // Maximum depth of stack traces captured.
-
-
 #define VI_MAX_STACK_DEPTH 8
 
 #define NO_OF_DEADLOCK_PARTICIPANTS 32
@@ -44,15 +36,12 @@ typedef struct _VI_DEADLOCK_NODE {
     // Node representing the acquisition of the previous resource.
     struct _VI_DEADLOCK_NODE * Parent;
 
-
     // Node representing the next resource acquisitions, that are
     // done after acquisition of the current resource.
     struct _LIST_ENTRY ChildrenList;
 
     // Field used to chain siblings in the tree. A parent node has the
-    // ChildrenList field as the head of the children list that is chained
-    // with the Siblings field.
-
+    // ChildrenList field as the head of the children list that is chained with the Siblings field.
     struct _LIST_ENTRY SiblingsList;
 
     union {
@@ -72,7 +61,6 @@ typedef struct _VI_DEADLOCK_NODE {
     // When we find a deadlock, we keep this info around in order to
     // be able to identify the parties involved who have caused the deadlock.
     struct _VI_DEADLOCK_THREAD * ThreadEntry;
-
 
     // Fields used for decision making within the deadlock analysis algorithm.
 
@@ -99,7 +87,6 @@ typedef struct _VI_DEADLOCK_NODE {
         ULONG SequenceNumber : 29;
     };
 
-
     // Stack traces for the resource acquisition moment.
     // Used when displaying deadlock proofs. On free builds
     // anything other than the first entry (return address)
@@ -110,12 +97,9 @@ typedef struct _VI_DEADLOCK_NODE {
 
 
 // VI_DEADLOCK_RESOURCE
-
-
 typedef struct _VI_DEADLOCK_RESOURCE {
     // Resource type (mutex, spinlock, etc.).
     VI_DEADLOCK_RESOURCE_TYPE Type;
-
 
     // Resource flags
 
@@ -133,11 +117,8 @@ typedef struct _VI_DEADLOCK_RESOURCE {
     // The address of the synchronization object used by the kernel.
     PVOID ResourceAddress;
 
-
-    // The thread that currently owns the resource. The field is
-    // null if nobody owns the resource.
+    // The thread that currently owns the resource. The field is null if nobody owns the resource.
     struct _VI_DEADLOCK_THREAD * ThreadOwner;
-
 
     // List of resource nodes representing acquisitions of this resource.
     LIST_ENTRY ResourceList;
@@ -146,17 +127,14 @@ typedef struct _VI_DEADLOCK_RESOURCE {
         // List used for chaining resources from a hash bucket.
         LIST_ENTRY HashChainList;
 
-
         // Used to chain free resources. This list is used only after
         // the resource has been freed and we put the structure
         // into a cache to reduce kernel pool contention.
         LIST_ENTRY FreeListEntry;
     };
 
-
     // Stack trace of the resource creator. On free builds we
-    // may have here only a return address that is bubbled up
-    // from verifier thunks.
+    // may have here only a return address that is bubbled up from verifier thunks.
     PVOID StackTrace [VI_MAX_STACK_DEPTH];
     
     PVOID LastAcquireTrace [VI_MAX_STACK_DEPTH];// Stack trace for last acquire    
@@ -165,8 +143,6 @@ typedef struct _VI_DEADLOCK_RESOURCE {
 
 
 // VI_DEADLOCK_THREAD
-
-
 typedef struct _VI_DEADLOCK_THREAD {
     PKTHREAD Thread;// Kernel thread address
 
@@ -184,14 +160,12 @@ typedef struct _VI_DEADLOCK_THREAD {
 
         // Used to chain free nodes. The list is used only after we decide
         // to delete the thread structure (possibly because it does not
-        // hold resources anymore). Keeping the structures in a cache
-        // reduces pool contention.
+        // hold resources anymore). Keeping the structures in a cache reduces pool contention.
         LIST_ENTRY FreeListEntry;
     };
 
     // Count of resources currently acquired by a thread. When this becomes
-    // zero the thread will be destroyed. The count goes up during acquire
-    // and down during release.
+    // zero the thread will be destroyed. The count goes up during acquire and down during release.
     ULONG NodeCount;
 
     // This counter is used to count how many IoCallDriver() calls with
@@ -241,7 +215,6 @@ typedef struct _VI_DEADLOCK_GLOBALS {
     ULONG DepthLimitHits;
     ULONG SearchLimitHits;
 
-
     // Number of times we have to exhonerate a deadlock because
     // it was protected by a common resource (e.g. thread 1 takes ABC,
     // thread 2 takes ACB -- this will get flagged initially by our algorithm
@@ -260,12 +233,9 @@ typedef struct _VI_DEADLOCK_GLOBALS {
 
     ULONG TotalReleases;
     ULONG RootNodesDeleted;
-
-    // Used to control how often we delete portions of the dependency graph.
-    ULONG ForgetHistoryCounter;
-
-    // How often was a worker items dispatched to trim the pool cache.
-    ULONG PoolTrimCounter;
+    
+    ULONG ForgetHistoryCounter;// Used to control how often we delete portions of the dependency graph.    
+    ULONG PoolTrimCounter;// How often was a worker items dispatched to trim the pool cache.
 
     // Caches of freed structures (thread, resource, node) used to
     // decrease kernel pool contention.

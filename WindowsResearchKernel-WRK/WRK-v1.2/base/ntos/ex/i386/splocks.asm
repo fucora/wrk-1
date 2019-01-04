@@ -42,43 +42,33 @@ VariableName    dd      0
         endm
 
 
-; These values are referenced together so they are defined in a single cache
-; line. They are never modified after they are initialized on during boot.
+; These values are referenced together so they are defined in a single cache line.
+; They are never modified after they are initialized on during boot.
 
 ; pIofCallDriver - This is a pointer to the function to call a driver.
-
-
         align   PADLOCKS
 
         public  _pIofCallDriver
 _pIofCallDriver dd      0
 
 
-; pIofCompleteRequest - This is a pointer to the function to call to complete
-;      an I/O request.
-
-
+; pIofCompleteRequest - This is a pointer to the function to call to complete an I/O request.
         public  _pIofCompleteRequest
 _pIofCompleteRequest dd 0
 
 
 ; pIoAllocateIrp - This is pointer to the function to call to allocate an IRP.
-
-
         public  _pIoAllocateIrp
 _pIoAllocateIrp dd      0
 
 
 ; pIoFreeIrp - This is a pointer to a function to call to free an IRP.
-
-
         public  _pIoFreeIrp
 _pIoFreeIrp     dd      0
 
 
 ; These variables are updated frequently and under control of the dispatcher
-; database lock. They are defined in a single cache line to reduce false
-; sharing in MP systems.
+; database lock. They are defined in a single cache line to reduce false sharing in MP systems.
 
 ; KiIdleSummary - This is the set of processors which are idle.  It is
 ;      used by the ready thread code to speed up the search for a thread
@@ -95,7 +85,6 @@ _KiIdleSummary  dd      0
 ;      idle processors in which all the logical processors that make up a
 ;      physical processor are idle.   That is, this is the set of logical
 ;      processors in completely idle physical processors.
-
 
         public  _KiIdleSMTSummary
 _KiIdleSMTSummary dd    0
@@ -226,22 +215,16 @@ _KeErrorMask    dd      1
 
 
 ; MmPaeErrMask - This is the value used to mask upper bits of a PAE error.
-
-
         public  _MmPaeErrMask
 _MmPaeErrMask   dd      0
 
 
 ; MmPaeMask - This is the value used to mask upper bits of a PAE PTE.
-
-
         public  _MmPaeMask
 _MmPaeMask      dq      0
 
 
 ; MmHighestUserAddress - This is the highest user virtual address.
-
-
         public  _MmHighestUserAddress
 _MmHighestUserAddress dd 0
 
@@ -260,39 +243,28 @@ _MmSystemRangeStart dd 0
 _MmUserProbeAddress dd 0
 
 
-; MmHighestPhysicalPage - This is the highest physical page number in the
-;       system.
-
-
+; MmHighestPhysicalPage - This is the highest physical page number in the system.
         public  _MmHighestPhysicalPage
 _MmHighestPhysicalPage dd 0
 
 
 ; MmPfnDatabase - This is the base address of the PFN database.
-
-
         public  _MmPfnDatabase
 _MmPfnDatabase  dd 0
 
 
 ; MmSecondaryColors - This is the number of secondary page colors as determined
 ;       by the size of the second level cache.
-
-
         public  _MmSecondaryColors
 _MmSecondaryColors dd 0
 
 
 ; MmSecondaryColorMask - This is the secondary color mask.
-
-
         public  _MmSecondaryColorMask
 _MmSecondaryColorMask dd 0
 
 
 ; MmSecondaryColorNodeShift - This is the secondary color node shift.
-
-
         public  _MmSecondaryColorNodeShift
 _MmSecondaryColorNodeShift db 0
 
@@ -307,9 +279,7 @@ _MmSecondaryColorNodeShift db 0
 _MmPfnDereferenceSListHead  dq      0
 
 
-; MmPfnDeferredList - This is used to queue items that need reference count
-;      decrement processing.
-
+; MmPfnDeferredList - This is used to queue items that need reference count decrement processing.
 
         align   PADLOCKS
 
@@ -317,9 +287,7 @@ _MmPfnDereferenceSListHead  dq      0
 _MmPfnDeferredList          dd      0
 
 
-; MmSystemLockPagesCount - This is the count of the number of locked pages
-;       in the system.
-
+; MmSystemLockPagesCount - This is the count of the number of locked pages in the system.
 
         align   PADLOCKS
 
