@@ -65,8 +65,9 @@ Return Value:
         High = (SizeOfTable / sizeof(RUNTIME_FUNCTION)) - 1;
         RelativePc = (ULONG)(ControlPc - *ImageBase);
         while (High >= Low) {
-            // Compute next probe index and test entry. If the specified
-            // control PC is greater than of equal to the beginning address and less than the ending address of the function table entry,
+            // Compute next probe index and test entry.
+            // If the specified control PC is greater than of equal to the beginning address and 
+            // less than the ending address of the function table entry,
             // then return the address of the function table entry. Otherwise, continue the search.
 
             Middle = (Low + High) >> 1;

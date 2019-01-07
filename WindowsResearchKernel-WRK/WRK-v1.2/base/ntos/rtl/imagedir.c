@@ -75,7 +75,11 @@ Return Value:
 }
 
 
-PVOID RtlpImageDirectoryEntryToData32(IN PVOID Base, IN BOOLEAN MappedAsImage, IN USHORT DirectoryEntry, OUT PULONG Size, PIMAGE_NT_HEADERS32 NtHeaders)
+PVOID RtlpImageDirectoryEntryToData32(IN PVOID Base,
+                                      IN BOOLEAN MappedAsImage,
+                                      IN USHORT DirectoryEntry,
+                                      OUT PULONG Size,
+                                      PIMAGE_NT_HEADERS32 NtHeaders)
 {
     ULONG DirectoryAddress;
 
@@ -102,7 +106,11 @@ PVOID RtlpImageDirectoryEntryToData32(IN PVOID Base, IN BOOLEAN MappedAsImage, I
 }
 
 
-PVOID RtlpImageDirectoryEntryToData64(IN PVOID Base, IN BOOLEAN MappedAsImage, IN USHORT DirectoryEntry, OUT PULONG Size, PIMAGE_NT_HEADERS64 NtHeaders)
+PVOID RtlpImageDirectoryEntryToData64(IN PVOID Base,
+                                      IN BOOLEAN MappedAsImage,
+                                      IN USHORT DirectoryEntry,
+                                      OUT PULONG Size, 
+                                      PIMAGE_NT_HEADERS64 NtHeaders)
 {
     ULONG DirectoryAddress;
 

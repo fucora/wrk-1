@@ -68,7 +68,11 @@ Routine Description:
 }
 
 
-PRUNTIME_FUNCTION RtlpSearchInvertedFunctionTable(PINVERTED_FUNCTION_TABLE InvertedTable, PVOID ControlPc, OUT PVOID *ImageBase, OUT PULONG SizeOfTable)
+PRUNTIME_FUNCTION RtlpSearchInvertedFunctionTable(PINVERTED_FUNCTION_TABLE InvertedTable,
+                                                  PVOID ControlPc,
+                                                  OUT PVOID *ImageBase,
+                                                  OUT PULONG SizeOfTable
+)
 /*
 Routine Description:
     This function searches for a matching entry in an inverted function table using the specified control PC value.
@@ -245,7 +249,8 @@ Return Value:
 VOID RtlInsertInvertedFunctionTable(PINVERTED_FUNCTION_TABLE InvertedTable, PVOID ImageBase, ULONG SizeOfImage)
 /*
 Routine Description:
-    This function inserts an entry in an inverted function table if there is room in the table. Otherwise, no operation is performed.
+    This function inserts an entry in an inverted function table if there is room in the table. 
+    Otherwise, no operation is performed.
     N.B. It is assumed that appropriate locks are held when this routine is called.
     N.B. If the inverted function table overflows, then it is treated as a cache. This is unlikely to happen, however.
 Arguments:
@@ -272,7 +277,8 @@ Arguments:
                 }
             }
 
-            // If the new entry does not go at the end of the specified table, then shuffle the table down to make room for the new entry.
+            // If the new entry does not go at the end of the specified table, 
+            // then shuffle the table down to make room for the new entry.
             if (Index != CurrentSize) {
                 RtlMoveMemory(&InvertedTable->TableEntry[Index + 1],
                               &InvertedTable->TableEntry[Index],

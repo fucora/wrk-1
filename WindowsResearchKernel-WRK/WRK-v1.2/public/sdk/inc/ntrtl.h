@@ -70,7 +70,6 @@ extern "C" {
     VOID RtlRemoveInvertedFunctionTable(PINVERTED_FUNCTION_TABLE InvertedTable, PVOID ImageBase);
 #endif // defined(_AMD64_)
 
-
     // Define interlocked sequenced list structure.
 
     // begin_ntddk begin_wdm begin_nthal begin_ntifs begin_ntndis begin_ntosp begin_winnt
@@ -137,7 +136,10 @@ extern "C" {
 
     // end_winnt
 
-    PSLIST_ENTRY FASTCALL RtlInterlockedPushListSList(IN PSLIST_HEADER ListHead, IN PSLIST_ENTRY List, IN PSLIST_ENTRY ListEnd, IN ULONG Count);
+    PSLIST_ENTRY FASTCALL RtlInterlockedPushListSList(IN PSLIST_HEADER ListHead,
+                                                      IN PSLIST_ENTRY List,
+                                                      IN PSLIST_ENTRY ListEnd,
+                                                      IN ULONG Count);
 
 
     // begin_ntddk begin_wdm begin_nthal begin_ntifs begin_ntndis
@@ -146,7 +148,10 @@ extern "C" {
 
     // The ASSERT macro has been updated to be an expression instead of a statement.
 
-    NTSYSAPI VOID NTAPI RtlAssert(__in PVOID VoidFailedAssertion, __in PVOID VoidFileName, __in ULONG LineNumber, __in_opt PSTR MutableMessage);
+    NTSYSAPI VOID NTAPI RtlAssert(__in PVOID VoidFailedAssertion,
+                                  __in PVOID VoidFileName, 
+                                  __in ULONG LineNumber,
+                                  __in_opt PSTR MutableMessage);
 
 #if DBG
 #define ASSERT( exp ) \
@@ -249,7 +254,6 @@ extern "C" {
     //  BOOLEAN IsListEmpty(PLIST_ENTRY ListHead);
 #define IsListEmpty(ListHead)     ((ListHead)->Flink == (ListHead))
 
-
     BOOLEAN FORCEINLINE RemoveEntryList(IN PLIST_ENTRY Entry)
     {
         PLIST_ENTRY Blink;
@@ -261,7 +265,6 @@ extern "C" {
         Flink->Blink = Blink;
         return (BOOLEAN)(Flink == Blink);
     }
-
 
     PLIST_ENTRY FORCEINLINE RemoveHeadList(IN PLIST_ENTRY ListHead)
     {
@@ -275,7 +278,6 @@ extern "C" {
         return Entry;
     }
 
-
     PLIST_ENTRY FORCEINLINE RemoveTailList(IN PLIST_ENTRY ListHead)
     {
         PLIST_ENTRY Blink;
@@ -288,7 +290,6 @@ extern "C" {
         return Entry;
     }
 
-
     VOID FORCEINLINE InsertTailList(IN PLIST_ENTRY ListHead, IN PLIST_ENTRY Entry)
     {
         PLIST_ENTRY Blink;
@@ -299,7 +300,6 @@ extern "C" {
         Blink->Flink = Entry;
         ListHead->Blink = Entry;
     }
-
 
     VOID FORCEINLINE InsertHeadList(IN PLIST_ENTRY ListHead, IN PLIST_ENTRY Entry)
     {
@@ -312,7 +312,6 @@ extern "C" {
         ListHead->Flink = Entry;
     }
 
-
     //  PSINGLE_LIST_ENTRY PopEntryList(PSINGLE_LIST_ENTRY ListHead);
 #define PopEntryList(ListHead) \
     (ListHead)->Next;\
@@ -323,7 +322,6 @@ extern "C" {
             (ListHead)->Next = FirstEntry->Next;\
         }                             \
     }
-
 
 //  VOID PushEntryList(PSINGLE_LIST_ENTRY ListHead, PSINGLE_LIST_ENTRY Entry);
 #define PushEntryList(ListHead,Entry) \
@@ -352,7 +350,6 @@ extern "C" {
         TableInsertAsLeft,
         TableInsertAsRight
     } TABLE_SEARCH_RESULT;
-
 
     //  The results of a compare can be less than, equal, or greater than.
     typedef enum _RTL_GENERIC_COMPARE_RESULTS
@@ -2339,7 +2336,7 @@ extern "C" {
         }
     }
 
-#define RtlFillMemoryUlonglong(Destination, Length, Pattern)                __stosq((PULONG64)(Destination), Pattern, (Length) / 8)
+#define RtlFillMemoryUlonglong(Destination, Length, Pattern)  __stosq((PULONG64)(Destination), Pattern, (Length) / 8)
 
 #endif
 

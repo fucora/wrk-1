@@ -17,7 +17,8 @@ Abstract:
 DECLSPEC_NOINLINE VOID RtlRaiseException(IN PEXCEPTION_RECORD ExceptionRecord)
 /*
 Routine Description:
-    This function raises a software exception by building a context record and calling the raise exception system service.
+    This function raises a software exception by building a context record and 
+    calling the raise exception system service.
 Arguments:
     ExceptionRecord - Supplies a pointer to an exception record.
 */
@@ -30,7 +31,8 @@ Arguments:
     ULONG64 ImageBase;
     NTSTATUS Status = STATUS_INVALID_DISPOSITION;
 
-    // Capture the current context, unwind to the caller of this routine, set the exception address, and call the appropriate exception dispatcher.
+    // Capture the current context, unwind to the caller of this routine, 
+    // set the exception address, and call the appropriate exception dispatcher.
     RtlCaptureContext(&ContextRecord);
     ControlPc = ContextRecord.Rip;
     FunctionEntry = RtlLookupFunctionEntry(ControlPc, &ImageBase, NULL);
@@ -51,7 +53,8 @@ Arguments:
         Status = ZwRaiseException(ExceptionRecord, &ContextRecord, FALSE);
     }
 
-    // There should never be a return from either exception dispatch or the system service unless there is a problem with the argument list itself.
+    // There should never be a return from either exception dispatch or 
+    // the system service unless there is a problem with the argument list itself.
     // Raise another exception specifying the status value returned.
     RtlRaiseStatus(Status);
 }
@@ -88,7 +91,8 @@ Arguments:
     RtlDispatchException(&ExceptionRecord, &ContextRecord);
     Status = ZwRaiseException(&ExceptionRecord, &ContextRecord, FALSE);
 
-    // There should never be a return from either exception dispatch or the system service unless there is a problem with the argument list itself.
+    // There should never be a return from either exception dispatch or 
+    // the system service unless there is a problem with the argument list itself.
     // Raise another exception specifying the status value returned.
     RtlRaiseStatus(Status);
 }

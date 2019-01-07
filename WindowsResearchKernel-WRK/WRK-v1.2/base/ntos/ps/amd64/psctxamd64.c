@@ -180,7 +180,8 @@ Arguments:
     }
 
     // The segment registers DS, ES, FS, and GS are never restored from saved data.
-    // However, SS and CS are restored from the trap frame. Make sure that these segment registers have the proper values.
+    // However, SS and CS are restored from the trap frame. 
+    // Make sure that these segment registers have the proper values.
     if (PreviousMode == UserMode) {
         TrapFrame->SegSs = KGDT64_R3_DATA | RPL_MASK;
         if (ContextRecord->SegCs != (KGDT64_R3_CODE | RPL_MASK)) {
@@ -341,7 +342,8 @@ Return Value:
         ControlPc = ContextRecord.Rip;
         FunctionEntry = RtlLookupFunctionEntry(ControlPc, &ImageBase, NULL);
 
-        // If there is a function table entry for the routine, then virtually unwind to the caller of the current routine to obtain the address where control left the caller.
+        // If there is a function table entry for the routine,
+        // then virtually unwind to the caller of the current routine to obtain the address where control left the caller.
         // Otherwise, the function is a leaf function and the return address register contains the address of where control left the caller.
         if (FunctionEntry != NULL) {
             RtlVirtualUnwind(UNW_FLAG_EHANDLER, 

@@ -1572,7 +1572,8 @@ typedef struct _NON_PAGED_DEBUG_INFO {
                                                 // old checksum didn't match.
 
 //  The .arch section is made up of headers, each describing an amask position/value
-//  pointing to an array of IMAGE_ARCHITECTURE_ENTRY's.  Each "array" (both the header and entry arrays) are terminated by a quadword of 0xffffffffL.
+//  pointing to an array of IMAGE_ARCHITECTURE_ENTRY's.  
+//  Each "array" (both the header and entry arrays) are terminated by a quadword of 0xffffffffL.
 
 //  NOTE: There may be quadwords of 0 sprinkled around and must be skipped.
 

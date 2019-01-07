@@ -56,13 +56,13 @@ extern "C" {
 
 
 // Exception record definition.
-typedef struct _EXCEPTION_RECORD {
-    NTSTATUS ExceptionCode;
-    ULONG ExceptionFlags;
-    struct _EXCEPTION_RECORD *ExceptionRecord;
-    PVOID ExceptionAddress;
-    ULONG NumberParameters;
-    ULONG_PTR ExceptionInformation[EXCEPTION_MAXIMUM_PARAMETERS];
+    typedef struct _EXCEPTION_RECORD{
+        NTSTATUS ExceptionCode;
+        ULONG ExceptionFlags;
+        struct _EXCEPTION_RECORD *ExceptionRecord;
+        PVOID ExceptionAddress;
+        ULONG NumberParameters;
+        ULONG_PTR ExceptionInformation[EXCEPTION_MAXIMUM_PARAMETERS];
     } EXCEPTION_RECORD;
 
 typedef EXCEPTION_RECORD *PEXCEPTION_RECORD;

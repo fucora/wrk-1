@@ -128,11 +128,14 @@ Return Value:
     HistoryTable->LowAddress = -1;
     HistoryTable->HighAddress = 0;
 
-    // Start with the frame specified by the context record and search backwards through the call frame hierarchy attempting to find an exception handler that will handle the exception.
+    // Start with the frame specified by the context record and 
+    // search backwards through the call frame hierarchy attempting to find an exception handler that will handle the exception.
     do {
-        FunctionEntry = RtlLookupFunctionEntry(ControlPc, &ImageBase, HistoryTable);// Lookup the function table entry using the point at which control left the procedure.
+        // Lookup the function table entry using the point at which control left the procedure.
+        FunctionEntry = RtlLookupFunctionEntry(ControlPc, &ImageBase, HistoryTable);
 
-        // If there is a function table entry for the routine, then virtually unwind to the caller of the current routine to obtain the virtual
+        // If there is a function table entry for the routine, 
+        // then virtually unwind to the caller of the current routine to obtain the virtual
         // frame pointer of the establisher and check if there is an exception handler for the frame.
         if (FunctionEntry != NULL) {
             ExceptionRoutine = RtlVirtualUnwind(UNW_FLAG_EHANDLER,
@@ -243,10 +246,8 @@ Return Value:
                         HistoryTable = DispatcherContext.HistoryTable;
                         ScopeIndex = DispatcherContext.ScopeIndex;
                         Repeat = TRUE;
-                        break;
-
-                        // All other disposition values are invalid.
-                    default:
+                        break;                        
+                    default:// All other disposition values are invalid.
                         RtlRaiseStatus(STATUS_INVALID_DISPOSITION);// Raise invalid disposition exception.
                     }
                 } while (Repeat != FALSE);
@@ -283,8 +284,10 @@ VOID RtlUnwind(IN PVOID TargetFrame OPTIONAL,
 /*
 Routine Description:
     This function initiates an unwind of procedure call frames.
-    The machine state at the time of the call to unwind is captured in a context record and the unwinding flag is set in the exception flags of the exception record.
-    If the TargetFrame parameter is not specified, then the exit unwind flag is also set in the exception flags of the exception record.
+    The machine state at the time of the call to unwind is captured in a context record and 
+    the unwinding flag is set in the exception flags of the exception record.
+    If the TargetFrame parameter is not specified, 
+    then the exit unwind flag is also set in the exception flags of the exception record.
     A backward scan through the procedure call frames is then performed to find the target of the unwind operation.
 
     As each frame is encounter, the PC where control left the corresponding function is determined and
@@ -294,8 +297,8 @@ Routine Description:
 Arguments:
     TargetFrame - Supplies an optional pointer to the call frame that is the target of the unwind.
                   If this parameter is not specified, then an exit unwind is performed.
-    TargetIp - Supplies an optional instruction address that specifies the
-        continuation address of the unwind. This address is ignored if the target frame parameter is not specified.
+    TargetIp - Supplies an optional instruction address that specifies the continuation address of the unwind.
+               This address is ignored if the target frame parameter is not specified.
     ExceptionRecord - Supplies an optional pointer to an exception record.
     ReturnValue - Supplies a value that is to be placed in the integer function return register just before continuing execution.
 Return Value:
@@ -320,12 +323,15 @@ VOID RtlUnwindEx(
 /*
 Routine Description:
     This function initiates an unwind of procedure call frames.
-    The machine state at the time of the call to unwind is captured in a context record and the unwinding flag is set in the exception flags of the exception record.
-    If the TargetFrame parameter is not specified, then the exit unwind flag is also set in the exception flags of the exception record.
+    The machine state at the time of the call to unwind is captured in a context record and 
+    the unwinding flag is set in the exception flags of the exception record.
+    If the TargetFrame parameter is not specified, 
+    then the exit unwind flag is also set in the exception flags of the exception record.
     A backward scan through the procedure call frames is then performed to find the target of the unwind operation.
 
     As each frame is encounter,
-    the PC where control left the corresponding function is determined and used to lookup exception handler information in the runtime function table built by the linker.
+    the PC where control left the corresponding function is determined and 
+    used to lookup exception handler information in the runtime function table built by the linker.
     If the respective routine has an exception handler, then the handler is called.
 
 Arguments:
@@ -577,7 +583,6 @@ Arguments:
         if (PrologOffset >= UnwindInfo->UnwindCode[Index].CodeOffset) {
             switch (UnwindOp) {
                 // Push nonvolatile integer register.
-
                 // The operation information is the register number of the register than was pushed.
             case UWOP_PUSH_NONVOL:
                 IntegerAddress = (PULONG64)(ContextRecord->Rsp);
@@ -590,7 +595,6 @@ Arguments:
                 break;
 
                 // Allocate a large sized area on the stack.
-
                 // The operation information determines if the size is 16- or 32-bits.
             case UWOP_ALLOC_LARGE:
                 Index += 1;
@@ -606,7 +610,6 @@ Arguments:
                 break;
 
                 // Allocate a small sized area on the stack.
-
                 // The operation information is the size of the unscaled allocation size (8 is the scale factor) minus 8.
             case UWOP_ALLOC_SMALL:
                 ContextRecord->Rsp += (OpInfo * 8) + 8;
@@ -681,7 +684,6 @@ Arguments:
                 break;
 
                 // Push a machine frame on the stack.
-
                 // The operation information determines whether the machine frame contains an error code or not.
             case UWOP_PUSH_MACHFRAME:
                 MachineFrame = TRUE;
@@ -741,15 +743,14 @@ Arguments:
 }
 
 
-PEXCEPTION_ROUTINE RtlVirtualUnwind(
-    IN ULONG HandlerType,
-    IN ULONG64 ImageBase,
-    IN ULONG64 ControlPc,
-    IN PRUNTIME_FUNCTION FunctionEntry,
-    IN OUT PCONTEXT ContextRecord,
-    OUT PVOID *HandlerData,
-    OUT PULONG64 EstablisherFrame,
-    IN OUT PKNONVOLATILE_CONTEXT_POINTERS ContextPointers OPTIONAL
+PEXCEPTION_ROUTINE RtlVirtualUnwind(IN ULONG HandlerType,
+                                    IN ULONG64 ImageBase,
+                                    IN ULONG64 ControlPc,
+                                    IN PRUNTIME_FUNCTION FunctionEntry,
+                                    IN OUT PCONTEXT ContextRecord,
+                                    OUT PVOID *HandlerData,
+                                    OUT PULONG64 EstablisherFrame,
+                                    IN OUT PKNONVOLATILE_CONTEXT_POINTERS ContextPointers OPTIONAL
 )
 /*
 Routine Description:

@@ -23,7 +23,8 @@ ULONG RtlpExceptionLogSize;
 VOID RtlInitializeExceptionLog(IN ULONG Entries)
 /*
 Routine Description:
-    This routine allocates space for the exception dispatcher logging facility, and records the address and size of the log area in globals where they can be found by the debugger.
+    This routine allocates space for the exception dispatcher logging facility, 
+    and records the address and size of the log area in globals where they can be found by the debugger.
     If memory is not available, the table pointer will remain NULL and the logging functions will do nothing.
 Arguments:
     Entries - Supplies the number of entries to allocate for
@@ -36,7 +37,12 @@ Arguments:
 }
 
 
-ULONG RtlpLogExceptionHandler(IN PEXCEPTION_RECORD ExceptionRecord, IN PCONTEXT ContextRecord, IN ULONG_PTR ControlPc, IN PVOID HandlerData, IN ULONG Size)
+ULONG RtlpLogExceptionHandler(IN PEXCEPTION_RECORD ExceptionRecord,
+                              IN PCONTEXT ContextRecord, 
+                              IN ULONG_PTR ControlPc, 
+                              IN PVOID HandlerData, 
+                              IN ULONG Size
+)
 /*
 Routine Description:
     Records the dispatching of exceptions to frame-based handlers.
@@ -83,7 +89,8 @@ Arguments:
     Disposition - Supplies the disposition code
 */
 {
-    // If MAX_EXCEPTION_LOG or more exceptions were dispatched while this one was being handled, this disposition will get written on the wrong record.  Oh well.
+    // If MAX_EXCEPTION_LOG or more exceptions were dispatched while this one was being handled, 
+    // this disposition will get written on the wrong record.  Oh well.
     if (RtlpExceptionLog != NULL) {
         RtlpExceptionLog[LogIndex].Disposition = Disposition;
     }

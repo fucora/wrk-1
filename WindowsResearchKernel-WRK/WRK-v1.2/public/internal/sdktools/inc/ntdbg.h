@@ -2295,17 +2295,12 @@ typedef union _AMD64_UNWIND_CODE {
 
 
 // Define unwind information flags.
-
-
 #define AMD64_UNW_FLAG_NHANDLER 0x0
 #define AMD64_UNW_FLAG_EHANDLER 0x1
 #define AMD64_UNW_FLAG_UHANDLER 0x2
 #define AMD64_UNW_FLAG_CHAININFO 0x4
 
-
 // Define unwind information structure.
-
-
 typedef struct _AMD64_UNWIND_INFO {
     UCHAR Version : 3;
     UCHAR Flags : 5;
@@ -2315,11 +2310,10 @@ typedef struct _AMD64_UNWIND_INFO {
     UCHAR FrameOffset : 4;
     AMD64_UNWIND_CODE UnwindCode[1];
 
-
 // The unwind codes are followed by an optional DWORD aligned field that
-// contains the exception handler address or the address of chained unwind
-// information. If an exception handler address is specified, then it is
-// followed by the language specified exception handler data.
+// contains the exception handler address or the address of chained unwind information.
+// If an exception handler address is specified,
+// then it is followed by the language specified exception handler data.
 
 //  union {
 //      ULONG ExceptionHandler;
@@ -2327,8 +2321,6 @@ typedef struct _AMD64_UNWIND_INFO {
 //  };
 
 //  ULONG ExceptionData[];
-
-
 } AMD64_UNWIND_INFO, *PAMD64_UNWIND_INFO;
 
 #define IA64_IP_SLOT 2                         // Intel-IA64-Filler
@@ -3206,23 +3198,13 @@ typedef struct _DBGKD_WRITE_BREAKPOINT64 {
 } DBGKD_WRITE_BREAKPOINT64, *PDBGKD_WRITE_BREAKPOINT64;
 
 
-__inline
-void
-DbgkdWriteBreakpoint32To64(
-    IN PDBGKD_WRITE_BREAKPOINT32 r32,
-    OUT PDBGKD_WRITE_BREAKPOINT64 r64
-    )
+__inline void DbgkdWriteBreakpoint32To64(IN PDBGKD_WRITE_BREAKPOINT32 r32, OUT PDBGKD_WRITE_BREAKPOINT64 r64)
 {
     COPYSE(r64,r32,BreakPointAddress);
     r64->BreakPointHandle = r32->BreakPointHandle;
 }
 
-__inline
-void
-DbgkdWriteBreakpoint64To32(
-    IN PDBGKD_WRITE_BREAKPOINT64 r64,
-    OUT PDBGKD_WRITE_BREAKPOINT32 r32
-    )
+__inline void DbgkdWriteBreakpoint64To32(IN PDBGKD_WRITE_BREAKPOINT64 r64, OUT PDBGKD_WRITE_BREAKPOINT32 r32)
 {
     r32->BreakPointAddress = (ULONG)r64->BreakPointAddress;
     r32->BreakPointHandle = r64->BreakPointHandle;
@@ -3555,7 +3537,9 @@ typedef struct _DBGKD_MANIPULATE_STATE64 {
 } DBGKD_MANIPULATE_STATE64, *PDBGKD_MANIPULATE_STATE64;
 
 
-__inline ULONG DbgkdManipulateState32To64(IN PDBGKD_MANIPULATE_STATE32 r32, OUT PDBGKD_MANIPULATE_STATE64 r64, OUT PULONG AdditionalDataSize)
+__inline ULONG DbgkdManipulateState32To64(IN PDBGKD_MANIPULATE_STATE32 r32,
+                                          OUT PDBGKD_MANIPULATE_STATE64 r64,
+                                          OUT PULONG AdditionalDataSize)
 {
     r64->ApiNumber = r32->ApiNumber;
     r64->ProcessorLevel = r32->ProcessorLevel;
@@ -3918,7 +3902,11 @@ NTSTATUS NtWaitForDebugEvent (IN HANDLE DebugObjectHandle, IN BOOLEAN Alertable,
 NTSTATUS NtDebugContinue (IN HANDLE DebugObjectHandle, IN PCLIENT_ID ClientId, IN NTSTATUS ContinueStatus);
 NTSTATUS NtCreateDebugObject (OUT PHANDLE DebugObjectHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes, IN ULONG Flags);
 NTSTATUS NtDebugActiveProcess (IN HANDLE ProcessHandle, IN HANDLE DebugObjectHandle);
-NTSTATUS NtSetInformationDebugObject (IN HANDLE DebugObjectHandle, IN DEBUGOBJECTINFOCLASS DebugObjectInformationClass, IN PVOID DebugInformation, IN ULONG DebugInformationLength, OUT PULONG ReturnLength OPTIONAL);
+NTSTATUS NtSetInformationDebugObject (IN HANDLE DebugObjectHandle, 
+                                      IN DEBUGOBJECTINFOCLASS DebugObjectInformationClass,
+                                      IN PVOID DebugInformation,
+                                      IN ULONG DebugInformationLength,
+                                      OUT PULONG ReturnLength OPTIONAL);
 
 #ifdef __cplusplus
 }
