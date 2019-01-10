@@ -94,14 +94,15 @@ BOOLEAN RtlIsValidHandler(IN PEXCEPTION_ROUTINE Handler)
 BOOLEAN RtlDispatchException(IN PEXCEPTION_RECORD ExceptionRecord, IN PCONTEXT ContextRecord)
 /*
 Routine Description:
-    This function attempts to dispatch an exception to a call frame based handler by searching backwards through the stack based call frames. The
-    search begins with the frame specified in the context record and continues backward until either a handler is found that handles the exception, the
-    stack is found to be invalid (i.e., out of limits or unaligned), or the end of the call hierarchy is reached.
+    This function attempts to dispatch an exception to a call frame based handler by searching backwards through the stack based call frames.
+    The search begins with the frame specified in the context record and continues backward until either a handler is found that handles the exception,
+    the stack is found to be invalid (i.e., out of limits or unaligned), or the end of the call hierarchy is reached.
 Arguments:
     ExceptionRecord - Supplies a pointer to an exception record.
     ContextRecord - Supplies a pointer to a context record.
 Return Value:
-    If the exception is handled by one of the frame based handlers, then a value of TRUE is returned. Otherwise a value of FALSE is returned.
+    If the exception is handled by one of the frame based handlers, then a value of TRUE is returned. 
+    Otherwise a value of FALSE is returned.
 */
 {
     BOOLEAN Completion = FALSE;
@@ -118,13 +119,15 @@ Return Value:
     // Get current stack limits.
     RtlpGetStackLimits(&LowLimit, &HighLimit);
 
-    // Start with the frame specified by the context record and search backwards through the call frame hierarchy attempting to find an exception handler that will handler the exception.
+    // Start with the frame specified by the context record and 
+    // search backwards through the call frame hierarchy attempting to find an exception handler that will handler the exception.
     RegistrationPointer = RtlpGetRegistrationHead();
     NestedRegistration = 0;
 
     while (RegistrationPointer != EXCEPTION_CHAIN_END) {
-        // If the call frame is not within the specified stack limits or the call frame is unaligned, then set the stack invalid flag in the
-        // exception record and return FALSE. Else check to determine if the frame has an exception handler.
+        // If the call frame is not within the specified stack limits or the call frame is unaligned,
+        // then set the stack invalid flag in the exception record and return FALSE.
+        // Else check to determine if the frame has an exception handler.
         HighAddress = (ULONG)RegistrationPointer + sizeof(EXCEPTION_REGISTRATION_RECORD);
         if (((ULONG)RegistrationPointer < LowLimit) || (HighAddress > HighLimit) || (((ULONG)RegistrationPointer & 0x3) != 0)) {
             // Allow for the possibility that the problem occured on the DPC stack.
@@ -178,7 +181,8 @@ Return Value:
 
         // Case on the handler disposition.
         switch (Disposition) {
-            // The disposition is to continue execution. If the exception is not continuable, then raise the exception
+            // The disposition is to continue execution. 
+            // If the exception is not continuable, then raise the exception
             // STATUS_NONCONTINUABLE_EXCEPTION. Otherwise return TRUE.
         case ExceptionContinueExecution:
             if ((ExceptionRecord->ExceptionFlags & EXCEPTION_NONCONTINUABLE) != 0) {
@@ -192,14 +196,16 @@ Return Value:
                 goto DispatchExit;
             }
 
-            // The disposition is to continue the search. If the frame isn't suspect/corrupt, get next frame address and continue the search
+            // The disposition is to continue the search. 
+            // If the frame isn't suspect/corrupt, get next frame address and continue the search
         case ExceptionContinueSearch:
             if (ExceptionRecord->ExceptionFlags & EXCEPTION_STACK_INVALID)
                 goto DispatchExit;
 
             break;
 
-            // The disposition is nested exception. Set the nested context frame to the establisher frame address and set
+            // The disposition is nested exception. 
+            // Set the nested context frame to the establisher frame address and set
             // nested exception in the exception flags.
         case ExceptionNestedException:
             ExceptionRecord->ExceptionFlags |= EXCEPTION_NESTED_CALL;
@@ -220,7 +226,8 @@ Return Value:
             break;
         }
 
-        // If chain goes in wrong direction or loops, report an invalid exception stack, otherwise go on to the next one.
+        // If chain goes in wrong direction or loops, report an invalid exception stack,
+        // otherwise go on to the next one.
         RegistrationPointer = RegistrationPointer->Next;
     }
 
@@ -236,20 +243,28 @@ DispatchExit:
 #endif
 
 
-VOID RtlUnwind(IN PVOID TargetFrame OPTIONAL, IN PVOID TargetIp OPTIONAL, IN PEXCEPTION_RECORD ExceptionRecord OPTIONAL, IN PVOID ReturnValue)
+VOID RtlUnwind(IN PVOID TargetFrame OPTIONAL,
+               IN PVOID TargetIp OPTIONAL,
+               IN PEXCEPTION_RECORD ExceptionRecord OPTIONAL,
+               IN PVOID ReturnValue
+)
 /*
 Routine Description:
     This function initiates an unwind of procedure call frames.
-    The machine state at the time of the call to unwind is captured in a context record and the unwinding flag is set in the exception flags of the exception record.
-    If the TargetFrame parameter is not specified, then the exit unwind flag is also set in the exception flags of the exception record.
+    The machine state at the time of the call to unwind is captured in a context record and
+    the unwinding flag is set in the exception flags of the exception record.
+    If the TargetFrame parameter is not specified, 
+    then the exit unwind flag is also set in the exception flags of the exception record.
     A backward walk through the procedure call frames is then performed to find the target of the unwind operation.
 
     N.B.    The captured context passed to unwinding handlers will not be a  completely accurate context set for the 386.
             This is because there isn't a standard stack frame in which registers are stored.
 
-            Only the integer registers are affected.  The segment and control registers (ebp, esp) will have correct values for the flat 32 bit environment.
+            Only the integer registers are affected.  
+            The segment and control registers (ebp, esp) will have correct values for the flat 32 bit environment.
 
-    N.B.    If you change the number of arguments, make sure you change the adjustment of ESP after the call to RtlpCaptureContext (for STDCALL calling convention)
+    N.B.    If you change the number of arguments, 
+            make sure you change the adjustment of ESP after the call to RtlpCaptureContext (for STDCALL calling convention)
 
 Arguments:
     TargetFrame - Supplies an optional pointer to the call frame that is the target of the unwind.
@@ -274,7 +289,8 @@ Arguments:
 
     RtlpGetStackLimits(&LowLimit, &HighLimit);// Get current stack limits.
 
-    // If an exception record is not specified, then build a local exception record for use in calling exception handlers during the unwind operation.
+    // If an exception record is not specified, 
+    // then build a local exception record for use in calling exception handlers during the unwind operation.
     if (ARGUMENT_PRESENT(ExceptionRecord) == FALSE) {
         ExceptionRecord = &ExceptionRecord1;
         ExceptionRecord1.ExceptionCode = STATUS_UNWIND;
@@ -301,13 +317,15 @@ Arguments:
     ContextRecord->Esp += sizeof(TargetFrame) + sizeof(TargetIp) + sizeof(ExceptionRecord) + sizeof(ReturnValue);
     ContextRecord->Eax = (ULONG)ReturnValue;
 
-    // Scan backward through the call frame hierarchy, calling exception handlers as they are encountered, until the target frame of the unwind is reached.
+    // Scan backward through the call frame hierarchy,
+    // calling exception handlers as they are encountered, until the target frame of the unwind is reached.
     RegistrationPointer = RtlpGetRegistrationHead();
     while (RegistrationPointer != EXCEPTION_CHAIN_END) {
         // If this is the target of the unwind, then continue execution by calling the continue system service.
         if ((ULONG)RegistrationPointer == (ULONG)TargetFrame) {
             ZwContinue(ContextRecord, FALSE);
-            // If the target frame is lower in the stack than the current frame, then raise STATUS_INVALID_UNWIND exception.
+            // If the target frame is lower in the stack than the current frame,
+            // then raise STATUS_INVALID_UNWIND exception.
         } else if ((ARGUMENT_PRESENT(TargetFrame) == TRUE) && ((ULONG)TargetFrame < (ULONG)RegistrationPointer)) {
             ExceptionRecord2.ExceptionCode = STATUS_INVALID_UNWIND_TARGET;
             ExceptionRecord2.ExceptionFlags = EXCEPTION_NONCONTINUABLE;

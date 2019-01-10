@@ -40,7 +40,8 @@ Routine Description:
     ULONG64 ImageBase;
     ULONG Index;
 
-    // Lookup function entries from the function address table until a NULL entry is encountered or the unwind history table is full.
+    // Lookup function entries from the function address table until
+    // a NULL entry is encountered or the unwind history table is full.
     FunctionAddressTable = &RtlpFunctionAddressTable[0];
     Index = 0;
     while ((Index < UNWIND_HISTORY_TABLE_SIZE) && (*FunctionAddressTable != NULL)) {

@@ -245,8 +245,7 @@ NTSYSAPI VOID NTAPI RtlUnwind (
     IN PVOID TargetFrame OPTIONAL,
     IN PVOID TargetIp OPTIONAL,
     IN PEXCEPTION_RECORD ExceptionRecord OPTIONAL,
-    IN PVOID ReturnValue
-    );
+    IN PVOID ReturnValue);
 
 #if defined(_AMD64_)
 NTSYSAPI VOID NTAPI RtlUnwindEx (
@@ -255,8 +254,7 @@ NTSYSAPI VOID NTAPI RtlUnwindEx (
     IN PEXCEPTION_RECORD ExceptionRecord OPTIONAL,
     IN PVOID ReturnValue,
     IN PCONTEXT ContextRecord,
-    IN PUNWIND_HISTORY_TABLE HistoryTable OPTIONAL
-    );
+    IN PUNWIND_HISTORY_TABLE HistoryTable OPTIONAL);
 #endif
 
 
@@ -264,7 +262,9 @@ NTSYSAPI VOID NTAPI RtlUnwindEx (
 NTSYSCALLAPI NTSTATUS NTAPI NtContinue (__in PCONTEXT ContextRecord, __in BOOLEAN TestAlert);
 
 // Raise exception.
-NTSYSCALLAPI NTSTATUS NTAPI NtRaiseException (__in PEXCEPTION_RECORD ExceptionRecord, __in PCONTEXT ContextRecord, __in BOOLEAN FirstChance);
+NTSYSCALLAPI NTSTATUS NTAPI NtRaiseException (__in PEXCEPTION_RECORD ExceptionRecord, 
+                                              __in PCONTEXT ContextRecord,
+                                              __in BOOLEAN FirstChance);
 
 #ifdef __cplusplus
 }

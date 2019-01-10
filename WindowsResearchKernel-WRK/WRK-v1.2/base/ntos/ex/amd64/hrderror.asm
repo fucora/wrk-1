@@ -8,14 +8,10 @@
 
 
 ; Module Name:
-
 ;   hrderror.asm
 
 ; Abstract:
-
-;   This module implements code necessary to save processor context and
-;   state at hard error.
-
+;   This module implements code necessary to save processor context and state at hard error.
 
 
 include ksamd64.inc
@@ -35,15 +31,10 @@ include ksamd64.inc
 ;     IN PULONG_PTR Parameters,
 ;     IN BOOLEAN CallShutdown
 ;     )
-
 ; Routine Description:
-
 ;   This function saves the processor context and control state at hard error.
-
 ; Return Value:
-
 ;   None.
-
 
 
 EhFrame struct

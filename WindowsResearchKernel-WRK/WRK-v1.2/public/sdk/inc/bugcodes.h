@@ -1832,47 +1832,32 @@ Abstract:
 
 
 // MessageId: ATTEMPTED_WRITE_TO_READONLY_MEMORY
-
 // MessageText:
-
 //  An attempt was made to write to read-only memory.
-
 #define ATTEMPTED_WRITE_TO_READONLY_MEMORY ((ULONG)0x000000BEL)
 
 
 // MessageId: MUTEX_ALREADY_OWNED
-
 // MessageText:
-
 //  MUTEX_ALREADY_OWNED
-
 #define MUTEX_ALREADY_OWNED              ((ULONG)0x000000BFL)
 
 
 // MessageId: PCI_CONFIG_SPACE_ACCESS_FAILURE
-
 // MessageText:
-
 //  An attempt to access PCI configuration space failed.
-
 #define PCI_CONFIG_SPACE_ACCESS_FAILURE  ((ULONG)0x000000C0L)
 
 
 // MessageId: SPECIAL_POOL_DETECTED_MEMORY_CORRUPTION
-
 // MessageText:
-
 //  SPECIAL_POOL_DETECTED_MEMORY_CORRUPTION
-
 #define SPECIAL_POOL_DETECTED_MEMORY_CORRUPTION ((ULONG)0x000000C1L)
 
 
 // MessageId: BAD_POOL_CALLER
-
 // MessageText:
-
 //  BAD_POOL_CALLER
-
 #define BAD_POOL_CALLER                  ((ULONG)0x000000C2L)
 
 

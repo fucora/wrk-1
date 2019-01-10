@@ -541,13 +541,12 @@ extern "C" {
 
     // Context Frame
 
-    //  This frame has a several purposes: 1) it is used as an argument to
-    //  NtContinue, 2) is is used to constuct a call frame for APC delivery,
-    //  and 3) it is used in the user level thread creation routines.
+    //  This frame has a several purposes:
+    //  1) it is used as an argument to NtContinue, 
+    //  2) is is used to constuct a call frame for APC delivery, and
+    //  3) it is used in the user level thread creation routines.
 
-
-    // The flags field within this record controls the contents of a CONTEXT
-    // record.
+    // The flags field within this record controls the contents of a CONTEXT record.
 
     // If the context record is used as an input parameter, then for each
     // portion of the context record controlled by a flag whose value is
@@ -730,10 +729,9 @@ extern "C" {
 
     //  GDT selector numbers.
 
-    // N.B. There is code in context swap that "cleanses" the user segment
-    //      registers ds, es, fs, and gs. If these values are changed or
-    //      added to, then it is very likely the code in context swap will
-    //      have to be change.
+    // N.B. There is code in context swap that "cleanses" the user segment registers ds, es, fs, and gs.
+    //      If these values are changed or added to, 
+    //      then it is very likely the code in context swap will have to be change.
 
 
 #define KGDT64_NULL (0 * 16)            // NULL descriptor
@@ -760,7 +758,8 @@ extern "C" {
 // Define AMD64 exception handling structures and function prototypes.
 
 // Define unwind operation codes.
-    typedef enum _UNWIND_OP_CODES    {
+    typedef enum _UNWIND_OP_CODES
+    {
         UWOP_PUSH_NONVOL = 0,
         UWOP_ALLOC_LARGE,
         UWOP_ALLOC_SMALL,
@@ -775,7 +774,8 @@ extern "C" {
     } UNWIND_OP_CODES, *PUNWIND_OP_CODES;
 
     // Define unwind code structure.
-    typedef union _UNWIND_CODE    {
+    typedef union _UNWIND_CODE
+    {
         struct
         {
             UCHAR CodeOffset;
@@ -792,7 +792,8 @@ extern "C" {
 #define UNW_FLAG_UHANDLER 0x2
 #define UNW_FLAG_CHAININFO 0x4
 
-    typedef struct _UNWIND_INFO    {// Define unwind information structure.
+    typedef struct _UNWIND_INFO
+    {// Define unwind information structure.
         UCHAR Version : 3;
         UCHAR Flags : 5;
         UCHAR SizeOfProlog;
@@ -821,7 +822,8 @@ extern "C" {
     // Define function table entry - a function table entry is generated for each frame function.
 #define RUNTIME_FUNCTION_INDIRECT 0x1
 
-    typedef struct _RUNTIME_FUNCTION    {
+    typedef struct _RUNTIME_FUNCTION
+    {
         ULONG BeginAddress;
         ULONG EndAddress;
         ULONG UnwindData;
@@ -830,7 +832,8 @@ extern "C" {
     // end_winnt
 
     // Scope table structure definition.
-    typedef struct _SCOPE_TABLE    {
+    typedef struct _SCOPE_TABLE
+    {
         ULONG Count;
         struct
         {
@@ -848,13 +851,15 @@ extern "C" {
 
     // end_winnt
 
-    typedef enum _FUNCTION_TABLE_TYPE    {
+    typedef enum _FUNCTION_TABLE_TYPE
+    {
         RF_SORTED,
         RF_UNSORTED,
         RF_CALLBACK
     } FUNCTION_TABLE_TYPE;
 
-    typedef struct _DYNAMIC_FUNCTION_TABLE    {
+    typedef struct _DYNAMIC_FUNCTION_TABLE
+    {
         LIST_ENTRY ListEntry;
         PRUNTIME_FUNCTION FunctionTable;
         LARGE_INTEGER TimeStamp;
@@ -870,9 +875,9 @@ extern "C" {
 
     // begin_winnt
 
-    typedef NTSTATUS(*POUT_OF_PROCESS_FUNCTION_TABLE_CALLBACK) (IN HANDLE Process, 
-                                                                IN PVOID TableAddress, 
-                                                                OUT PULONG Entries, 
+    typedef NTSTATUS(*POUT_OF_PROCESS_FUNCTION_TABLE_CALLBACK) (IN HANDLE Process,
+                                                                IN PVOID TableAddress,
+                                                                OUT PULONG Entries,
                                                                 OUT PRUNTIME_FUNCTION* Functions);
 
 #define OUT_OF_PROCESS_FUNCTION_TABLE_CALLBACK_EXPORT_NAME     "OutOfProcessFunctionTableCallback"
@@ -903,7 +908,8 @@ extern "C" {
     } UNWIND_HISTORY_TABLE, *PUNWIND_HISTORY_TABLE;
 
     // Define exception dispatch context structure.
-    typedef struct _DISPATCHER_CONTEXT    {
+    typedef struct _DISPATCHER_CONTEXT
+    {
         ULONG64 ControlPc;
         ULONG64 ImageBase;
         PRUNTIME_FUNCTION FunctionEntry;
@@ -920,13 +926,13 @@ extern "C" {
     // begin_winnt
 
     // Define runtime exception handling prototypes.
-    NTSYSAPI VOID __cdecl RtlRestoreContext(IN PCONTEXT ContextRecord, 
+    NTSYSAPI VOID __cdecl RtlRestoreContext(IN PCONTEXT ContextRecord,
                                             IN struct _EXCEPTION_RECORD *ExceptionRecord OPTIONAL);
 
     // end_winnt
 
     VOID RtlInitializeHistoryTable(VOID);
-    NTSYSAPI PRUNTIME_FUNCTION RtlLookupFunctionEntry(IN ULONG64 ControlPc, 
+    NTSYSAPI PRUNTIME_FUNCTION RtlLookupFunctionEntry(IN ULONG64 ControlPc,
                                                       OUT PULONG64 ImageBase,
                                                       IN OUT PUNWIND_HISTORY_TABLE HistoryTable OPTIONAL);
     NTSYSAPI PRUNTIME_FUNCTION RtlLookupFunctionTable(IN PVOID ControlPc, OUT PVOID *ImageBase, OUT PULONG SizeOfTable);
@@ -937,7 +943,7 @@ extern "C" {
     // begin_winnt
 
     NTSYSAPI BOOLEAN __cdecl RtlAddFunctionTable(IN PRUNTIME_FUNCTION FunctionTable,
-                                                 IN ULONG EntryCount, 
+                                                 IN ULONG EntryCount,
                                                  IN ULONG64 BaseAddress);
     NTSYSAPI BOOLEAN __cdecl RtlInstallFunctionTableCallback(
         IN ULONG64 TableIdentifier,

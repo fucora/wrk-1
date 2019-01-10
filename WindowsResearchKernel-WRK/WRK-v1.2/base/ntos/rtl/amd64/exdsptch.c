@@ -575,16 +575,15 @@ Arguments:
     MachineFrame = FALSE;
     PrologOffset = (ULONG)(ControlPc - (FunctionEntry->BeginAddress + ImageBase));
     UnwindInfo = (PUNWIND_INFO)(FunctionEntry->UnwindData + ImageBase);
-    while (Index < UnwindInfo->CountOfCodes) {
-        // If the prologue offset is greater than the next unwind code offset,
-        // then simulate the effect of the unwind code.
+    while (Index < UnwindInfo->CountOfCodes) {        
         UnwindOp = UnwindInfo->UnwindCode[Index].UnwindOp;
         OpInfo = UnwindInfo->UnwindCode[Index].OpInfo;
+        // If the prologue offset is greater than the next unwind code offset,
         if (PrologOffset >= UnwindInfo->UnwindCode[Index].CodeOffset) {
-            switch (UnwindOp) {
-                // Push nonvolatile integer register.
+            // then simulate the effect of the unwind code.
+            switch (UnwindOp) {                
+            case UWOP_PUSH_NONVOL:// Push nonvolatile integer register.
                 // The operation information is the register number of the register than was pushed.
-            case UWOP_PUSH_NONVOL:
                 IntegerAddress = (PULONG64)(ContextRecord->Rsp);
                 IntegerRegister[OpInfo] = *IntegerAddress;
                 if (ARGUMENT_PRESENT(ContextPointers)) {
@@ -592,11 +591,9 @@ Arguments:
                 }
 
                 ContextRecord->Rsp += 8;
-                break;
-
-                // Allocate a large sized area on the stack.
+                break;                
+            case UWOP_ALLOC_LARGE:// Allocate a large sized area on the stack.
                 // The operation information determines if the size is 16- or 32-bits.
-            case UWOP_ALLOC_LARGE:
                 Index += 1;
                 FrameOffset = UnwindInfo->UnwindCode[Index].FrameOffset;
                 if (OpInfo != 0) {
@@ -607,24 +604,18 @@ Arguments:
                 }
 
                 ContextRecord->Rsp += FrameOffset;
-                break;
-
-                // Allocate a small sized area on the stack.
+                break;                
+            case UWOP_ALLOC_SMALL:// Allocate a small sized area on the stack.
                 // The operation information is the size of the unscaled allocation size (8 is the scale factor) minus 8.
-            case UWOP_ALLOC_SMALL:
                 ContextRecord->Rsp += (OpInfo * 8) + 8;
-                break;
-
-                // Establish the the frame pointer register.
+                break;                
+            case UWOP_SET_FPREG:// Establish the the frame pointer register.
                 // The operation information is not used.
-            case UWOP_SET_FPREG:
                 ContextRecord->Rsp = IntegerRegister[UnwindInfo->FrameRegister];
                 ContextRecord->Rsp -= UnwindInfo->FrameOffset * 16;
-                break;
-
-                // Save nonvolatile integer register on the stack using a 16-bit displacment.
+                break;                
+            case UWOP_SAVE_NONVOL:// Save nonvolatile integer register on the stack using a 16-bit displacment.
                 // The operation information is the register number.
-            case UWOP_SAVE_NONVOL:
                 Index += 1;
                 FrameOffset = UnwindInfo->UnwindCode[Index].FrameOffset * 8;
                 IntegerAddress = (PULONG64)(FrameBase + FrameOffset);
@@ -633,11 +624,9 @@ Arguments:
                     ContextPointers->IntegerContext[OpInfo] = IntegerAddress;
                 }
 
-                break;
-
-                // Save nonvolatile integer register on the stack using a 32-bit displacment.
+                break;                
+            case UWOP_SAVE_NONVOL_FAR:// Save nonvolatile integer register on the stack using a 32-bit displacment.
                 // The operation information is the register number.
-            case UWOP_SAVE_NONVOL_FAR:
                 Index += 2;
                 FrameOffset = UnwindInfo->UnwindCode[Index - 1].FrameOffset;
                 FrameOffset += (UnwindInfo->UnwindCode[Index].FrameOffset << 16);
@@ -652,11 +641,9 @@ Arguments:
             case UWOP_SPARE_CODE1:
             case UWOP_SPARE_CODE2:
                 ASSERT(FALSE);
-                break;
-
-                // Save a nonvolatile XMM(128) register on the stack using a 16-bit displacement.
+                break;                
+            case UWOP_SAVE_XMM128:// Save a nonvolatile XMM(128) register on the stack using a 16-bit displacement.
                 // The operation information is the register number.
-            case UWOP_SAVE_XMM128:
                 Index += 1;
                 FrameOffset = UnwindInfo->UnwindCode[Index].FrameOffset * 16;
                 FloatingAddress = (PM128A)(FrameBase + FrameOffset);
@@ -666,11 +653,9 @@ Arguments:
                     ContextPointers->FloatingContext[OpInfo] = FloatingAddress;
                 }
 
-                break;
-
-                // Save a nonvolatile XMM(128) register on the stack using a 32-bit displacement.
+                break;                
+            case UWOP_SAVE_XMM128_FAR:// Save a nonvolatile XMM(128) register on the stack using a 32-bit displacement.
                 // The operation information is the register number.
-            case UWOP_SAVE_XMM128_FAR:
                 Index += 2;
                 FrameOffset = UnwindInfo->UnwindCode[Index - 1].FrameOffset;
                 FrameOffset += (UnwindInfo->UnwindCode[Index].FrameOffset << 16);
@@ -681,11 +666,9 @@ Arguments:
                     ContextPointers->FloatingContext[OpInfo] = FloatingAddress;
                 }
 
-                break;
-
-                // Push a machine frame on the stack.
+                break;                
+            case UWOP_PUSH_MACHFRAME:// Push a machine frame on the stack.
                 // The operation information determines whether the machine frame contains an error code or not.
-            case UWOP_PUSH_MACHFRAME:
                 MachineFrame = TRUE;
                 ReturnAddress = (PULONG64)(ContextRecord->Rsp);
                 StackAddress = (PULONG64)(ContextRecord->Rsp + (3 * 8));

@@ -491,21 +491,45 @@ static __inline  VOID IopProbeAndLockPages(IN OUT PMDL MemoryDescriptorList,
 #define IO_SD_SYS_ALL_ADM_ALL_WORLD_RWE_RES_RE   4  // WORLD:RWE, Admins:ALL, System:ALL, Restricted:RE
 #define IO_SD_SYS_ALL_ADM_RE                     5  // System:ALL, Admins:RE
 
-NTSTATUS IopAcquireFileObjectLock(IN PFILE_OBJECT FileObject, IN KPROCESSOR_MODE RequestorMode, IN BOOLEAN Alertable, OUT PBOOLEAN Interrupted);
+NTSTATUS IopAcquireFileObjectLock(IN PFILE_OBJECT FileObject,
+                                  IN KPROCESSOR_MODE RequestorMode,
+                                  IN BOOLEAN Alertable,
+                                  OUT PBOOLEAN Interrupted);
 VOID IopAllocateIrpCleanup(IN PFILE_OBJECT FileObject, IN PKEVENT EventObject OPTIONAL);
 PIRP IopAllocateIrpMustSucceed(IN CCHAR StackSize);
 VOID IopApcHardError(IN PVOID StartContext);
 VOID IopCancelAlertedRequest(IN PKEVENT Event, IN PIRP Irp);
-VOID IopCheckBackupRestorePrivilege(IN PACCESS_STATE AccessState, IN OUT PULONG CreateOptions, IN KPROCESSOR_MODE PreviousMode, IN ULONG Disposition);
-NTSTATUS IopCheckGetQuotaBufferValidity(IN PFILE_GET_QUOTA_INFORMATION QuotaBuffer, IN ULONG QuotaLength, OUT PULONG_PTR ErrorOffset);
-VOID IopCloseFile(IN PEPROCESS Process OPTIONAL, IN PVOID Object, IN ULONG GrantedAccess, IN ULONG_PTR ProcessHandleCount, IN ULONG_PTR SystemHandleCount);
+VOID IopCheckBackupRestorePrivilege(IN PACCESS_STATE AccessState,
+                                    IN OUT PULONG CreateOptions,
+                                    IN KPROCESSOR_MODE PreviousMode,
+                                    IN ULONG Disposition);
+NTSTATUS IopCheckGetQuotaBufferValidity(IN PFILE_GET_QUOTA_INFORMATION QuotaBuffer,
+                                        IN ULONG QuotaLength,
+                                        OUT PULONG_PTR ErrorOffset);
+VOID IopCloseFile(IN PEPROCESS Process OPTIONAL,
+                  IN PVOID Object,
+                  IN ULONG GrantedAccess,
+                  IN ULONG_PTR ProcessHandleCount,
+                  IN ULONG_PTR SystemHandleCount);
 VOID IopCompleteUnloadOrDelete(IN PDEVICE_OBJECT DeviceObject, IN BOOLEAN OnCleanStack, IN KIRQL Irql);
-VOID IopCompletePageWrite(IN PKAPC Apc, IN PKNORMAL_ROUTINE *NormalRoutine, IN PVOID *NormalContext, IN PVOID *SystemArgument1, IN PVOID *SystemArgument2);
-VOID IopCompleteRequest(IN PKAPC Apc, IN PKNORMAL_ROUTINE *NormalRoutine, IN PVOID *NormalContext, IN PVOID *SystemArgument1, IN PVOID *SystemArgument2);
+VOID IopCompletePageWrite(IN PKAPC Apc,
+                          IN PKNORMAL_ROUTINE *NormalRoutine,
+                          IN PVOID *NormalContext,
+                          IN PVOID *SystemArgument1,
+                          IN PVOID *SystemArgument2);
+VOID IopCompleteRequest(IN PKAPC Apc,
+                        IN PKNORMAL_ROUTINE *NormalRoutine,
+                        IN PVOID *NormalContext,
+                        IN PVOID *SystemArgument1,
+                        IN PVOID *SystemArgument2);
 BOOLEAN IopConfigureCrashDump(IN HANDLE HandlePagingFile);
 VOID IopConnectLinkTrackingPort(IN PVOID Parameter);
 NTSTATUS IopCreateVpb(IN PDEVICE_OBJECT DeviceObject);
-VOID IopDeallocateApc(IN PKAPC Apc, IN PKNORMAL_ROUTINE *NormalRoutine, IN PVOID *NormalContext, IN PVOID *SystemArgument1, IN PVOID *SystemArgument2);
+VOID IopDeallocateApc(IN PKAPC Apc,
+                      IN PKNORMAL_ROUTINE *NormalRoutine,
+                      IN PVOID *NormalContext,
+                      IN PVOID *SystemArgument1,
+                      IN PVOID *SystemArgument2);
 VOID IopDecrementDeviceObjectRef(IN PDEVICE_OBJECT DeviceObject, IN BOOLEAN AlwaysUnload, IN BOOLEAN OnCleanStack);
 VOID IopDeleteDriver(IN PVOID    Object);
 VOID IopDeleteDevice(IN PVOID    Object);
@@ -549,7 +573,10 @@ VOID IopDisassociateThreadIrp(VOID);
 BOOLEAN IopDmaDispatch(IN PKINTERRUPT Interrupt, IN PVOID ServiceContext);
 VOID IopDropIrp(IN PIRP Irp, IN PFILE_OBJECT FileObject);
 LONG IopExceptionFilter(IN PEXCEPTION_POINTERS ExceptionPointers, OUT PNTSTATUS ExceptionCode);
-VOID IopExceptionCleanup(IN PFILE_OBJECT FileObject, IN PIRP Irp, IN PKEVENT EventObject OPTIONAL, IN PKEVENT KernelEvent OPTIONAL);
+VOID IopExceptionCleanup(IN PFILE_OBJECT FileObject,
+                         IN PIRP Irp,
+                         IN PKEVENT EventObject OPTIONAL,
+                         IN PKEVENT KernelEvent OPTIONAL);
 VOID IopErrorLogThread(IN PVOID StartContext);
 VOID IopFreeIrpAndMdls(IN PIRP Irp);
 PDEVICE_OBJECT IopGetDeviceAttachmentBase(IN PDEVICE_OBJECT DeviceObject);
@@ -613,7 +640,10 @@ NTSTATUS IopMountVolume(IN PDEVICE_OBJECT DeviceObject,
                         IN BOOLEAN DeviceLockAlreadyHeld,
                         IN BOOLEAN Alertable,
                         OUT PVPB    *Vpb);
-NTSTATUS IopOpenLinkOrRenameTarget(OUT PHANDLE TargetHandle, IN PIRP Irp, IN PVOID RenameBuffer, IN PFILE_OBJECT FileObject);
+NTSTATUS IopOpenLinkOrRenameTarget(OUT PHANDLE TargetHandle,
+                                   IN PIRP Irp,
+                                   IN PVOID RenameBuffer,
+                                   IN PFILE_OBJECT FileObject);
 NTSTATUS IopOpenRegistryKey(OUT PHANDLE Handle,
                             IN HANDLE BaseHandle OPTIONAL,
                             IN PUNICODE_STRING KeyName,
@@ -962,11 +992,18 @@ NTSTATUS IopCreateFile(
     IN ULONG InternalFlags,
     IN PVOID DeviceObject);
 BOOLEAN IopVerifyDeviceObjectOnStack(IN PDEVICE_OBJECT BaseDeviceObject, IN PDEVICE_OBJECT TopDeviceObject);
-BOOLEAN IopVerifyDiskSignature(IN PDRIVE_LAYOUT_INFORMATION_EX DriveLayout, IN PARC_DISK_SIGNATURE LoaderDiskBlock, OUT PULONG DiskSignature);
-NTSTATUS IopGetDriverPathInformation(IN PFILE_OBJECT FileObject, IN PFILE_FS_DRIVER_PATH_INFORMATION FsDpInfo, IN ULONG Length);
+BOOLEAN IopVerifyDiskSignature(IN PDRIVE_LAYOUT_INFORMATION_EX DriveLayout, 
+                               IN PARC_DISK_SIGNATURE LoaderDiskBlock, 
+                               OUT PULONG DiskSignature);
+NTSTATUS IopGetDriverPathInformation(IN PFILE_OBJECT FileObject, 
+                                     IN PFILE_FS_DRIVER_PATH_INFORMATION FsDpInfo,
+                                     IN ULONG Length);
 BOOLEAN IopVerifyDriverObjectOnStack(IN PDEVICE_OBJECT DeviceObject, IN PDRIVER_OBJECT DriverObject);
 NTSTATUS IopInitializeIrpStackProfiler(VOID);
-VOID IopIrpStackProfilerTimer(IN struct _KDPC *Dpc, IN PVOID DeferredContext, IN PVOID SystemArgument1, IN PVOID SystemArgument2);
+VOID IopIrpStackProfilerTimer(IN struct _KDPC *Dpc,
+                              IN PVOID DeferredContext,
+                              IN PVOID SystemArgument1,
+                              IN PVOID SystemArgument2);
 VOID IopProcessIrpStackProfiler(VOID);
 PDEVICE_OBJECT IopAttachDeviceToDeviceStackSafe(IN PDEVICE_OBJECT SourceDevice,
                                                 IN PDEVICE_OBJECT TargetDevice,

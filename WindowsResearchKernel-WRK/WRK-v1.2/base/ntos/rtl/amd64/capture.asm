@@ -25,29 +25,16 @@ include ksamd64.inc
         subttl  "Capture Context"
 
 
-; VOID
-; RtlCaptureContext (
-;     IN PCONTEXT ContextRecord
-;     )
-
+; VOID RtlCaptureContext (IN PCONTEXT ContextRecord)
 ; Routine Description:
-
-;   This function captures the context of the caller in the specified
-;   context record.
-
+;   This function captures the context of the caller in the specified context record.
 ;   N.B. The stored value of registers rcx and rsp will be a side effect of
 ;        having made this call. All other registers will be stored as they
 ;        were when the call to this function was made.
-
 ; Arguments:
-
 ;    ContextRecord (rcx) - Supplies a pointer to a context record.
-
 ; Return Value:
-
 ;    None.
-
-
 
 CcFrame struct
         EFlags  dd ?                    ; saved processor flags

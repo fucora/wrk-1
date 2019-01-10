@@ -198,7 +198,10 @@ typedef enum _MI_LOCK_USED_FOR_PROBE
 } MI_LOCK_USED_FOR_PROBE, *PMI_LOCK_USED_FOR_PROBE;
 
 
-VOID MmProbeAndLockPages(__inout PMDL MemoryDescriptorList, __in KPROCESSOR_MODE AccessMode, __in LOCK_OPERATION Operation)
+VOID MmProbeAndLockPages(__inout PMDL MemoryDescriptorList,
+                         __in KPROCESSOR_MODE AccessMode,
+                         __in LOCK_OPERATION Operation
+)
 /*
 Routine Description:
     This routine probes the specified pages, makes the pages resident and locks the physical pages mapped by the virtual pages in memory.
@@ -263,7 +266,8 @@ Top:
     Va = (PCHAR)AlignedVa + MemoryDescriptorList->ByteOffset;
     StartVa = Va;
 
-    // Endva is one byte past the end of the buffer, if ACCESS_MODE is not kernel, make sure the EndVa is in user space AND the byte count does not cause it to wrap.
+    // Endva is one byte past the end of the buffer, if ACCESS_MODE is not kernel, 
+    // make sure the EndVa is in user space AND the byte count does not cause it to wrap.
     EndVa = (PVOID)((PCHAR)Va + MemoryDescriptorList->ByteCount);
 
     if ((AccessMode != KernelMode) && ((EndVa > (PVOID)MM_USER_PROBE_ADDRESS) || (Va >= EndVa))) {
@@ -292,7 +296,9 @@ Top:
                 NOTHING;
             } else {
                 // Lookup the element and save the result.
-                SearchResult = MiFindNodeOrParent(&AweInfo->AweVadRoot, MI_VA_TO_VPN(StartVa), (PMMADDRESS_NODE *)&PhysicalView);
+                SearchResult = MiFindNodeOrParent(&AweInfo->AweVadRoot,
+                                                  MI_VA_TO_VPN(StartVa),
+                                                  (PMMADDRESS_NODE *)&PhysicalView);
                 if ((SearchResult == TableFoundNode) &&
                     ((PVOID)StartVa >= MI_VPN_TO_VA(PhysicalView->StartingVpn)) &&
                     ((PVOID)((PCHAR)EndVa - 1) <= MI_VPN_TO_VA_ENDING(PhysicalView->EndingVpn))) {
@@ -322,7 +328,8 @@ Top:
                     }
 
                     // This is an AWE frame - it is either noaccess, readonly or readwrite.
-                    if ((PteContents.u.Hard.Owner == MI_PTE_OWNER_KERNEL) || ((Operation != IoReadAccess) && (PteContents.u.Hard.Write == 0))) {
+                    if ((PteContents.u.Hard.Owner == MI_PTE_OWNER_KERNEL) ||
+                        ((Operation != IoReadAccess) && (PteContents.u.Hard.Write == 0))) {
                         ExReleaseCacheAwarePushLockShared(PushLock);
                         KeLeaveGuardedRegionThread(&Thread->Tcb);
                         *Page = MM_EMPTY_LIST;
@@ -665,10 +672,15 @@ DefaultProbeAndLock:
 
                     // The caller has made the page protection more restrictive, this should never be done once the
                     // request has been issued !  
-                    // Rather than wading through the PFN database entry to see if it could possibly work out, give the caller an access violation.
+                    // Rather than wading through the PFN database entry to see if it could possibly work out,
+                    // give the caller an access violation.
 
 #if DBG
-                    DbgPrintEx(DPFLTR_MM_ID, DPFLTR_WARNING_LEVEL, "MmProbeAndLockPages: PTE %p %p changed\n", PointerPte, PteContents.u.Long);
+                    DbgPrintEx(DPFLTR_MM_ID,
+                               DPFLTR_WARNING_LEVEL,
+                               "MmProbeAndLockPages: PTE %p %p changed\n",
+                               PointerPte,
+                               PteContents.u.Long);
                     if (MmStopOnBadProbe) {
                         DbgBreakPoint();
                     }
@@ -689,12 +701,15 @@ DefaultProbeAndLock:
             PfnHeldToo = FALSE;
             if ((CurrentProcess != NULL) && (CurrentProcess->PhysicalVadRoot != NULL)) {
                 // This process has a \Device\PhysicalMemory VAD so it must be checked to see if the current address resides in it.
-                SearchResult = MiFindNodeOrParent(CurrentProcess->PhysicalVadRoot, MI_VA_TO_VPN(Va), (PMMADDRESS_NODE *)&PhysicalView);
+                SearchResult = MiFindNodeOrParent(CurrentProcess->PhysicalVadRoot,
+                                                  MI_VA_TO_VPN(Va),
+                                                  (PMMADDRESS_NODE *)&PhysicalView);
                 if ((SearchResult == TableFoundNode) && (PhysicalView->VadType == VadDevicePhysicalMemory)) {
                     ASSERT((ULONG)PhysicalView->Vad->u.VadFlags.VadType == (ULONG)PhysicalView->VadType);
                     // The VA lies within a device physical memory VAD.
 
-                    // The PTE was already checked for read/write permissions above, but the PFN must still be checked for ownership
+                    // The PTE was already checked for read/write permissions above, 
+                    // but the PFN must still be checked for ownership
                     // and this must be done with the PFN lock since this process is not necessarily the correct owner.
                     PfnHeldToo = TRUE;
                     LOCK_PFN(OldIrql);
@@ -716,7 +731,9 @@ DefaultProbeAndLock:
 
                 // If this page is for privileged code/data, then force it in regardless.
                 Va = MiGetVirtualAddressMappedByPte(PointerPte);
-                if ((Va < MM_HIGHEST_USER_ADDRESS) || (MI_IS_SYSTEM_CACHE_ADDRESS(Va)) || ((Va >= MmPagedPoolStart) && (Va <= MmPagedPoolEnd))) {
+                if ((Va < MM_HIGHEST_USER_ADDRESS) ||
+                    (MI_IS_SYSTEM_CACHE_ADDRESS(Va)) ||
+                    ((Va >= MmPagedPoolStart) && (Va <= MmPagedPoolEnd))) {
                     MI_INSTRUMENT_PROBE_RAISES(10);
                     status = STATUS_WORKING_SET_QUOTA;
                     goto FailureReleaseLocks;
@@ -737,7 +754,8 @@ DefaultProbeAndLock:
                 MI_SNAP_DIRTY(Pfn1, 1, 0x98);
             }
         } else {
-            // This is an I/O space address - there is no PFN database entry for it, so no reference counts may be modified for these pages.
+            // This is an I/O space address - there is no PFN database entry for it,
+            // so no reference counts may be modified for these pages.
 
             // Don't charge page locking for this page, just add it to the MDL.
             if (CurrentProcess != NULL) {
@@ -840,7 +858,8 @@ FailureReleaseLocks:
     }
 
 FailureUnlockAnyPages:
-    // An exception occurred, unlock any pages locked so far.  Note that a tracker entry must be inserted for MmUnlockPages to find.
+    // An exception occurred, unlock any pages locked so far.  
+    // Note that a tracker entry must be inserted for MmUnlockPages to find.
     ASSERT(MemoryDescriptorList->MdlFlags & MDL_PAGES_LOCKED);
 
     if ((MmTrackLockedPages == TRUE) && ((MemoryDescriptorList->MdlFlags & MDL_DESCRIBES_AWE) == 0)) {
@@ -861,16 +880,17 @@ FailureUnlockAnyPages:
 NTKERNELAPI VOID MmProbeAndLockProcessPages(__inout PMDL MemoryDescriptorList,
                                             __in PEPROCESS Process,
                                             __in KPROCESSOR_MODE AccessMode,
-                                            __in LOCK_OPERATION Operation)
-    /*
-    Routine Description:
-        This routine probes and locks the address range specified by the MemoryDescriptorList in the specified Process for the AccessMode and Operation.
-    Arguments:
-        MemoryDescriptorList - Supplies a pre-initialized MDL that describes the address range to be probed and locked.
-        Process - Specifies the address of the process whose address range is to be locked.
-        AccessMode - The mode for which the probe should check access to the range.
-        Operation - Supplies the type of access which for which to check the range.
-    */
+                                            __in LOCK_OPERATION Operation
+)
+/*
+Routine Description:
+    This routine probes and locks the address range specified by the MemoryDescriptorList in the specified Process for the AccessMode and Operation.
+Arguments:
+    MemoryDescriptorList - Supplies a pre-initialized MDL that describes the address range to be probed and locked.
+    Process - Specifies the address of the process whose address range is to be locked.
+    AccessMode - The mode for which the probe should check access to the range.
+    Operation - Supplies the type of access which for which to check the range.
+*/
 {
     KAPC_STATE ApcState;
     LOGICAL Attached;
@@ -901,7 +921,12 @@ NTKERNELAPI VOID MmProbeAndLockProcessPages(__inout PMDL MemoryDescriptorList,
 }
 
 
-VOID MiAddMdlTracker(IN PMDL MemoryDescriptorList, IN PVOID CallingAddress, IN PVOID CallersCaller, IN PFN_NUMBER NumberOfPagesToLock, IN ULONG Who)
+VOID MiAddMdlTracker(IN PMDL MemoryDescriptorList,
+                     IN PVOID CallingAddress,
+                     IN PVOID CallersCaller,
+                     IN PFN_NUMBER NumberOfPagesToLock,
+                     IN ULONG Who
+)
 /*
 Routine Description:
     This routine adds an MDL to the specified process' chain.
@@ -969,7 +994,11 @@ Environment:
     while (NextEntry != &LockedPagesHeader->ListHead) {
         P = CONTAINING_RECORD(NextEntry, LOCK_TRACKER, ListEntry);
         if (P->Mdl == MemoryDescriptorList) {
-            KeBugCheckEx(LOCKED_PAGES_TRACKER_CORRUPTION, 0x1, (ULONG_PTR)P, (ULONG_PTR)MemoryDescriptorList, (ULONG_PTR)LockedPagesHeader->Count);
+            KeBugCheckEx(LOCKED_PAGES_TRACKER_CORRUPTION,
+                         0x1,
+                         (ULONG_PTR)P,
+                         (ULONG_PTR)MemoryDescriptorList,
+                         (ULONG_PTR)LockedPagesHeader->Count);
         }
         NextEntry = NextEntry->Flink;
     }
@@ -1022,7 +1051,11 @@ Environment:
         Tracker = CONTAINING_RECORD(NextEntry, LOCK_TRACKER, ListEntry);
         if (MemoryDescriptorList == Tracker->Mdl) {
             if (PoolToFree != NULL) {
-                KeBugCheckEx(LOCKED_PAGES_TRACKER_CORRUPTION, 0x3, (ULONG_PTR)PoolToFree, (ULONG_PTR)Tracker, (ULONG_PTR)MemoryDescriptorList);
+                KeBugCheckEx(LOCKED_PAGES_TRACKER_CORRUPTION,
+                             0x3,
+                             (ULONG_PTR)PoolToFree,
+                             (ULONG_PTR)Tracker,
+                             (ULONG_PTR)MemoryDescriptorList);
             }
 
             ASSERT(Tracker->Page == *Page);
@@ -1174,25 +1207,26 @@ Environment:
 NTKERNELAPI VOID MmProbeAndLockSelectedPages(__inout PMDL MemoryDescriptorList,
                                              __in PFILE_SEGMENT_ELEMENT PagedSegmentArray,
                                              __in KPROCESSOR_MODE AccessMode,
-                                             __in LOCK_OPERATION Operation)
-    /*
-    Routine Description:
-        This routine probes the specified pages, makes the pages resident and locks the physical pages mapped by the virtual pages in memory.
-        The Memory descriptor list is updated to describe the physical pages.
-    Arguments:
-        MemoryDescriptorList - Supplies a pointer to a Memory Descriptor List (MDL).
-                               The MDL must supply the length.
-                               The physical page portion of the MDL is updated when the pages are locked in memory.
-        PagedSegmentArray - Supplies a pointer to a list of buffer segments to be probed and locked.
-                            Note that this array is in kernel space and contains a list of user mode addresses.
-        AccessMode - Supplies the access mode in which to probe the arguments.
-                     One of KernelMode or UserMode.
-        Operation - Supplies the operation type.  One of IoReadAccess, IoWriteAccess or IoModifyAccess.
-    Return Value:
-        None - exceptions are raised.
-    Environment:
-        Kernel mode.  APC_LEVEL and below.
-    */
+                                             __in LOCK_OPERATION Operation
+)
+/*
+Routine Description:
+    This routine probes the specified pages, makes the pages resident and locks the physical pages mapped by the virtual pages in memory.
+    The Memory descriptor list is updated to describe the physical pages.
+Arguments:
+    MemoryDescriptorList - Supplies a pointer to a Memory Descriptor List (MDL).
+                           The MDL must supply the length.
+                           The physical page portion of the MDL is updated when the pages are locked in memory.
+    PagedSegmentArray - Supplies a pointer to a list of buffer segments to be probed and locked.
+                        Note that this array is in kernel space and contains a list of user mode addresses.
+    AccessMode - Supplies the access mode in which to probe the arguments.
+                 One of KernelMode or UserMode.
+    Operation - Supplies the operation type.  One of IoReadAccess, IoWriteAccess or IoModifyAccess.
+Return Value:
+    None - exceptions are raised.
+Environment:
+    Kernel mode.  APC_LEVEL and below.
+*/
 {
     LOGICAL AweOk;
     LOGICAL LockedPagesCharged;
@@ -1822,7 +1856,8 @@ VOID MiDecrementReferenceCountForAwePage(IN PMMPFN Pfn1, IN LOGICAL PfnHeld)
 Routine Description:
     This routine decrements the reference count for an AWE-allocated page.
     Descriptor List.
-    If this decrements the count to zero, the page is put on the freelist and various resident available and commitment counters are updated.
+    If this decrements the count to zero,
+    the page is put on the freelist and various resident available and commitment counters are updated.
 Arguments:
     Pfn - Supplies a pointer to the PFN database element for the physical page to decrement the reference count for.
     PfnHeld - Supplies TRUE if the caller holds the PFN lock.
@@ -2152,8 +2187,8 @@ Environment:
                 if (OriginalCount == EntryCount) {
                     // This thread can be racing against other threads also calling MmUnlockPages and also a thread calling NtFreeUserPhysicalPages.
                     // All threads can safely do interlocked decrements on the "AWE reference count".
-                    // Whichever thread drives it to zero is responsible for decrementing the actual PFN reference count (which may be greater than 1 due to other non-AWE API calls being
-                    // used on the same page).
+                    // Whichever thread drives it to zero is responsible for decrementing the actual PFN reference count
+                    // (which may be greater than 1 due to other non-AWE API calls being used on the same page).
                     // The thread that drives this reference count to zero must put the page on the actual freelist at that time and decrement various resident available and commitment counters also.
                     if (OriginalCount == 1) {
                         // This thread has driven the AWE reference count to zero so it must initiate a decrement of the PFN reference count (while holding the PFN lock), etc.
@@ -2749,25 +2784,26 @@ VOID MiInsertPteTracker(IN PMDL MemoryDescriptorList,
                         IN LOGICAL IoMapping,
                         IN MI_PFN_CACHE_ATTRIBUTE CacheAttribute,
                         IN PVOID MyCaller,
-                        IN PVOID MyCallersCaller)
-    /*
-    Routine Description:
-        This function inserts a PTE tracking block as the caller has just consumed system PTEs.
-    Arguments:
-        MemoryDescriptorList - Supplies a valid Memory Descriptor List.
-        Flags - Supplies the following values:
-                0 - Indicates all the fields of the MDL are legitimate and can be snapped.
-                1 - Indicates the caller is mapping physically contiguous memory.
-                    The only valid MDL fields are Page[0] & ByteCount.
-                    Page[0] contains the PFN start, ByteCount the byte count.
-                2 - Indicates the caller is just reserving mapping PTEs.
-                    The only valid MDL fields are Page[0] & ByteCount.
-                    Page[0] contains the pool tag, ByteCount the byte count.
-        MyCaller - Supplies the return address of the caller who consumed the system PTEs to map this MDL.
-        MyCallersCaller - Supplies the return address of the caller of the caller who consumed the system PTEs to map this MDL.
-    Environment:
-        Kernel mode, DISPATCH_LEVEL or below.
-    */
+                        IN PVOID MyCallersCaller
+)
+/*
+Routine Description:
+    This function inserts a PTE tracking block as the caller has just consumed system PTEs.
+Arguments:
+    MemoryDescriptorList - Supplies a valid Memory Descriptor List.
+    Flags - Supplies the following values:
+            0 - Indicates all the fields of the MDL are legitimate and can be snapped.
+            1 - Indicates the caller is mapping physically contiguous memory.
+                The only valid MDL fields are Page[0] & ByteCount.
+                Page[0] contains the PFN start, ByteCount the byte count.
+            2 - Indicates the caller is just reserving mapping PTEs.
+                The only valid MDL fields are Page[0] & ByteCount.
+                Page[0] contains the pool tag, ByteCount the byte count.
+    MyCaller - Supplies the return address of the caller who consumed the system PTEs to map this MDL.
+    MyCallersCaller - Supplies the return address of the caller of the caller who consumed the system PTEs to map this MDL.
+Environment:
+    Kernel mode, DISPATCH_LEVEL or below.
+*/
 {
     KIRQL OldIrql;
     PVOID StartingVa;
@@ -3032,21 +3068,22 @@ Environment:
 MI_PFN_CACHE_ATTRIBUTE MiInsertIoSpaceMap(IN PVOID BaseVa,
                                           IN PFN_NUMBER PageFrameIndex,
                                           IN PFN_NUMBER NumberOfPages,
-                                          IN MI_PFN_CACHE_ATTRIBUTE CacheAttribute)
-    /*
-    Routine Description:
-        This function inserts an I/O space tracking block, returning the cache type the caller should use.
-        The cache type is different from the input cache type if an overlap collision is detected.
-    Arguments:
-        BaseVa - Supplies the virtual address that will be used for the mapping.
-        PageFrameIndex - Supplies the starting physical page number that will be mapped.
-        NumberOfPages - Supplies the number of pages to map.
-        CacheAttribute - Supplies the caller's desired cache attribute.
-    Return Value:
-        The cache attribute that is safe to use.
-    Environment:
-        Kernel mode, DISPATCH_LEVEL or below.
-    */
+                                          IN MI_PFN_CACHE_ATTRIBUTE CacheAttribute
+)
+/*
+Routine Description:
+    This function inserts an I/O space tracking block, returning the cache type the caller should use.
+    The cache type is different from the input cache type if an overlap collision is detected.
+Arguments:
+    BaseVa - Supplies the virtual address that will be used for the mapping.
+    PageFrameIndex - Supplies the starting physical page number that will be mapped.
+    NumberOfPages - Supplies the number of pages to map.
+    CacheAttribute - Supplies the caller's desired cache attribute.
+Return Value:
+    The cache attribute that is safe to use.
+Environment:
+    Kernel mode, DISPATCH_LEVEL or below.
+*/
 {
     KIRQL OldIrql;
     PMMIO_TRACKER Tracker;
@@ -3202,24 +3239,25 @@ Environment:
 PVOID MiMapSinglePage(IN PVOID VirtualAddress OPTIONAL,
                       IN PFN_NUMBER PageFrameIndex,
                       IN MEMORY_CACHING_TYPE CacheType,
-                      IN MM_PAGE_PRIORITY Priority)
-    /*
-    Routine Description:
-        This function (re)maps a single system PTE to the specified physical page.
-    Arguments:
-        VirtualAddress - Supplies the virtual address to map the page frame at.
-                         NULL indicates a system PTE is needed.
-                         Non-NULL supplies the virtual address returned by an earlier MiMapSinglePage call.
-        PageFrameIndex - Supplies the page frame index to map.
-        CacheType - Supplies the type of cache mapping to use for the MDL.
-                    MmCached indicates "normal" kernel or user mappings.
-        Priority - Supplies an indication as to how important it is that this request succeed under low available PTE conditions.
-    Return Value:
-        Returns the base address where the page is mapped, or NULL if the mapping failed.
-    Environment:
-        Kernel mode.  APC_LEVEL or below.  Since the process working set pushlock
-        may be held by callers, this routine is nonpaged.
-    */
+                      IN MM_PAGE_PRIORITY Priority
+)
+/*
+Routine Description:
+    This function (re)maps a single system PTE to the specified physical page.
+Arguments:
+    VirtualAddress - Supplies the virtual address to map the page frame at.
+                     NULL indicates a system PTE is needed.
+                     Non-NULL supplies the virtual address returned by an earlier MiMapSinglePage call.
+    PageFrameIndex - Supplies the page frame index to map.
+    CacheType - Supplies the type of cache mapping to use for the MDL.
+                MmCached indicates "normal" kernel or user mappings.
+    Priority - Supplies an indication as to how important it is that this request succeed under low available PTE conditions.
+Return Value:
+    Returns the base address where the page is mapped, or NULL if the mapping failed.
+Environment:
+    Kernel mode.  APC_LEVEL or below.  Since the process working set pushlock
+    may be held by callers, this routine is nonpaged.
+*/
 {
     KIRQL OldIrql;
     PMMPTE PointerPte;
@@ -3264,7 +3302,8 @@ PVOID MiMapSinglePage(IN PVOID VirtualAddress OPTIONAL,
     switch (Pfn1->u3.e1.CacheAttribute) {
     case MiCached:
         if (CacheAttribute != MiCached) {
-            // The caller asked for a noncached or writecombined mapping, but the page is already mapped cached by someone else.
+            // The caller asked for a noncached or writecombined mapping,
+            // but the page is already mapped cached by someone else.
             // Override the caller's request in order to keep the TB page attribute coherent.
             MiCacheOverride[0] += 1;
             CacheAttribute = MiCached;
@@ -3272,7 +3311,8 @@ PVOID MiMapSinglePage(IN PVOID VirtualAddress OPTIONAL,
         break;
     case MiNonCached:
         if (CacheAttribute != MiNonCached) {
-            // The caller asked for a cached or writecombined mapping, but the page is already mapped noncached by someone else.
+            // The caller asked for a cached or writecombined mapping,
+            // but the page is already mapped noncached by someone else.
             // Override the caller's request in order to keep the TB page attribute coherent.
             MiCacheOverride[1] += 1;
             CacheAttribute = MiNonCached;
@@ -3281,7 +3321,8 @@ PVOID MiMapSinglePage(IN PVOID VirtualAddress OPTIONAL,
         break;
     case MiWriteCombined:
         if (CacheAttribute != MiWriteCombined) {
-            // The caller asked for a cached or noncached mapping, but the page is already mapped writecombined by someone else.
+            // The caller asked for a cached or noncached mapping,
+            // but the page is already mapped writecombined by someone else.
             // Override the caller's request in order to keep the TB page attribute coherent.
             MiCacheOverride[2] += 1;
             CacheAttribute = MiWriteCombined;
@@ -3433,7 +3474,8 @@ Environment:
     *(PULONG_PTR)PointerPte = (PoolTag & ~0x1);
     PointerPte += 1;
 
-    // Zero out the PTEs as they may have pointers and timestamps in them, and we want to be able to assert they are all NULL on release.
+    // Zero out the PTEs as they may have pointers and timestamps in them,
+    // and we want to be able to assert they are all NULL on release.
     MiZeroMemoryPte(PointerPte, NumberOfPages - 2);
     BaseVa = MiGetVirtualAddressMappedByPte(PointerPte);
     if (MmTrackPtes & 0x1) {
@@ -3524,7 +3566,8 @@ PVOID MmMapLockedPagesWithReservedMapping(__in PVOID MappingAddress,
         CacheType - Supplies the type of cache mapping to use for the MDL.
                     MmCached indicates "normal" kernel or user mappings.
     Return Value:
-        Returns the base address where the pages are mapped.  The base address has the same offset as the virtual address in the MDL.
+        Returns the base address where the pages are mapped.
+        The base address has the same offset as the virtual address in the MDL.
         This routine will return NULL if the cache type requested is incompatible with the pages being mapped or
         if the caller tries to map an MDL that is larger than the virtual address range originally reserved.
     Environment:
@@ -3572,7 +3615,8 @@ PVOID MmMapLockedPagesWithReservedMapping(__in PVOID MappingAddress,
     }
 
     if (NumberOfPages > VaPageSpan - 2) {
-        // The caller is trying to map an MDL that spans a range larger than the reserving mapping !  This is a driver bug.
+        // The caller is trying to map an MDL that spans a range larger than the reserving mapping ! 
+        // This is a driver bug.
         ASSERT(FALSE);
         return NULL;
     }
@@ -3656,14 +3700,16 @@ PVOID MmMapLockedPagesWithReservedMapping(__in PVOID MappingAddress,
             switch (Pfn2->u3.e1.CacheAttribute) {
             case MiCached:
                 if (CacheAttribute != MiCached) {
-                    // The caller asked for a noncached or writecombined mapping, but the page is already mapped cached by someone else.
+                    // The caller asked for a noncached or writecombined mapping,
+                    // but the page is already mapped cached by someone else.
                     // Override the caller's request in order to keep the TB page attribute coherent.
                     MiCacheOverride[0] += 1;
                 }
                 break;
             case MiNonCached:
                 if (CacheAttribute != MiNonCached) {
-                    // The caller asked for a cached or writecombined mapping, but the page is already mapped noncached by someone else.
+                    // The caller asked for a cached or writecombined mapping,
+                    // but the page is already mapped noncached by someone else.
                     // Override the caller's request in order to keep the TB page attribute coherent.
                     MiCacheOverride[1] += 1;
                 }
@@ -3671,7 +3717,8 @@ PVOID MmMapLockedPagesWithReservedMapping(__in PVOID MappingAddress,
                 break;
             case MiWriteCombined:
                 if (CacheAttribute != MiWriteCombined) {
-                    // The caller asked for a cached or noncached mapping, but the page is already mapped writecombined by someone else.
+                    // The caller asked for a cached or noncached mapping,
+                    // but the page is already mapped writecombined by someone else.
                     // Override the caller's request in order to keep the TB page attribute coherent.
                     MiCacheOverride[2] += 1;
                 }
@@ -4031,7 +4078,8 @@ Arguments:
             }
         }
 
-        // Now ripple the remaining pages to the front of the MDL, effectively purging the old ones which have just been released.
+        // Now ripple the remaining pages to the front of the MDL, 
+        // effectively purging the old ones which have just been released.
         ASSERT(i < NumberOfPages);
         for (; i < NumberOfPages; i += 1) {
             if (*Page == MM_EMPTY_LIST) {
@@ -4044,7 +4092,8 @@ Arguments:
         }
 
         // If the MDL has been mapped, stash the number of pages advanced at the end of the frame list inside the MDL and mark the MDL as containing extra PTEs to free.
-        // Thus when the MDL is finally completely unmapped, this can be used so the entire original PTE mapping range can be freed in one chunk so as not to fragment the PTE space.
+        // Thus when the MDL is finally completely unmapped, 
+        // this can be used so the entire original PTE mapping range can be freed in one chunk so as not to fragment the PTE space.
         if (MdlFlags & MDL_MAPPED_TO_SYSTEM_VA) {
 #if DBG
             InterlockedExchangeAddSizeT(&MiCurrentAdvancedPages, PageCount);
@@ -4159,7 +4208,11 @@ Environment:
             OriginalPte.u.Hard.WriteThrough = PteContents.u.Soft.PageFileLow;
             OriginalPte.u.Hard.CacheDisable = (PteContents.u.Soft.PageFileLow >> 1);
         } else {
-            KeBugCheckEx(MEMORY_MANAGEMENT, 0x1235, (ULONG_PTR)MemoryDescriptorList, (ULONG_PTR)PointerPte, (ULONG_PTR)PteContents.u.Long);
+            KeBugCheckEx(MEMORY_MANAGEMENT,
+                         0x1235,
+                         (ULONG_PTR)MemoryDescriptorList,
+                         (ULONG_PTR)PointerPte,
+                         (ULONG_PTR)PteContents.u.Long);
         }
 
 #if DBG
@@ -4172,7 +4225,8 @@ Environment:
 #endif
 
         if (ProtectionMask == MM_NOACCESS) {
-            // To generate a bugcheck on bogus access: Prototype must stay clear, transition must stay set, protection must stay NO_ACCESS.
+            // To generate a bugcheck on bogus access: Prototype must stay clear,
+            // transition must stay set, protection must stay NO_ACCESS.
             MI_MAKE_VALID_PTE_TRANSITION(PteContents, MM_NOACCESS);
 
             // Stash the cache attributes into the software PTE so they can be restored later.
@@ -4445,7 +4499,11 @@ Environment:
 }
 
 
-PVOID MiMapLockedPagesInUserSpace(IN PMDL MemoryDescriptorList, IN PVOID StartingVa, IN MEMORY_CACHING_TYPE CacheType, IN PVOID BaseVa)
+PVOID MiMapLockedPagesInUserSpace(IN PMDL MemoryDescriptorList,
+                                  IN PVOID StartingVa,
+                                  IN MEMORY_CACHING_TYPE CacheType,
+                                  IN PVOID BaseVa
+)
 /*
 Routine Description:
     This function maps physical pages described by a memory descriptor list into the user portion of the virtual address space.
@@ -4569,7 +4627,7 @@ Environment:
             Status = STATUS_CONFLICTING_ADDRESSES;
             goto ErrorReturn;
         }
-    } else {        
+    } else {
         LOCK_ADDRESS_SPACE(Process);// Get the address creation mutex.
 
         // Make sure the address space was not deleted, if so, return an error.
@@ -4636,14 +4694,16 @@ Environment:
             switch (Pfn2->u3.e1.CacheAttribute) {
             case MiCached:
                 if (CacheAttribute != MiCached) {
-                    // The caller asked for a noncached or writecombined mapping, but the page is already mapped cached by someone else.
+                    // The caller asked for a noncached or writecombined mapping, 
+                    // but the page is already mapped cached by someone else.
                     // Override the caller's request in order to keep the TB page attribute coherent.
                     MiCacheOverride[0] += 1;
                 }
                 break;
             case MiNonCached:
                 if (CacheAttribute != MiNonCached) {
-                    // The caller asked for a cached or writecombined mapping, but the page is already mapped noncached by someone else.
+                    // The caller asked for a cached or writecombined mapping,
+                    // but the page is already mapped noncached by someone else.
                     // Override the caller's request in order to keep the TB page attribute coherent.
                     MiCacheOverride[1] += 1;
                 }
@@ -4651,7 +4711,8 @@ Environment:
                 break;
             case MiWriteCombined:
                 if (CacheAttribute != MiWriteCombined) {
-                    // The caller asked for a cached or noncached mapping, but the page is already mapped writecombined by someone else.
+                    // The caller asked for a cached or noncached mapping, 
+                    // but the page is already mapped writecombined by someone else.
                     // Override the caller's request in order to keep the TB page attribute coherent.
                     MiCacheOverride[2] += 1;
                 }
@@ -4839,7 +4900,8 @@ Environment:
             PointerPde = MiGetPteAddress(PointerPte - 1);
             ASSERT(PointerPde->u.Hard.Valid == 1);
 
-            // If all the entries have been eliminated from the previous page table page, delete the page table page itself.
+            // If all the entries have been eliminated from the previous page table page, 
+            // delete the page table page itself.
             // Likewise with the page directory and parent pages.
             if (MI_GET_USED_PTES_FROM_HANDLE(UsedPageTableHandle) == 0) {
                 ASSERT(PointerPde->u.Long != 0);
@@ -4857,7 +4919,8 @@ Environment:
                     PointerPpe = MiGetPteAddress(PointerPde);
                     ASSERT(PointerPpe->u.Hard.Valid == 1);
 
-                    // If all the entries have been eliminated from the previous page directory page, delete the page directory page too.
+                    // If all the entries have been eliminated from the previous page directory page, 
+                    // delete the page directory page too.
                     if (MI_GET_USED_PTES_FROM_HANDLE(UsedPageTableHandle) == 0) {
                         ASSERT(PointerPpe->u.Long != 0);
 
@@ -5025,7 +5088,11 @@ PMMPTE MiInitialSystemPageDirectory;
 #endif
 
 
-PVOID MiMapWithLargePages(IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER NumberOfPages, IN ULONG Protection, IN MEMORY_CACHING_TYPE CacheType)
+PVOID MiMapWithLargePages(IN PFN_NUMBER PageFrameIndex,
+                          IN PFN_NUMBER NumberOfPages,
+                          IN ULONG Protection,
+                          IN MEMORY_CACHING_TYPE CacheType
+)
 /*
 Routine Description:
     This function maps the specified physical address into the non-pageable portion of the system address space using large TB entries.
@@ -5044,7 +5111,8 @@ Return Value:
     Returns the virtual address which maps the specified physical addresses.
     The value NULL is returned if sufficient large virtual address space for the mapping could not be found.
 Environment:
-    Kernel mode, Should be IRQL of APC_LEVEL or below, but unfortunately callers are coming in at DISPATCH_LEVEL and it's too late to change the rules now.
+    Kernel mode, Should be IRQL of APC_LEVEL or below,
+    but unfortunately callers are coming in at DISPATCH_LEVEL and it's too late to change the rules now.
     This means you can never make this routine pageable.
 */
 {
@@ -5351,7 +5419,10 @@ Environment:
 }
 
 
-__out_bcount(NumberOfBytes) PVOID MmMapIoSpace(__in PHYSICAL_ADDRESS PhysicalAddress, __in SIZE_T NumberOfBytes, __in MEMORY_CACHING_TYPE CacheType)
+__out_bcount(NumberOfBytes) PVOID MmMapIoSpace(__in PHYSICAL_ADDRESS PhysicalAddress,
+                                               __in SIZE_T NumberOfBytes,
+                                               __in MEMORY_CACHING_TYPE CacheType
+)
 /*
 Routine Description:
     This function maps the specified physical address into the non-pageable portion of the system address space.
@@ -5959,7 +6030,10 @@ Environment:
 }
 
 
-VOID MmFreeContiguousMemorySpecifyCache(__in_bcount(NumberOfBytes) PVOID BaseAddress, __in SIZE_T NumberOfBytes, __in MEMORY_CACHING_TYPE CacheType)
+VOID MmFreeContiguousMemorySpecifyCache(__in_bcount(NumberOfBytes) PVOID BaseAddress,
+                                        __in SIZE_T NumberOfBytes,
+                                        __in MEMORY_CACHING_TYPE CacheType
+)
 /*
 Routine Description:
     This function deallocates a range of noncached memory in the non-paged portion of the system address space.
@@ -6247,7 +6321,8 @@ Environment:
         RequestedPtes = ColoredPageInfo->PagesQueued;
 
 #if !defined (_WIN64)
-        // NT64 has an abundance of PTEs so try to map the whole request with a single call.  For NT32, this resource needs to be carefully shared.
+        // NT64 has an abundance of PTEs so try to map the whole request with a single call. 
+        // For NT32, this resource needs to be carefully shared.
         if (RequestedPtes > (1024 * 1024) / PAGE_SIZE) {
             RequestedPtes = (1024 * 1024) / PAGE_SIZE;
         }
@@ -6401,7 +6476,13 @@ Environment:
                 // We are creating a system thread for each memory node instead of using the executive worker thread pool.
                 // This is because we want to run the threads at a lower priority to keep the machine responsive during all this zeroing.
                 // And doing this to a worker thread can cause a deadlock as various other components (registry, etc) expect worker threads to be available at a higher priority right away.
-                Status = PsCreateSystemThread(&ThreadHandle, THREAD_ALL_ACCESS, &ObjectAttributes, 0L, NULL, MiZeroAwePageWorker, (PVOID)ColoredPageInfo);
+                Status = PsCreateSystemThread(&ThreadHandle,
+                                              THREAD_ALL_ACCESS,
+                                              &ObjectAttributes,
+                                              0L,
+                                              NULL,
+                                              MiZeroAwePageWorker,
+                                              (PVOID)ColoredPageInfo);
                 if (NT_SUCCESS(Status)) {
                     ZwClose(ThreadHandle);
                 } else {
@@ -6416,7 +6497,14 @@ Environment:
                 KeSetPriorityThread(Thread, OldPriority);
                 Thread->BasePriority = OldBasePriority;
 
-                WakeupStatus = KeWaitForMultipleObjects(WaitCount, &WaitObjects[0], WaitAll, Executive, KernelMode, FALSE, NULL, &WaitBlockArray[0]);
+                WakeupStatus = KeWaitForMultipleObjects(WaitCount,
+                                                        &WaitObjects[0],
+                                                        WaitAll,
+                                                        Executive,
+                                                        KernelMode,
+                                                        FALSE,
+                                                        NULL,
+                                                        &WaitBlockArray[0]);
                 ASSERT(WakeupStatus == STATUS_SUCCESS);
 
                 WaitCount = 0;
@@ -6566,8 +6654,11 @@ PMDL MiAllocatePagesForMdl(
 #if DBG
     if (SizeInPages < (PFN_NUMBER)ADDRESS_AND_SIZE_TO_SPAN_PAGES(0, TotalBytes)) {
         if (MiPrintAwe != 0) {
-            DbgPrintEx(DPFLTR_MM_ID, DPFLTR_INFO_LEVEL, "MiAllocatePagesForMdl1: unable to get %p pages, trying for %p instead\n",
-                       ADDRESS_AND_SIZE_TO_SPAN_PAGES(0, TotalBytes), SizeInPages);
+            DbgPrintEx(DPFLTR_MM_ID,
+                       DPFLTR_INFO_LEVEL,
+                       "MiAllocatePagesForMdl1: unable to get %p pages, trying for %p instead\n",
+                       ADDRESS_AND_SIZE_TO_SPAN_PAGES(0, TotalBytes),
+                       SizeInPages);
         }
     }
 #endif
@@ -6592,7 +6683,9 @@ PMDL MiAllocatePagesForMdl(
     }
 
     // Allocate a list of colored anchors.
-    ColoredPageInfoBase = (PCOLORED_PAGE_INFO)ExAllocatePoolWithTag(NonPagedPool, MmSecondaryColors * sizeof(COLORED_PAGE_INFO), 'ldmM');
+    ColoredPageInfoBase = (PCOLORED_PAGE_INFO)ExAllocatePoolWithTag(NonPagedPool,
+                                                                    MmSecondaryColors * sizeof(COLORED_PAGE_INFO),
+                                                                    'ldmM');
     if (ColoredPageInfoBase == NULL) {
         ExFreePool(MemoryDescriptorList);
         MiReturnCommitment(SizeInPages);
@@ -7181,7 +7274,8 @@ pass2_done:
 
     ExFreePool(ColoredPageInfoBase);
 
-    // If the number of pages allocated was substantially less than the initial request amount, attempt to allocate a smaller MDL to save pool.
+    // If the number of pages allocated was substantially less than the initial request amount,
+    // attempt to allocate a smaller MDL to save pool.
     if ((MdlPageSpan - found) > ((4 * PAGE_SIZE) / sizeof(PFN_NUMBER))) {
         MemoryDescriptorList2 = MmCreateMdl(NULL, NULL, found << PAGE_SHIFT);
         if (MemoryDescriptorList2 != NULL) {
@@ -7253,7 +7347,8 @@ PMDL MmAllocatePagesForMdl(__in PHYSICAL_ADDRESS LowAddress,
     /*
     Routine Description:
         This routine searches the PFN database for free, zeroed or standby pages to satisfy the request.
-        This does not map the pages - it just allocates them and puts them into an MDL.  It is expected that our caller will map the MDL as needed.
+        This does not map the pages - it just allocates them and puts them into an MDL.
+        It is expected that our caller will map the MDL as needed.
 
         NOTE: this routine may return an MDL mapping a smaller number of bytes than the amount requested.
         It is the caller's responsibility to check the MDL upon return for the size actually allocated.
@@ -7263,7 +7358,8 @@ PMDL MmAllocatePagesForMdl(__in PHYSICAL_ADDRESS LowAddress,
         This routine is designed to be used by an AGP driver to obtain physical memory in a specified range since hardware may provide substantial
         performance wins depending on where the backing memory is allocated.
 
-        Because the caller may use these pages for a noncached mapping, care is taken to never allocate any pages that reside in a large page (in order
+        Because the caller may use these pages for a noncached mapping,
+        care is taken to never allocate any pages that reside in a large page (in order
         to prevent TB incoherency of the same page being mapped by multiple translations with different attributes).
     Arguments:
         LowAddress - Supplies the low physical address of the first range that the allocated pages can come from.
@@ -8167,7 +8263,8 @@ Routine Description:
     NOTE: This routine is not to be used for general locking of user addresses - use MmProbeAndLockPages.
     This routine is intended for well behaved system code like the file system caches which allocates virtual addresses for mapping files AND guarantees that the mapping will not be modified (deleted or changed) while the pages are locked.
 Arguments:
-    ImageSectionHandle - Supplies the value returned by a previous call to MmLockPageableDataSection.  This is a pointer to the section header for the image.
+    ImageSectionHandle - Supplies the value returned by a previous call to MmLockPageableDataSection.
+                         This is a pointer to the section header for the image.
 Environment:
     Kernel mode, IRQL of APC_LEVEL or below.
 */
@@ -8196,7 +8293,8 @@ Environment:
     SizeToLock = NtSection->SizeOfRawData;
 
     // Generally, SizeOfRawData is larger than VirtualSize for each section because it includes the padding to get to the subsection alignment boundary.
-    // However, if the image is linked with subsection alignment == native page alignment, the linker will have VirtualSize be much larger than SizeOfRawData because it will account for all the bss.
+    // However, if the image is linked with subsection alignment == native page alignment, 
+    // the linker will have VirtualSize be much larger than SizeOfRawData because it will account for all the bss.
     if (SizeToLock < NtSection->Misc.VirtualSize) {
         SizeToLock = NtSection->Misc.VirtualSize;
     }
@@ -8872,33 +8970,34 @@ NTSTATUS MmSetBankedSection(__in HANDLE ProcessHandle,
                             __in ULONG BankLength,
                             __in BOOLEAN ReadWriteBank,
                             __in PBANKED_SECTION_ROUTINE BankRoutine,
-                            __in PVOID Context)
-    /*
-    Routine Description:
-        This function declares a mapped video buffer as a banked section.
-        This allows banked video devices (i.e., even though the video controller has a megabyte or so of memory,
-        only a small bank (like 64k) can be mapped at any one time.
+                            __in PVOID Context
+)
+/*
+Routine Description:
+    This function declares a mapped video buffer as a banked section.
+    This allows banked video devices (i.e., even though the video controller has a megabyte or so of memory,
+    only a small bank (like 64k) can be mapped at any one time.
 
-        In order to overcome this problem,
-        the pager handles faults to this memory, unmaps the current bank,
-        calls off to the video driver and then maps in the new bank.
+    In order to overcome this problem,
+    the pager handles faults to this memory, unmaps the current bank,
+    calls off to the video driver and then maps in the new bank.
 
-        This function creates the necessary structures to allow the video driver to be called from the pager.
+    This function creates the necessary structures to allow the video driver to be called from the pager.
 
-        NOTE NOTE NOTE
-        At this time only read/write banks are supported!
-    Arguments:
-        ProcessHandle - Supplies a handle to the process in which to support the banked video function.
-        VirtualAddress - Supplies the virtual address where the video buffer is mapped in the specified process.
-        BankLength - Supplies the size of the bank.
-        ReadWriteBank - Supplies TRUE if the bank is read and write.
-        BankRoutine - Supplies a pointer to the routine that should be called by the pager.
-        Context - Supplies a context to be passed by the pager to the BankRoutine.
-    Return Value:
-        Returns the status of the function.
-    Environment:
-        Kernel mode, APC_LEVEL or below.
-    */
+    NOTE NOTE NOTE
+    At this time only read/write banks are supported!
+Arguments:
+    ProcessHandle - Supplies a handle to the process in which to support the banked video function.
+    VirtualAddress - Supplies the virtual address where the video buffer is mapped in the specified process.
+    BankLength - Supplies the size of the bank.
+    ReadWriteBank - Supplies TRUE if the bank is read and write.
+    BankRoutine - Supplies a pointer to the routine that should be called by the pager.
+    Context - Supplies a context to be passed by the pager to the BankRoutine.
+Return Value:
+    Returns the status of the function.
+Environment:
+    Kernel mode, APC_LEVEL or below.
+*/
 {
     KAPC_STATE ApcState;
     NTSTATUS Status;
@@ -8938,7 +9037,9 @@ NTSTATUS MmSetBankedSection(__in HANDLE ProcessHandle,
     }
 
     Vad = MiLocateAddress(VirtualAddress);
-    if ((Vad == NULL) || (Vad->StartingVpn != MI_VA_TO_VPN(VirtualAddress)) || (Vad->u.VadFlags.VadType != VadDevicePhysicalMemory)) {
+    if ((Vad == NULL) ||
+        (Vad->StartingVpn != MI_VA_TO_VPN(VirtualAddress)) ||
+        (Vad->u.VadFlags.VadType != VadDevicePhysicalMemory)) {
         Status = STATUS_NOT_MAPPED_DATA;
         goto ErrorReturn;
     }
@@ -9011,22 +9112,23 @@ ErrorReturn:
 
 __out_bcount(NumberOfBytes) PVOID MmMapVideoDisplay(__in PHYSICAL_ADDRESS PhysicalAddress,
                                                     __in SIZE_T NumberOfBytes,
-                                                    __in MEMORY_CACHING_TYPE CacheType)
-    /*
-    Routine Description:
-        This function maps the specified physical address into the non-pageable portion of the system address space.
-    Arguments:
-        PhysicalAddress - Supplies the starting physical address to map.
-        NumberOfBytes - Supplies the number of bytes to map.
-        CacheType - Supplies MmNonCached if the physical address is to be mapped as non-cached, MmCached if the address should be cached,
-                    and MmWriteCombined if the address should be cached and write-combined as a frame buffer.
-                    For I/O device registers, this is usually specified as MmNonCached.
-    Return Value:
-        Returns the virtual address which maps the specified physical addresses.
-        The value NULL is returned if sufficient virtual address space for the mapping could not be found.
-    Environment:
-        Kernel mode, IRQL of APC_LEVEL or below.
-    */
+                                                    __in MEMORY_CACHING_TYPE CacheType
+)
+/*
+Routine Description:
+    This function maps the specified physical address into the non-pageable portion of the system address space.
+Arguments:
+    PhysicalAddress - Supplies the starting physical address to map.
+    NumberOfBytes - Supplies the number of bytes to map.
+    CacheType - Supplies MmNonCached if the physical address is to be mapped as non-cached, MmCached if the address should be cached,
+                and MmWriteCombined if the address should be cached and write-combined as a frame buffer.
+                For I/O device registers, this is usually specified as MmNonCached.
+Return Value:
+    Returns the virtual address which maps the specified physical addresses.
+    The value NULL is returned if sufficient virtual address space for the mapping could not be found.
+Environment:
+    Kernel mode, IRQL of APC_LEVEL or below.
+*/
 {
     PAGED_CODE();
     return MmMapIoSpace(PhysicalAddress, NumberOfBytes, CacheType);
@@ -9141,7 +9243,9 @@ Environment:
         // Don't use MmAvailablePages here because if compression hardware is being used we would bail prematurely.
         // Check the lists explicitly in order to provide our caller with the maximum number of pages.
         AvailablePages = MmZeroedPageListHead.Total + MmFreePageListHead.Total;
-        for (ListHead = &MmStandbyPageListByPriority[0]; ListHead < &MmStandbyPageListByPriority[MI_PFN_PRIORITIES]; ListHead += 1) {
+        for (ListHead = &MmStandbyPageListByPriority[0];
+             ListHead < &MmStandbyPageListByPriority[MI_PFN_PRIORITIES];
+             ListHead += 1) {
             AvailablePages += ListHead->Total;
         }
 
@@ -9364,9 +9468,13 @@ Environment:
             // Check for the page being locked by reference
             // - or -
             // whether the page is locked into the working set.
-            if ((Pfn1->u3.e2.ReferenceCount <= Pfn1->u2.ShareCount) && (Pfn1->u3.e2.ReferenceCount <= 1) && (Pfn1->u1.Event != NULL)) {
+            if ((Pfn1->u3.e2.ReferenceCount <= Pfn1->u2.ShareCount) &&
+                (Pfn1->u3.e2.ReferenceCount <= 1) &&
+                (Pfn1->u1.Event != NULL)) {
                 // The page is not locked by reference or in a working set, see if it is in nonpaged pool.
-                if ((Pfn1->u3.e1.PageLocation == ActiveAndValid) && (*Page >= MiStartOfInitialPoolFrame) && (*Page <= MiEndOfInitialPoolFrame)) {
+                if ((Pfn1->u3.e1.PageLocation == ActiveAndValid) &&
+                    (*Page >= MiStartOfInitialPoolFrame) &&
+                    (*Page <= MiEndOfInitialPoolFrame)) {
                     NOTHING;// This is initial nonpaged pool.
                 } else {
                     VirtualAddress = MiGetVirtualAddressMappedByPte(Pfn1->PteAddress);
