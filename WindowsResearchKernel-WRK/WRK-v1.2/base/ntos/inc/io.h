@@ -714,16 +714,21 @@ BOOLEAN
     IN struct _DEVICE_OBJECT *DeviceObject
     );
 
-typedef BOOLEAN(*PFAST_IO_MDL_READ_COMPLETE_COMPRESSED) (IN struct _FILE_OBJECT *FileObject, IN PMDL MdlChain, IN struct _DEVICE_OBJECT *DeviceObject);
+typedef BOOLEAN(*PFAST_IO_MDL_READ_COMPLETE_COMPRESSED) (IN struct _FILE_OBJECT *FileObject, 
+                                                         IN PMDL MdlChain,
+                                                         IN struct _DEVICE_OBJECT *DeviceObject);
 typedef BOOLEAN(*PFAST_IO_MDL_WRITE_COMPLETE_COMPRESSED) (
     IN struct _FILE_OBJECT *FileObject,
     IN PLARGE_INTEGER FileOffset,
     IN PMDL MdlChain,
     IN struct _DEVICE_OBJECT *DeviceObject);
-typedef BOOLEAN(*PFAST_IO_QUERY_OPEN) (IN struct _IRP *Irp, OUT PFILE_NETWORK_OPEN_INFORMATION NetworkInformation, IN struct _DEVICE_OBJECT *DeviceObject);
+typedef BOOLEAN(*PFAST_IO_QUERY_OPEN) (IN struct _IRP *Irp,
+                                       OUT PFILE_NETWORK_OPEN_INFORMATION NetworkInformation,
+                                       IN struct _DEVICE_OBJECT *DeviceObject);
 
 // Define the structure to describe the Fast I/O dispatch routines.
-// Any additions made to this structure MUST be added monotonically to the end of the structure, and fields CANNOT be removed from the middle.
+// Any additions made to this structure MUST be added monotonically to the end of the structure, 
+// and fields CANNOT be removed from the middle.
 
 typedef struct _FAST_IO_DISPATCH
 {
@@ -856,7 +861,8 @@ typedef struct _FS_FILTER_CALLBACKS
     PFS_FILTER_COMPLETION_CALLBACK PostReleaseForModifiedPageWriter;
 } FS_FILTER_CALLBACKS, *PFS_FILTER_CALLBACKS;
 
-NTKERNELAPI NTSTATUS FsRtlRegisterFileSystemFilterCallbacks(__in struct _DRIVER_OBJECT *FilterDriverObject, __in PFS_FILTER_CALLBACKS Callbacks);
+NTKERNELAPI NTSTATUS FsRtlRegisterFileSystemFilterCallbacks(__in struct _DRIVER_OBJECT *FilterDriverObject,
+                                                            __in PFS_FILTER_CALLBACKS Callbacks);
 
 // begin_ntddk begin_wdm begin_nthal begin_ntosp
 
@@ -870,7 +876,10 @@ typedef enum _IO_ALLOCATION_ACTION
 
 
 // Define device driver adapter/controller execution routine.
-typedef IO_ALLOCATION_ACTION(*PDRIVER_CONTROL) (IN struct _DEVICE_OBJECT *DeviceObject, IN struct _IRP *Irp, IN PVOID MapRegisterBase, IN PVOID Context);
+typedef IO_ALLOCATION_ACTION(*PDRIVER_CONTROL) (IN struct _DEVICE_OBJECT *DeviceObject,
+                                                IN struct _IRP *Irp,
+                                                IN PVOID MapRegisterBase,
+                                                IN PVOID Context);
 
 // end_ntddk end_wdm end_nthal end_ntifs end_ntosp
 
@@ -1241,7 +1250,8 @@ typedef struct _DEVICE_HANDLER_OBJECT
 // begin_ntddk begin_wdm begin_ntifs begin_ntosp
 
 
-// The following structure is pointed to by the SectionObject pointer field of a file object, and is allocated by the various NT file systems.
+// The following structure is pointed to by the SectionObject pointer field of a file object,
+// and is allocated by the various NT file systems.
 typedef struct _SECTION_OBJECT_POINTERS
 {
     PVOID DataSectionObject;
@@ -2106,7 +2116,8 @@ typedef struct _CONFIGURATION_INFORMATION
 
 
 // The following are global counters used by the I/O system to indicate the amount of I/O being performed in the system.
-// The first three counters are just that, counts of operations that have been requested, while the last three counters track the amount of data transferred for each type of I/O request.
+// The first three counters are just that, counts of operations that have been requested, 
+// while the last three counters track the amount of data transferred for each type of I/O request.
 extern KSPIN_LOCK IoStatisticsLock;
 extern ULONG IoReadOperationCount;
 extern ULONG IoWriteOperationCount;
@@ -2116,10 +2127,12 @@ extern LARGE_INTEGER IoWriteTransferCount;
 extern LARGE_INTEGER IoOtherTransferCount;
 
 
-// It is difficult for cached file systems to properly charge quota for the storage that they allocate on behalf of user file handles, so the following amount of additional quota is charged against each
+// It is difficult for cached file systems to properly charge quota for the storage that they allocate on behalf of user file handles,
+// so the following amount of additional quota is charged against each
 // handle as a "best guess" as to the amount of quota the file system will allocate on behalf of this handle.
 
-// These numbers are totally arbitrary, and can be changed if it turns out that the file systems actually allocate more (or less) on behalf of their file objects.
+// These numbers are totally arbitrary, 
+// and can be changed if it turns out that the file systems actually allocate more (or less) on behalf of their file objects.
 // The non-paged pool charge constant is added to the size of a FILE_OBJECT to get the actual charge amount.
 #define IO_FILE_OBJECT_NON_PAGED_POOL_CHARGE    64
 #define IO_FILE_OBJECT_PAGED_POOL_CHARGE        1024
@@ -2148,7 +2161,10 @@ IoAllocateAdapterChannel(
     IN PVOID Context
 );
 
-NTKERNELAPI VOID IoAllocateController(IN PCONTROLLER_OBJECT ControllerObject, IN PDEVICE_OBJECT DeviceObject, IN PDRIVER_CONTROL ExecutionRoutine, IN PVOID Context);
+NTKERNELAPI VOID IoAllocateController(IN PCONTROLLER_OBJECT ControllerObject,
+                                      IN PDEVICE_OBJECT DeviceObject,
+                                      IN PDRIVER_CONTROL ExecutionRoutine,
+                                      IN PVOID Context);
 
 // begin_wdm
 
@@ -2232,7 +2248,12 @@ IoAttachDeviceByPointer(
 // begin_wdm
 
 NTKERNELAPI PDEVICE_OBJECT IoAttachDeviceToDeviceStack(IN PDEVICE_OBJECT SourceDevice, IN PDEVICE_OBJECT TargetDevice);
-NTKERNELAPI PIRP IoBuildAsynchronousFsdRequest(IN ULONG MajorFunction, IN PDEVICE_OBJECT DeviceObject, IN OUT PVOID Buffer OPTIONAL, IN ULONG Length OPTIONAL, IN PLARGE_INTEGER StartingOffset OPTIONAL, IN PIO_STATUS_BLOCK IoStatusBlock OPTIONAL);
+NTKERNELAPI PIRP IoBuildAsynchronousFsdRequest(IN ULONG MajorFunction, 
+                                               IN PDEVICE_OBJECT DeviceObject,
+                                               IN OUT PVOID Buffer OPTIONAL,
+                                               IN ULONG Length OPTIONAL,
+                                               IN PLARGE_INTEGER StartingOffset OPTIONAL,
+                                               IN PIO_STATUS_BLOCK IoStatusBlock OPTIONAL);
 NTKERNELAPI PIRP IoBuildDeviceIoControlRequest(
     IN ULONG IoControlCode,
     IN PDEVICE_OBJECT DeviceObject,
@@ -2276,7 +2297,9 @@ NTKERNELAPI NTSTATUS IoGetBootDiskInformation(IN OUT PBOOTDISK_INFORMATION BootD
 NTSTATUS IoBuildPoDeviceNotifyList(IN OUT PVOID Order);
 VOID IoMovePoNotifyChildren(IN PVOID Notify, IN PVOID Order);
 PVOID IoGetPoNotifyParent(PVOID Notify);
-NTSTATUS IoNotifyPowerOperationVetoed(IN POWER_ACTION VetoedPowerOperation, IN PDEVICE_OBJECT TargetedDeviceObject OPTIONAL, IN PDEVICE_OBJECT VetoingDeviceObject);
+NTSTATUS IoNotifyPowerOperationVetoed(IN POWER_ACTION VetoedPowerOperation,
+                                      IN PDEVICE_OBJECT TargetedDeviceObject OPTIONAL,
+                                      IN PDEVICE_OBJECT VetoingDeviceObject);
 VOID IoControlPnpDeviceActionQueue(BOOLEAN Lock);
 
 // begin_ntddk begin_nthal begin_wdm begin_ntifs begin_ntosp
@@ -2288,8 +2311,7 @@ NTKERNELAPI PIRP IoBuildSynchronousFsdRequest(
     IN ULONG Length OPTIONAL,
     IN PLARGE_INTEGER StartingOffset OPTIONAL,
     IN PKEVENT Event,
-    OUT PIO_STATUS_BLOCK IoStatusBlock
-);
+    OUT PIO_STATUS_BLOCK IoStatusBlock);
 
 NTKERNELAPI NTSTATUS FASTCALL IofCallDriver(IN PDEVICE_OBJECT DeviceObject, IN OUT PIRP Irp);
 #define IoCallDriver(a,b)     IofCallDriver(a,b)
@@ -2398,8 +2420,7 @@ NTKERNELAPI NTSTATUS IoCreateFile(
     IN ULONG EaLength,
     IN CREATE_FILE_TYPE CreateFileType,
     IN PVOID ExtraCreateParameters OPTIONAL,
-    IN ULONG Options
-);
+    IN ULONG Options);
 
 // end_ntddk end_wdm end_ntosp
 
