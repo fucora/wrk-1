@@ -36,7 +36,8 @@ VOID KiExecuteDpc(IN PVOID Context)
 /*
 Routine Description:
     This function is executed by the DPC thread for each processor.
-    DPC threads are started during kernel initialization after having started all processors and it is determined that the host configuation should execute threaded DPCs in a DPC thread.
+    DPC threads are started during kernel initialization after having started all processors and 
+    it is determined that the host configuation should execute threaded DPCs in a DPC thread.
 Arguments:
     Context - Supplies a pointer to the processor control block for the processor on which the DPC thread is to run.
 */
@@ -60,13 +61,15 @@ Arguments:
     Thread = KeGetCurrentThread();
     Prcb->DpcThread = Thread;
 
-    // Set the DPC thread priority to the highest level, set the thread affinity, and enable threaded DPCs on this processor.
+    // Set the DPC thread priority to the highest level, set the thread affinity,
+    // and enable threaded DPCs on this processor.
     KeSetPriorityThread(Thread, HIGH_PRIORITY);
     KeSetSystemAffinityThread(Prcb->SetMember);
     Prcb->ThreadDpcEnable = TRUE;
 
     // Loop processing DPC list entries until the specified DPC list is empty.
-    // N.B. This following code appears to have a redundant loop, but it does not. The point of this code is to avoid as many dispatch interrupts as possible.
+    // N.B. This following code appears to have a redundant loop, but it does not. 
+    // The point of this code is to avoid as many dispatch interrupts as possible.
     ListHead = &Prcb->DpcData[DPC_THREADED].DpcListHead;
     do {
         Prcb->DpcThreadActive = TRUE;
@@ -75,7 +78,8 @@ Arguments:
         if (Prcb->DpcData[DPC_THREADED].DpcQueueDepth != 0) {
             // Acquire the DPC lock for the current processor and check if the DPC list is empty.
             // If the DPC list is not empty, then remove the first entry from the DPC list, capture the DPC
-            // parameters, set the DPC inserted state false, decrement the DPC queue depth, release the DPC lock, enable interrupts, and call the specified DPC routine.
+            // parameters, set the DPC inserted state false, decrement the DPC queue depth, release the DPC lock, 
+            // enable interrupts, and call the specified DPC routine.
             // Otherwise, release the DPC lock and enable interrupts.
             Logging = PERFINFO_IS_GROUP_ON(PERF_DPC);
             do {
@@ -93,9 +97,8 @@ Arguments:
                     Prcb->DpcData[DPC_THREADED].DpcQueueDepth -= 1;
                     KeReleaseSpinLockFromDpcLevel(&Prcb->DpcData[DPC_THREADED].DpcLock);
                     KeLowerIrql(OldIrql);
-
-                    // If event tracing is enabled, capture the start time.
-                    if (Logging != FALSE) {
+                    
+                    if (Logging != FALSE) {// If event tracing is enabled, capture the start time.
                         PerfTimeStamp(TimeStamp);
                     }
 
@@ -104,9 +107,8 @@ Arguments:
                     ASSERT(KeGetCurrentIrql() == PASSIVE_LEVEL);
                     ASSERT(Thread->Affinity == Prcb->SetMember);
                     ASSERT(Thread->Priority == HIGH_PRIORITY);
-
-                    // If event tracing is enabled, then log the start time and routine address.
-                    if (Logging != FALSE) {
+                    
+                    if (Logging != FALSE) {// If event tracing is enabled, then log the start time and routine address.
                         DpcInformation.InitialTime = TimeStamp.QuadPart;
                         DpcInformation.DpcRoutine = (PVOID)(ULONG_PTR)DeferredRoutine;
                         PerfInfoLogBytes(PERFINFO_LOG_TYPE_DPC, &DpcInformation, sizeof(DpcInformation));
@@ -135,7 +137,8 @@ VOID KiQuantumEnd(VOID)
 /*
 Routine Description:
     This function is called when a quantum end event occurs on the current processor.
-    Its function is to determine whether the thread priority should be decremented and whether a redispatch of the processor should occur.
+    Its function is to determine whether the thread priority should be decremented and
+    whether a redispatch of the processor should occur.
     N.B. This function is called at DISPATCH level and returns at DISPATCH level.
 */
 {
@@ -158,7 +161,8 @@ Routine Description:
     KiAcquireThreadLock(Thread);
     KiAcquirePrcbLock(Prcb);
     if (Thread->Quantum <= 0) {
-        // If quantum runout is disabled for the thread's process and the thread is running at a realtime priority, then set the thread quantum to the highest value and do not round robin at the thread's priority level.
+        // If quantum runout is disabled for the thread's process and the thread is running at a realtime priority, 
+        // then set the thread quantum to the highest value and do not round robin at the thread's priority level.
         // Otherwise, reset the thread quantum and decay the thread's priority as appropriate.
         Process = Thread->ApcState.Process;
         if ((Process->DisableQuantum != FALSE) && (Thread->Priority >= LOW_REALTIME_PRIORITY)) {
@@ -182,8 +186,10 @@ Routine Description:
 
     // Release the thread lock.
 
-    // If a thread was scheduled for execution on the current processor, then acquire the PRCB lock, set the current thread to the new thread, set
-    // next thread to NULL, set the thread state to running, release the PRCB lock, set the wait reason, ready the old thread, and swap context to the new thread.
+    // If a thread was scheduled for execution on the current processor, 
+    // then acquire the PRCB lock, set the current thread to the new thread, set
+    // next thread to NULL, set the thread state to running, release the PRCB lock, set the wait reason,
+    // ready the old thread, and swap context to the new thread.
     KiReleaseThreadLock(Thread);
     if (Prcb->NextThread != NULL) {
         KiSetContextSwapBusy(Thread);
@@ -224,8 +230,10 @@ VOID KiCheckTimerTable(IN ULARGE_INTEGER CurrentTime)
             Timer = CONTAINING_RECORD(NextEntry, KTIMER, TimerListEntry);
             NextEntry = NextEntry->Flink;
             if (Timer->DueTime.QuadPart <= CurrentTime.QuadPart) {
-                // If the timer expiration DPC is queued, then the time has been change and the DPC has not yet had the chance to run and clear out the expired timers.
-                if ((KeGetCurrentPrcb()->TimerRequest == 0) && *((volatile PKSPIN_LOCK *)(&KiTimerExpireDpc.DpcData)) == NULL) {
+                // If the timer expiration DPC is queued, then the time has been change and 
+                // the DPC has not yet had the chance to run and clear out the expired timers.
+                if ((KeGetCurrentPrcb()->TimerRequest == 0) && 
+                    *((volatile PKSPIN_LOCK *)(&KiTimerExpireDpc.DpcData)) == NULL) {
                     DbgBreakPoint();
                 }
             }
@@ -265,17 +273,18 @@ Arguments:
 #if DBG
         KeGetCurrentPrcb()->DebugDpcTime = 0;
 #endif
-
-        // If event tracing is enabled, capture the start time.
-        if (Logging != FALSE) {
+        
+        if (Logging != FALSE) {// If event tracing is enabled, capture the start time.
             PerfTimeStamp(TimeStamp);
         }
 
         // Call the DPC routine.
-        (DpcTable->Routine)(DpcTable->Dpc, DpcTable->Context, ULongToPtr(SystemTime->LowPart), ULongToPtr(SystemTime->HighPart));
-
-        // If event tracing is enabled, then log the start time and routine address.
-        if (Logging != FALSE) {
+        (DpcTable->Routine)(DpcTable->Dpc,
+                            DpcTable->Context,
+                            ULongToPtr(SystemTime->LowPart),
+                            ULongToPtr(SystemTime->HighPart));
+        
+        if (Logging != FALSE) {// If event tracing is enabled, then log the start time and routine address.
             DpcInformation.InitialTime = TimeStamp.QuadPart;
             DpcInformation.DpcRoutine = (PVOID)(ULONG_PTR)DpcTable->Routine;
             PerfInfoLogBytes(PERFINFO_LOG_TYPE_TIMERDPC, &DpcInformation, sizeof(DpcInformation));
@@ -312,11 +321,9 @@ Arguments:
     PLIST_ENTRY NextEntry;
     KIRQL OldIrql;
     LONG Period;
-
 #if !defined(NT_UP) || defined(_WIN64)
     PKPRCB Prcb = KeGetCurrentPrcb();
 #endif
-
     ULARGE_INTEGER SystemTime;
     PKTIMER Timer;
     ULONG TimersExamined;
@@ -386,7 +393,8 @@ Arguments:
                 }
 
                 // If the timer is periodic, then compute the next interval time and reinsert the timer in the timer tree.
-                // N.B. Even though the timer insertion is relative, it can still fail if the period of the timer elapses in between computing the time and inserting the timer.
+                // N.B. Even though the timer insertion is relative, 
+                // it can still fail if the period of the timer elapses in between computing the time and inserting the timer.
                 //      If this happens, then the insertion is retried.
                 if (Period != 0) {
                     Interval.QuadPart = Int32x32To64(Period, -10 * 1000);
@@ -394,7 +402,8 @@ Arguments:
                     } while (KiInsertTreeTimer(Timer, Interval) == FALSE);
                 }
 
-                // If a DPC is specified, then insert it in the target processor's DPC queue or capture the parameters in the DPC table for subsequent execution on the current processor.
+                // If a DPC is specified, then insert it in the target processor's DPC queue or 
+                // capture the parameters in the DPC table for subsequent execution on the current processor.
                 if (Dpc != NULL) {
 #if defined(NT_UP)
                     DpcTable[DpcCount].Dpc = Dpc;
@@ -414,7 +423,8 @@ Arguments:
 #endif
                 }
 
-                // If the maximum number of timers have been processed or the maximum number of timers have been examined, then drop the dispatcher lock and process the DPC table.
+                // If the maximum number of timers have been processed or the maximum number of timers have been examined, 
+                // then drop the dispatcher lock and process the DPC table.
                 if ((TimersProcessed == 0) || (TimersExamined == 0)) {
                     KiProcessTimerDpcTable(&SystemTime, &DpcTable[0], DpcCount);
 
@@ -482,7 +492,8 @@ Arguments:
     }
 #endif
 
-    // If the DPC table is not empty, then process the remaining DPC table entries and lower IRQL. Otherwise, unlock the dispatcher database.
+    // If the DPC table is not empty, then process the remaining DPC table entries and lower IRQL.
+    // Otherwise, unlock the dispatcher database.
     // N.B. Control is returned from the DPC processing routine with the dispatcher database unlocked.
     if (DpcCount != 0) {
         KiProcessTimerDpcTable(&SystemTime, &DpcTable[0], DpcCount);
@@ -510,17 +521,14 @@ Arguments:
     DPC_ENTRY DpcTable[MAXIMUM_DPC_TABLE_SIZE];
     LARGE_INTEGER Interval;
     KIRQL OldIrql1;
-
 #if !defined(NT_UP)
     PKPRCB Prcb = KeGetCurrentPrcb();
 #endif
-
     ULARGE_INTEGER SystemTime;
     PKTIMER Timer;
     LONG Period;
-
-    // Capture the timer expiration time.
-    KiQuerySystemTime((PLARGE_INTEGER)&SystemTime);
+    
+    KiQuerySystemTime((PLARGE_INTEGER)&SystemTime);// Capture the timer expiration time.
 
     // Remove the next timer from the expired timer list, set the state of the timer to signaled,
     // reinsert the timer in the timer tree if it is periodic, and optionally call the DPC routine if one is specified.
@@ -576,7 +584,8 @@ RestartScan:
             }
 #else
 
-            if (((Dpc->Number >= MAXIMUM_PROCESSORS) && (((LONG)Dpc->Number - MAXIMUM_PROCESSORS) != Prcb->Number)) || ((Dpc->Type == (UCHAR)ThreadedDpcObject) && (Prcb->ThreadDpcEnable != FALSE))) {
+            if (((Dpc->Number >= MAXIMUM_PROCESSORS) && (((LONG)Dpc->Number - MAXIMUM_PROCESSORS) != Prcb->Number)) || 
+                ((Dpc->Type == (UCHAR)ThreadedDpcObject) && (Prcb->ThreadDpcEnable != FALSE))) {
                 KeInsertQueueDpc(Dpc, ULongToPtr(SystemTime.LowPart), ULongToPtr(SystemTime.HighPart));
             } else {
                 DpcTable[Count].Dpc = Dpc;
@@ -595,7 +604,8 @@ RestartScan:
     if (Count != 0) {
         KiProcessTimerDpcTable(&SystemTime, &DpcTable[0], Count);
 
-        // If processing of the expired timer list was terminated because the DPC List was full, then process any remaining entries.
+        // If processing of the expired timer list was terminated because the DPC List was full, 
+        // then process any remaining entries.
         if (Count == MAXIMUM_DPC_TABLE_SIZE) {
             KiLockDispatcherDatabase(&OldIrql1);
             goto RestartScan;
@@ -611,7 +621,8 @@ RestartScan:
 VOID FASTCALL KiRetireDpcList(PKPRCB Prcb)
 /*
 Routine Description:
-    This function processes the DPC list for the specified processor, processes timer expiration, and processes the deferred ready list.
+    This function processes the DPC list for the specified processor, processes timer expiration,
+    and processes the deferred ready list.
     N.B. This function is entered with interrupts disabled and exits with interrupts disabled.
 Arguments:
     Prcb - Supplies the address of the processor block.
@@ -638,9 +649,8 @@ Arguments:
     Logging = PERFINFO_IS_GROUP_ON(PERF_DPC);
     do {
         Prcb->DpcRoutineActive = TRUE;
-
-        // If the timer hand value is nonzero, then process expired timers.
-        if (Prcb->TimerRequest != 0) {
+       
+        if (Prcb->TimerRequest != 0) { // If the timer hand value is nonzero, then process expired timers.
             TimerHand = Prcb->TimerHand;
             Prcb->TimerRequest = 0;
             _enable();
@@ -649,11 +659,12 @@ Arguments:
         }
 
         if (DpcData->DpcQueueDepth != 0) {// If the DPC list is not empty, then process the DPC list.
-            // If the DPC list is not empty, then remove the first entry from the DPC list, capture the DPC parameters, set the DPC inserted state false,
+            // If the DPC list is not empty, then remove the first entry from the DPC list,
+            // capture the DPC parameters, set the DPC inserted state false,
             // decrement the DPC queue depth, release the DPC lock, enable interrupts, and call the specified DPC routine.
             // Otherwise, release the DPC lock and enable interrupts.
-            do {
-                KeAcquireSpinLockAtDpcLevel(&DpcData->DpcLock);// Acquire the DPC lock for the current processor and check if the DPC list is empty.
+            do {// Acquire the DPC lock for the current processor and check if the DPC list is empty.
+                KeAcquireSpinLockAtDpcLevel(&DpcData->DpcLock);
                 Entry = ListHead->Flink;
                 if (Entry != ListHead) {
                     RemoveEntryList(Entry);
@@ -669,19 +680,17 @@ Arguments:
 #endif
 
                     KeReleaseSpinLockFromDpcLevel(&DpcData->DpcLock);
-                    _enable();
 
-                    // If event tracing is enabled, capture the start time.
-                    if (Logging != FALSE) {
+                    _enable();
+                   
+                    if (Logging != FALSE) { // If event tracing is enabled, capture the start time.
                         PerfTimeStamp(TimeStamp);
                     }
-
-                    // Call the DPC routine.
-                    (DeferredRoutine)(Dpc, DeferredContext, SystemArgument1, SystemArgument2);
+                    
+                    (DeferredRoutine)(Dpc, DeferredContext, SystemArgument1, SystemArgument2);// Call the DPC routine.
                     ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
-
-                    // If event tracing is enabled, then log the start time and routine address.
-                    if (Logging != FALSE) {
+                    
+                    if (Logging != FALSE) {// If event tracing is enabled, then log the start time and routine address.
                         DpcInformation.InitialTime = TimeStamp.QuadPart;
                         DpcInformation.DpcRoutine = (PVOID)(ULONG_PTR)DeferredRoutine;
                         PerfInfoLogBytes(PERFINFO_LOG_TYPE_DPC, &DpcInformation, sizeof(DpcInformation));
@@ -698,10 +707,9 @@ Arguments:
         Prcb->DpcRoutineActive = FALSE;
         Prcb->DpcInterruptRequested = FALSE;
         KeMemoryBarrier();
-
-        // Process the deferred ready list if the list is not empty.
+        
 #if !defined(NT_UP)
-        if (Prcb->DeferredReadyListHead.Next != NULL) {
+        if (Prcb->DeferredReadyListHead.Next != NULL) {// Process the deferred ready list if the list is not empty.
             KIRQL OldIrql;
 
             _enable();

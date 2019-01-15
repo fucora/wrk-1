@@ -6034,7 +6034,11 @@ Routine Description:
 }
 
 
-VOID IopIrpStackProfilerTimer(IN struct _KDPC *Dpc, IN PVOID DeferredContext, IN PVOID SystemArgument1, IN PVOID SystemArgument2)
+VOID IopIrpStackProfilerTimer(IN struct _KDPC *Dpc,
+                              IN PVOID DeferredContext, 
+                              IN PVOID SystemArgument1,
+                              IN PVOID SystemArgument2
+)
 /*
 Routine Description:
     This routine is the timer DPC routine.

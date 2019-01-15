@@ -33,9 +33,7 @@ endm
         EXTRNP  HalRequestSoftwareInterrupt,1,IMPORT,FASTCALL
 
 ifndef NT_UP
-
         EXTRNP  KiIdleSchedule,1,,FASTCALL
-
 endif
 
         EXTRNP  KiCheckForSListAddress,1,,FASTCALL
@@ -80,22 +78,14 @@ fstENDP KiRDTSC
 ;    IN PKTHREAD OldThread
 ;    IN PKTHREAD NewThread
 ;    )
-
 ; Routine Description:
-
 ;    This function is a small wrapper, callable from C code, that marshalls
 ;    arguments and calls the actual swap context routine.
-
 ; Arguments:
-
 ;    OldThread (ecx) - Supplies the address of the old thread
 ;    NewThread (edx) - Supplies the address of the new thread.
-
 ; Return Value:
-
-;    If a kernel APC is pending, then a value of TRUE is returned. Otherwise,
-;    a value of FALSE is returned.
-
+;    If a kernel APC is pending, then a value of TRUE is returned. Otherwise, a value of FALSE is returned.
 
 
 cPublicFastCall KiSwapContext, 2
@@ -132,7 +122,6 @@ fstENDP KiSwapContext
 
 
 ; Routine Description:
-
 ;    This routine is entered as the result of a software interrupt generated
 ;    at DISPATCH_LEVEL. Its function is to process the Deferred Procedure Call
 ;    (DPC) list, and then perform a context switch if a new thread has been
@@ -140,19 +129,12 @@ fstENDP KiSwapContext
 
 ;    This routine is entered at IRQL DISPATCH_LEVEL with the dispatcher
 ;    database unlocked. When a return to the caller finally occurs, the
-;    IRQL remains at DISPATCH_LEVEL, and the dispatcher database is still
-;    unlocked.
-
+;    IRQL remains at DISPATCH_LEVEL, and the dispatcher database is still unlocked.
 ; Arguments:
-
 ;    None
-
 ; Implicit Arguments:
-
 ;    ecx - Supplies the address of an optional trap frame.
-
 ; Return Value:
-
 ;    None.
 
 
@@ -325,19 +307,14 @@ stdENDP _KiDispatchInterrupt
 ;         ebp. This enables the caller to have more registers available.
 
 ; Arguments:
-
 ;    cl - APC interrupt bypass disable (zero enable, nonzero disable).
 ;    edi - Address of previous thread.
 ;    esi - Address of next thread.
 ;    ebx - Address of PCR.
-
 ; Return value:
-
 ;    al - Kernel APC pending.
 ;    ebx - Address of PCR.
 ;    esi - Address of current thread object.
-
-
 
 
 ;   NOTE:   The ES: override on the move to ThState is part of the
@@ -354,10 +331,8 @@ stdENDP _KiDispatchInterrupt
 
 
 ifndef NT_UP
-
         public  _ScPatchFxb
         public  _ScPatchFxe
-
 endif
 
         public  SwapContext
@@ -414,11 +389,9 @@ sc03:
 ifndef NT_UP
 
 if DBG
-
         mov     cl, [esi]+ThNextProcessor ; get current processor number
         cmp     cl, [ebx]+PcPrcbData+PbNumber ; same as running processor?
         jne     sc_error2               ; if ne, processor number mismatch
-
 endif
 
 endif
@@ -552,9 +525,7 @@ sc_load_ldt_ret:
 sc23:                                   ;
 
 ifndef NT_UP
-
         and     byte ptr [edi].ThSwapBusy, 0 ; clear old thread swap busy
-
 endif
 
         xor     eax, eax
@@ -792,22 +763,14 @@ SwapContext     endp
         subttl "Flush EntireTranslation Buffer"
 
 
-; VOID
-; KeFlushCurrentTb (
-;     )
-
+; VOID KeFlushCurrentTb ()
 ; Routine Description:
-
 ;     This function flushes the entire translation buffer (TB) on the current
 ;     processor and also flushes the data cache if an entry in the translation
 ;     buffer has become invalid.
-
 ; Arguments:
-
 ; Return Value:
-
 ;     None.
-
 
 
 cPublicProc _KeFlushCurrentTb ,0
@@ -832,28 +795,16 @@ stdENDP _KeFlushCurrentTb
         subttl "Flush Data Cache"
 
 
-; VOID
-; KiFlushDcache (
-;     )
-
-; VOID
-; KiFlushIcache (
-;     )
-
+; VOID KiFlushDcache ()
+; VOID KiFlushIcache ()
 ; Routine Description:
-
 ;   This routine does nothing on i386 and i486 systems.   Why?  Because
 ;   (a) their caches are completely transparent,  (b) they don't have
 ;   instructions to flush their caches.
-
 ; Arguments:
-
 ;     None.
-
 ; Return Value:
-
 ;     None.
-
 
 
 cPublicProc _KiFlushDcache  ,0
@@ -872,28 +823,16 @@ INIT    SEGMENT DWORD PUBLIC 'CODE'
 
 
 
-; VOID
-; Ki386EnableGlobalPage (
-;     IN volatile PLONG Number
-;     )
-
+; VOID Ki386EnableGlobalPage (IN volatile PLONG Number)
 ; /*++
-
 ; Routine Description:
-
 ;     This routine enables the global page PDE/PTE support in the system,
 ;     and stalls until complete and them sets the current processor's cr4
 ;     register to enable global page support.
-
 ; Arguments:
-
-;     Number - Supplies a pointer to the count of the number of processors in
-;     the configuration.
-
+;     Number - Supplies a pointer to the count of the number of processors in the configuration.
 ; Return Value:
-
 ;     None.
-
 
 cPublicProc _Ki386EnableGlobalPage,1
         push    esi
@@ -956,93 +895,52 @@ stdENDP _Ki386EnableGlobalPage
 
 
 
-; VOID
-; Ki386EnableDE (
-;     IN volatile PLONG Number
-;     )
-
+; VOID Ki386EnableDE (IN volatile PLONG Number)
 ; /*++
-
 ; Routine Description:
-
 ;     This routine sets DE bit in CR4 to enable IO breakpoints
-
 ; Arguments:
-
-;     Number - Supplies a pointer to the count of the number of processors in
-;     the configuration.
-
+;     Number - Supplies a pointer to the count of the number of processors in the configuration.
 ; Return Value:
-
 ;     None.
-
-
 cPublicProc _Ki386EnableDE,1
-
         mov     eax, cr4
         or      eax, CR4_DE
         mov     cr4, eax
-
         stdRET  _Ki386EnableDE
 stdENDP _Ki386EnableDE
 
 
 
 
-; VOID
-; Ki386EnableFxsr (
-;     IN volatile PLONG Number
-;     )
-
+; VOID Ki386EnableFxsr (IN volatile PLONG Number)
 ; /*++
-
 ; Routine Description:
-
 ;     This routine sets OSFXSR bit in CR4 to indicate that OS supports
 ;     FXSAVE/FXRSTOR for use during context switches
-
 ; Arguments:
-
-;     Number - Supplies a pointer to the count of the number of processors in
-;     the configuration.
-
+;     Number - Supplies a pointer to the count of the number of processors in the configuration.
 ; Return Value:
-
 ;     None.
-
-
 cPublicProc _Ki386EnableFxsr,1
-
         mov     eax, cr4
         or      eax, CR4_FXSR
         mov     cr4, eax
-
         stdRET  _Ki386EnableFxsr
 stdENDP _Ki386EnableFxsr
 
 
 
 
-; VOID
-; Ki386EnableXMMIExceptions (
-;     IN volatile PLONG Number
-;     )
-
+; VOID Ki386EnableXMMIExceptions (IN volatile PLONG Number)
 ; /*++
-
 ; Routine Description:
-
 ;     This routine installs int 19 XMMI unmasked Numeric Exception handler
 ;     and sets OSXMMEXCPT bit in CR4 to indicate that OS supports
 ;     unmasked Katmai New Instruction technology exceptions.
-
 ; Arguments:
-
-;     Number - Supplies a pointer to count of the number of processors in
-;     the configuration.
-
+;     Number - Supplies a pointer to count of the number of processors in the configuration.
 ; Return Value:
-
 ;     None.
 
 
@@ -1070,29 +968,18 @@ stdENDP _Ki386EnableXMMIExceptions
 
 
 
-; VOID
-; Ki386EnableCurrentLargePage (
-;     IN ULONG IdentityAddr,
-;     IN ULONG IdentityCr3
-;     )
-
+; VOID Ki386EnableCurrentLargePage (IN ULONG IdentityAddr, IN ULONG IdentityCr3)
 ; /*++
-
 ; Routine Description:
-
 ;     This routine enables the large page PDE support in the processor.
-
 ; Arguments:
-
 ;     IdentityAddr - Supplies the linear address of the beginning of this
 ;     function where (linear == physical).
 
 ;     IdentityCr3 - Supplies a pointer to the temporary page directory and
 ;     page tables that provide both the kernel (virtual ->physical) and
 ;     identity (linear->physical) mappings needed for this function.
-
 ; Return Value:
-
 ;     None.
 
 
@@ -1147,9 +1034,7 @@ _TEXT$00   SEGMENT PARA PUBLIC 'CODE'
 ;     IN PKPROCESS NewProcess,
 ;     IN PKPROCESS OldProcess
 ;     )
-
 ; Routine Description:
-
 ;     This function swaps the address space to another process by flushing
 ;     the data cache, the instruction cache, the translation buffer, and
 ;     establishes a new directory table base.
@@ -1160,13 +1045,9 @@ _TEXT$00   SEGMENT PARA PUBLIC 'CODE'
 ;     NOTE: keep in sync with process switch part of SwapContext
 
 ; Arguments:
-
 ;     Process - Supplies a pointer to a control object of type process.
-
 ; Return Value:
-
 ;     None.
-
 
 
 cPublicProc _KiSwapProcess  ,2
@@ -1186,12 +1067,10 @@ ifndef NT_UP
    lock xor     [eax]+PrActiveProcessors,ecx ; clear bit in old processor set
 
 if DBG
-
         test    [edx]+PrActiveProcessors,ecx ; test if bit set in new set
         jz      kisp_error1             ; if z, bit not set in new set
         test    [eax]+PrActiveProcessors,ecx ; test if bit clear in old set
         jnz     kisp_error              ; if nz, bit not clear in old set
-
 endif
 
 endif
@@ -1274,34 +1153,21 @@ stdENDP _KiSwapProcess
         subttl  "Idle Loop"
 
 
-; VOID
-; KiIdleLoop(
-;     VOID
-;     )
-
+; VOID KiIdleLoop(VOID)
 ; Routine Description:
-
 ;    This routine continuously executes the idle loop and never returns.
-
 ; Arguments:
-
 ;    ebx - Address of the current processor's PCR.
-
 ; Return value:
-
 ;    None - routine never returns.
-
 
 
 cPublicFastCall KiIdleLoop  ,0
 cPublicFpo 0, 0
 
 if DBG
-
         xor     edi, edi                ; reset poll breakin counter
-
 endif
-
         jmp     short kid20             ; Skip HalIdleProcessor on first iteration
 
 
@@ -1331,15 +1197,12 @@ kid20:
 
 if DBG
 ifndef NT_UP
-
         mov     eax, _KiIdleSummary     ; get idle summary
         mov     ecx, [ebx].PcSetMember  ; get set member
         dec     ecx                     ; compute right bit mask
         and     eax, ecx                ; check if any lower bits set
         jnz     short CheckDpcList      ; if nz, not lowest numbered
-
 endif
-
         dec     edi                     ; decrement poll counter
         jg      short CheckDpcList      ; if g, not time to poll
 
@@ -1351,13 +1214,9 @@ kid30:
 if DBG
 
 ifndef NT_UP
-
         mov     edi, 20 * 1000          ; set breakin poll interval
-
 else
-
         mov     edi, 100                ; UP idle loop has a HLT in it
-
 endif
 
 endif
@@ -1374,8 +1233,7 @@ CheckDpcList:
 
 
 ; N.B. The following code enables interrupts for a few cycles, then
-;      disables them again for the subsequent DPC and next thread
-;      checks.
+;      disables them again for the subsequent DPC and next thread checks.
 
 
         sti                             ; enable interrupts
@@ -1391,9 +1249,7 @@ CheckDpcList:
         or      eax, [ebx]+PcPrcbData+PbTimerRequest ; merge timer request
 
 ifndef NT_UP
-
         or      eax, [ebx]+PcPrcbData+PbDeferredReadyListHead ; merge deferred list head
-
 endif
 
         jz      short CheckNextThread   ; if z, no DPC's or timers to process
@@ -1403,9 +1259,7 @@ endif
         fstCall KiRetireDpcList         ; process the current DPC list
 
 if DBG
-
         xor     edi, edi                ; clear breakin poll interval
-
 endif
 
 
@@ -1416,13 +1270,9 @@ CheckNextThread:                        ;
         cmp     dword ptr [ebx].PcPrcbData.PbNextThread, 0 ; thread selected?
 
 ifdef NT_UP
-
         je      short kid10             ; if eq, no thread selected
-
 else
-
         je      kid40                   ; if eq, no thread selected.
-
 endif
 
 
@@ -1430,9 +1280,7 @@ endif
 
 
 ifndef NT_UP
-
         RaiseIrql SYNCH_LEVEL, NoOld    ; raise IRQL to synchronization level
-
 endif
 
         sti                             ; enable interrupts
@@ -1443,13 +1291,11 @@ endif
 
 
 ifndef NT_UP
-
         mov     byte ptr [edi].ThSwapBusy, 1 ; set context swap busy
    lock bts     dword ptr [ebx].PcPrcbData.PbPrcbLock, 0 ; try to acquire PRCB Lock
         jnc     short kid33             ; if nc, PRCB lock acquired
         lea     ecx, [ebx].PcPrcbData.PbPrcbLock ; get PRCB lock address
         fstCall KefAcquireSpinLockAtDpcLevel ; acquire current PRCB lock
-
 endif
 
 
@@ -1461,10 +1307,8 @@ endif
 kid33:  mov     esi, [ebx].PcPrcbData.PbNextThread ; get next thread address
 
 ifndef NT_UP
-
         cmp     esi, edi                ; check if idle thread
         je      short kisame            ; if e, processor idle again
-
 endif
 
         and     dword ptr [ebx].PcPrcbData.PbNextThread, 0 ; clear next thread
@@ -1477,10 +1321,8 @@ endif
 
 
 ifndef NT_UP
-
         and     byte ptr [ebx].PcPrcbData.PbIdleSchedule, 0 ; clear idle schedule
         and     dword ptr [ebx].PcPrcbData.PbPrcbLock, 0 ; release current PRCB lock
-
 endif
 
 kid35:                                  ;
@@ -1489,9 +1331,7 @@ kid35:                                  ;
         call    SwapContext             ; swap context
 
 ifndef NT_UP
-
         LowerIrql DISPATCH_LEVEL        ; lower IRQL to dispatch level
-
 endif
 
         jmp     kid30                   ;
@@ -1548,36 +1388,22 @@ endif
         subttl "Adjust TSS ESP0 value"
 
 
-; VOID
-; KiAdjustEsp0 (
-;     IN PKTRAP_FRAME TrapFrame
-;     )
-
+; VOID KiAdjustEsp0 (IN PKTRAP_FRAME TrapFrame)
 ; Routine Description:
-
-;     This routine puts the appropriate ESP0 value in the esp0 field of the
-;     TSS.  This allows protect mode and V86 mode to use the same stack
-;     frame.  The ESP0 value for protected mode is 16 bytes lower than
+;     This routine puts the appropriate ESP0 value in the esp0 field of the TSS. 
+;     This allows protect mode and V86 mode to use the same stack frame. 
+;     The ESP0 value for protected mode is 16 bytes lower than
 ;     for V86 mode to compensate for the missing segment registers.
-
 ; Arguments:
-
 ;     TrapFrame - Supplies a pointer to the TrapFrame.
-
 ; Return Value:
-
 ;     None.
 
 
 cPublicProc _Ki386AdjustEsp0 ,1
 
 if DBG
-
-
-        ; Make sure we are not called when the trap frame can be
-        ; edited by a SetContextThread.
-
-
+        ; Make sure we are not called when the trap frame can be edited by a SetContextThread.
         CurrentIrql
         cmp     al, APC_LEVEL
         jge     @f
