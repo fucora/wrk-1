@@ -30,18 +30,19 @@ NTSTATUS LpcpCreatePort(
 
 
 NTSTATUS NtCreatePort(__out PHANDLE PortHandle,
-    __in POBJECT_ATTRIBUTES ObjectAttributes,
-    __in ULONG MaxConnectionInfoLength,
-    __in ULONG MaxMessageLength,
-    __in_opt ULONG MaxPoolUsage)
-    /*
-    Routine Description:
-        See LpcpCreatePort.
-    Arguments:
-        See LpcpCreatePort.
-    Return Value:
-        NTSTATUS - An appropriate status value
-    */
+                      __in POBJECT_ATTRIBUTES ObjectAttributes,
+                      __in ULONG MaxConnectionInfoLength,
+                      __in ULONG MaxMessageLength,
+                      __in_opt ULONG MaxPoolUsage
+)
+/*
+Routine Description:
+    See LpcpCreatePort.
+Arguments:
+    See LpcpCreatePort.
+Return Value:
+    NTSTATUS - An appropriate status value
+*/
 {
     NTSTATUS Status;
 
@@ -53,19 +54,20 @@ NTSTATUS NtCreatePort(__out PHANDLE PortHandle,
 
 
 NTSTATUS NtCreateWaitablePort(__out PHANDLE PortHandle,
-    __in POBJECT_ATTRIBUTES ObjectAttributes,
-    __in ULONG MaxConnectionInfoLength,
-    __in ULONG MaxMessageLength,
-    __in_opt ULONG MaxPoolUsage)
-    /*
-    Routine Description:
-        Same as NtCreatePort.
-        The only difference between this call and NtCreatePort is that the working KEVENT that can be used to wait for LPC messages to arrive asynchronously.
-    Arguments:
-        See LpcpCreatePort.
-    Return Value:
-        NTSTATUS - An appropriate status value
-    */
+                              __in POBJECT_ATTRIBUTES ObjectAttributes,
+                              __in ULONG MaxConnectionInfoLength,
+                              __in ULONG MaxMessageLength,
+                              __in_opt ULONG MaxPoolUsage
+)
+/*
+Routine Description:
+    Same as NtCreatePort.
+    The only difference between this call and NtCreatePort is that the working KEVENT that can be used to wait for LPC messages to arrive asynchronously.
+Arguments:
+    See LpcpCreatePort.
+Return Value:
+    NTSTATUS - An appropriate status value
+*/
 {
     NTSTATUS Status;
 
@@ -78,45 +80,46 @@ NTSTATUS NtCreateWaitablePort(__out PHANDLE PortHandle,
 
 //  Local support routine
 NTSTATUS LpcpCreatePort(OUT PHANDLE PortHandle,
-    IN POBJECT_ATTRIBUTES ObjectAttributes,
-    IN ULONG MaxConnectionInfoLength,
-    IN ULONG MaxMessageLength,
-    IN ULONG MaxPoolUsage,
-    IN BOOLEAN Waitable)
-    /*
-    Routine Description:
-        A server process can create a named connection port with the NtCreatePort service.
+                        IN POBJECT_ATTRIBUTES ObjectAttributes,
+                        IN ULONG MaxConnectionInfoLength,
+                        IN ULONG MaxMessageLength,
+                        IN ULONG MaxPoolUsage,
+                        IN BOOLEAN Waitable
+)
+/*
+Routine Description:
+    A server process can create a named connection port with the NtCreatePort service.
 
-        A connection port is created with the name and SECURITY_DESCRIPTOR specified in the ObjectAttributes structure.
-        A handle to the connection port object is returned in the location pointed to by the PortHandle parameter.
-        The returned handle can then be used to listen for connection requests to that port name, using the NtListenPort service.
+    A connection port is created with the name and SECURITY_DESCRIPTOR specified in the ObjectAttributes structure.
+    A handle to the connection port object is returned in the location pointed to by the PortHandle parameter.
+    The returned handle can then be used to listen for connection requests to that port name, using the NtListenPort service.
 
-        The standard object architecture defined desired access parameter is not necessary since this service can only create a new port,
-        not access an existing port.
+    The standard object architecture defined desired access parameter is not necessary since this service can only create a new port,
+    not access an existing port.
 
-        Connection ports cannot be used to send and receive messages.  They are only valid as a parameter to the NtListenPort service.
-    Arguments:
-        PortHandle - A pointer to a variable that will receive the connection port object handle value.
-        ObjectAttributes - A pointer to a structure that specifies the name of the object,
-                           an access control list (SECURITY_DESCRIPTOR) to be applied to the object, and a set of object attribute flags.
+    Connection ports cannot be used to send and receive messages.  They are only valid as a parameter to the NtListenPort service.
+Arguments:
+    PortHandle - A pointer to a variable that will receive the connection port object handle value.
+    ObjectAttributes - A pointer to a structure that specifies the name of the object,
+                       an access control list (SECURITY_DESCRIPTOR) to be applied to the object, and a set of object attribute flags.
 
-            PUNICODE_STRING ObjectName - An optional pointer to a null terminated port name string.
-                                         The form of the name is [\name...\name]\port_name.
-                                         If no name is specified then an unconnected communication port is created rather than a connection port.
-                                         This is useful for sending and receiving messages between threads of a single process.
+        PUNICODE_STRING ObjectName - An optional pointer to a null terminated port name string.
+                                     The form of the name is [\name...\name]\port_name.
+                                     If no name is specified then an unconnected communication port is created rather than a connection port.
+                                     This is useful for sending and receiving messages between threads of a single process.
 
-            ULONG Attributes - A set of flags that control the port object attributes.
+        ULONG Attributes - A set of flags that control the port object attributes.
 
-                None of the standard values are relevant for this call.
-                Connection ports cannot be inherited, are always placed in the system handle table and are exclusive to the creating process.
-                This field must be zero.  Future implementations might support specifying the OBJ_PERMANENT attribute.
-        MaxMessageLength - Specifies the maximum length of messages sent or received on communication ports created from this connection port.
-                           The value of this parameter cannot exceed MAX_PORTMSG_LENGTH bytes.
-        MaxPoolUsage - Specifies the maximum amount of NonPaged pool used for message storage.
-        Waitable - Specifies if the event used by the port can be use to wait for LPC messages to arrive asynchronously.
-    Return Value:
-        NTSTATUS - An appropriate status value
-    */
+            None of the standard values are relevant for this call.
+            Connection ports cannot be inherited, are always placed in the system handle table and are exclusive to the creating process.
+            This field must be zero.  Future implementations might support specifying the OBJ_PERMANENT attribute.
+    MaxMessageLength - Specifies the maximum length of messages sent or received on communication ports created from this connection port.
+                       The value of this parameter cannot exceed MAX_PORTMSG_LENGTH bytes.
+    MaxPoolUsage - Specifies the maximum amount of NonPaged pool used for message storage.
+    Waitable - Specifies if the event used by the port can be use to wait for LPC messages to arrive asynchronously.
+Return Value:
+    NTSTATUS - An appropriate status value
+*/
 {
     PLPCP_PORT_OBJECT ConnectionPort;
     HANDLE Handle;

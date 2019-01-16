@@ -41,7 +41,15 @@ Return Value:
     NTSTATUS - An appropriate status value
 */
 {
-    return NtSecureConnectPort(PortHandle, PortName, SecurityQos, ClientView, NULL, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
+    return NtSecureConnectPort(PortHandle,
+                               PortName,
+                               SecurityQos,
+                               ClientView,
+                               NULL, 
+                               ServerView,
+                               MaxMessageLength,
+                               ConnectionInformation,
+                               ConnectionInformationLength);
 }
 
 
@@ -74,7 +82,8 @@ Routine Description:
     The client uses the handle to send and receive messages to/from the server process using the NtRequestWaitReplyPort service.
 
     If the ClientView parameter was specified, then the section handle is examined.
-    If it is a valid section handle, then the portion of the section described by the SectionOffset and ViewSize fields will be mapped into both the client and server process' address spaces.
+    If it is a valid section handle, then the portion of the section described by the SectionOffset and
+    ViewSize fields will be mapped into both the client and server process' address spaces.
     The address in client address space will be returned in the ViewBase field.
     The address in the server address space will be returned in the ViewRemoteBase field.
     The actual offset and size used to map the section will be returned in the SectionOffset and ViewSize fields.
@@ -96,7 +105,8 @@ Arguments:
                               The initial value of this parameter specifies the byte offset within the section that the client's view is based.
                               The value is rounded down to the next host page size boundary.
         ULONG ViewSize - Specifies a field that will receive the actual size, in bytes, of the view.
-                         If the value of this parameter is zero, then the client's view of the section will be mapped starting at the specified section offset and continuing to the end of the section.
+                         If the value of this parameter is zero, 
+                         then the client's view of the section will be mapped starting at the specified section offset and continuing to the end of the section.
                          Otherwise, the initial value of this parameter specifies the size, in bytes, 
                          of the client's view and is rounded up to the next host page size boundary.
         PVOID ViewBase - Specifies a field that will receive the base address of the section in the client's address space.
@@ -281,7 +291,15 @@ Return Value:
 
     //  Allocate and initialize a client communication port object.  Give the port a request message queue for lost reply datagrams.
     //  If unable to initialize the port, then deference the port object which will cause it to be deleted and return the system service status.
-    Status = ObCreateObject(PreviousMode, LpcPortObjectType, NULL, PreviousMode, NULL, FIELD_OFFSET(LPCP_PORT_OBJECT, WaitEvent), 0, 0, (PVOID *)&ClientPort);
+    Status = ObCreateObject(PreviousMode,
+                            LpcPortObjectType,
+                            NULL, 
+                            PreviousMode, 
+                            NULL, 
+                            FIELD_OFFSET(LPCP_PORT_OBJECT, WaitEvent),
+                            0, 
+                            0,
+                            (PVOID *)&ClientPort);
     if (!NT_SUCCESS(Status)) {
         ObDereferenceObject(ConnectionPort);
         return Status;
@@ -322,7 +340,12 @@ Return Value:
     //  If the server accepts the connection, then it will map a corresponding view of the section in the server's address space, 
     //  using the referenced pointer passed in the connection request message.
     if (ARGUMENT_PRESENT(ClientView)) {
-        Status = ObReferenceObjectByHandle(CapturedClientView.SectionHandle, SECTION_MAP_READ | SECTION_MAP_WRITE, MmSectionObjectType, PreviousMode, (PVOID *)&SectionToMap, NULL);
+        Status = ObReferenceObjectByHandle(CapturedClientView.SectionHandle, 
+                                           SECTION_MAP_READ | SECTION_MAP_WRITE, 
+                                           MmSectionObjectType, 
+                                           PreviousMode, 
+                                           (PVOID *)&SectionToMap,
+                                           NULL);
         if (!NT_SUCCESS(Status)) {
             ObDereferenceObject(ClientPort);
             return Status;
@@ -332,8 +355,18 @@ Return Value:
             SectionOffset.HighPart = 0;
         CurrentProcess = PsGetCurrentProcess();
 
-        //  Now map a view of the section using the reference we just captured and not the section handle itself, because the handle may have changed
-        Status = MmMapViewOfSection(SectionToMap, CurrentProcess, &ClientPort->ClientSectionBase, 0, 0, &SectionOffset, &CapturedClientView.ViewSize, ViewUnmap, 0, PAGE_READWRITE);
+        //  Now map a view of the section using the reference we just captured and not the section handle itself,
+        //  because the handle may have changed
+        Status = MmMapViewOfSection(SectionToMap,
+                                    CurrentProcess,
+                                    &ClientPort->ClientSectionBase,
+                                    0, 
+                                    0,
+                                    &SectionOffset,
+                                    &CapturedClientView.ViewSize,
+                                    ViewUnmap,
+                                    0,
+                                    PAGE_READWRITE);
         CapturedClientView.SectionOffset = SectionOffset.LowPart;
         if (!NT_SUCCESS(Status)) {
             ObDereferenceObject(SectionToMap);
@@ -356,7 +389,8 @@ Return Value:
 
     //  At this point the client port is all setup and now we have to allocate a request connection message for the server and send it off
 
-    //  Allocate a connection request message.  It holds the LPCP message, the LPCP connection message, and the user supplied connection information
+    //  Allocate a connection request message. 
+    //  It holds the LPCP message, the LPCP connection message, and the user supplied connection information
     Msg = LpcpAllocateFromPortZone(sizeof(*Msg) + sizeof(*ConnectMsg) + ConnectionInfoLength);
 
     //  If we didn't get memory for the message then tell our caller we failed
@@ -369,7 +403,8 @@ Return Value:
         return STATUS_NO_MEMORY;
     }
 
-    //  Msg points to the LPCP message, followed by ConnectMsg which points to the LPCP connection message, followed by client specified information.
+    //  Msg points to the LPCP message, followed by ConnectMsg which points to the LPCP connection message, 
+    //  followed by client specified information.
     //  We'll now fill it all in.
     ConnectMsg = (PLPCP_CONNECTION_MESSAGE)(Msg + 1);
 
@@ -476,7 +511,8 @@ Return Value:
         SectionToMap = LpcpFreeConMsg(&Msg, &ConnectMsg, CurrentThread);
         //  Check that we got a reply message
         if (Msg != NULL) {
-            //  Copy any connection information back to the caller, but first calculate the new connection data length for the reply and don't let it grow beyond what we probed originally
+            //  Copy any connection information back to the caller,
+            //  but first calculate the new connection data length for the reply and don't let it grow beyond what we probed originally
             if ((Msg->Request.u1.s1.DataLength - sizeof(*ConnectMsg)) < ConnectionInfoLength) {
                 ConnectionInfoLength = Msg->Request.u1.s1.DataLength - sizeof(*ConnectMsg);
             }

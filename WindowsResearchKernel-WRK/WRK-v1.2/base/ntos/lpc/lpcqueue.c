@@ -340,11 +340,19 @@ Arguments:
     }
 
     //  We didn't find a match so just return to our caller
-    LpcpTrace(("%s Unable to find DataInfo Message (%u.%u)  Port: %lx\n", PsGetCurrentProcess()->ImageFileName, MessageId, CallbackId, Port));
+    LpcpTrace(("%s Unable to find DataInfo Message (%u.%u)  Port: %lx\n",
+               PsGetCurrentProcess()->ImageFileName,
+               MessageId,
+               CallbackId,
+               Port));
 }
 
 
-PLPCP_MESSAGE LpcpFindDataInfoMessage(IN PLPCP_PORT_OBJECT Port, IN ULONG MessageId, IN ULONG CallbackId, IN LPC_CLIENT_ID ClientId)
+PLPCP_MESSAGE LpcpFindDataInfoMessage(IN PLPCP_PORT_OBJECT Port,
+                                      IN ULONG MessageId,
+                                      IN ULONG CallbackId,
+                                      IN LPC_CLIENT_ID ClientId
+)
 /*
 Routine Description:
     This routine is used to locate a specific message stored off the data info chain of a port
@@ -378,7 +386,11 @@ Return Value:
             (Msg->Request.ClientId.UniqueProcess == ClientId.UniqueProcess) &&
             (Msg->Request.ClientId.UniqueThread == ClientId.UniqueThread)) {
             LpcpTrace(("%s Found DataInfo Message %lx (%u.%u)  Port: %lx\n",
-                       PsGetCurrentProcess()->ImageFileName, Msg, Msg->Request.MessageId, Msg->Request.CallbackId, Port));
+                       PsGetCurrentProcess()->ImageFileName,
+                       Msg,
+                       Msg->Request.MessageId,
+                       Msg->Request.CallbackId,
+                       Port));
             return Msg;
         } else {
             Next = Next->Flink;
@@ -386,7 +398,11 @@ Return Value:
     }
 
     //  We did not find a match so return null to our caller
-    LpcpTrace(("%s Unable to find DataInfo Message (%u.%u)  Port: %lx\n", PsGetCurrentProcess()->ImageFileName, MessageId, CallbackId, Port));
+    LpcpTrace(("%s Unable to find DataInfo Message (%u.%u)  Port: %lx\n",
+               PsGetCurrentProcess()->ImageFileName,
+               MessageId,
+               CallbackId,
+               Port));
 
     return NULL;
 }

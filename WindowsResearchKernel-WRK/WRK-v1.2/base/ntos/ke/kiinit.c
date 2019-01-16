@@ -229,9 +229,8 @@ Routine Description:
     // Initialize the profile listhead and profile locks
     KeInitializeSpinLock(&KiProfileLock);
     InitializeListHead(&KiProfileListHead);
-
-    // Initialize the active profile source listhead.
-    InitializeListHead(&KiProfileSourceListHead);
+    
+    InitializeListHead(&KiProfileSourceListHead);// Initialize the active profile source listhead.
 
     // Initialize the timer table and the timer table due time table.
 
@@ -247,9 +246,8 @@ Routine Description:
     KiProcessInSwapListHead.Next = NULL;
     KiProcessOutSwapListHead.Next = NULL;
     KiStackInSwapListHead.Next = NULL;
-
-    // Initialize the generic DPC call fast mutex.
-    ExInitializeFastMutex(&KiGenericCallDpcMutex);
+    
+    ExInitializeFastMutex(&KiGenericCallDpcMutex);// Initialize the generic DPC call fast mutex.
 
     // Initialize the system service descriptor table.
     KeServiceDescriptorTable[0].Base = &KiServiceTable[0];

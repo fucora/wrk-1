@@ -22,20 +22,21 @@ NTSTATUS NTAPI NtQueryInformationPort(__in HANDLE PortHandle,
                                       __in PORT_INFORMATION_CLASS PortInformationClass,
                                       __out_bcount(Length) PVOID PortInformation,
                                       __in ULONG Length,
-                                      __out_opt PULONG ReturnLength)
-    /*
-    Routine Description:
-        This routine should be used to query an lpc port, but is pretty much a noop.
-        Currently it can only indicate if the input handle is for a port object.
-    Arguments:
-        PortHandle - Supplies the handle for the port being queried
-        PortInformationClass - Specifies the type information class being asked for.  Currently ignored.
-        PortInformation - Supplies a pointer to the buffer to receive the information.  Currently just probed and then ignored.
-        Length - Specifies, in bytes, the size of the port information buffer.
-        ReturnLength  - Optionally receives the size, in bytes, of the information being returned.  Currently just probed and then ignored.
-    Return Value:
-        NTSTATUS - An appropriate status value.
-    */
+                                      __out_opt PULONG ReturnLength
+)
+/*
+Routine Description:
+    This routine should be used to query an lpc port, but is pretty much a noop.
+    Currently it can only indicate if the input handle is for a port object.
+Arguments:
+    PortHandle - Supplies the handle for the port being queried
+    PortInformationClass - Specifies the type information class being asked for.  Currently ignored.
+    PortInformation - Supplies a pointer to the buffer to receive the information.  Currently just probed and then ignored.
+    Length - Specifies, in bytes, the size of the port information buffer.
+    ReturnLength  - Optionally receives the size, in bytes, of the information being returned.  Currently just probed and then ignored.
+Return Value:
+    NTSTATUS - An appropriate status value.
+*/
 {
     KPROCESSOR_MODE PreviousMode;
     NTSTATUS Status;
@@ -59,7 +60,8 @@ NTSTATUS NTAPI NtQueryInformationPort(__in HANDLE PortHandle,
         }
     }
 
-    //  If the user gave us a handle then reference the object.  And return success if we got a good reference and an error otherwise.
+    //  If the user gave us a handle then reference the object. 
+    //  And return success if we got a good reference and an error otherwise.
     if (ARGUMENT_PRESENT(PortHandle)) {
         Status = ObReferenceObjectByHandle(PortHandle, GENERIC_READ, LpcPortObjectType, PreviousMode, &PortObject, NULL);
         if (!NT_SUCCESS(Status)) {

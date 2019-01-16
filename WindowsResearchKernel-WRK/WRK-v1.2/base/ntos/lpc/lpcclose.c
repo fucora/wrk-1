@@ -195,7 +195,8 @@ Arguments:
 {
     PLPCP_MESSAGE Msg;
 
-    //  Acquire the mutex that protects the LpcReplyMessage field of the thread.  Zero the field so nobody else tries to process it when we release the lock.
+    //  Acquire the mutex that protects the LpcReplyMessage field of the thread.
+    //  Zero the field so nobody else tries to process it when we release the lock.
     ASSERT(Thread == PsGetCurrentThread());
     LpcpAcquireLpcpLockByThread(Thread);
     if (!IsListEmpty(&Thread->LpcReplyChain)) {

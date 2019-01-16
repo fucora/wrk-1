@@ -97,7 +97,8 @@ Return Value:
     }
 
     //  Make sure DataLength is valid with respect to header size and total length
-    if ((((CLONG)CapturedReplyMessage.u1.s1.DataLength) + sizeof(PORT_MESSAGE)) > ((CLONG)CapturedReplyMessage.u1.s1.TotalLength)) {
+    if ((((CLONG)CapturedReplyMessage.u1.s1.DataLength) + sizeof(PORT_MESSAGE)) > 
+        ((CLONG)CapturedReplyMessage.u1.s1.TotalLength)) {
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -477,12 +478,13 @@ Return Value:
 }
 
 
-NTSTATUS NtReadRequestData(__in HANDLE PortHandle, 
-__in PPORT_MESSAGE Message, 
-__in ULONG DataEntryIndex, 
-__out_bcount(BufferSize) PVOID Buffer, 
-__in SIZE_T BufferSize, 
-__out_opt PSIZE_T NumberOfBytesRead)
+NTSTATUS NtReadRequestData(__in HANDLE PortHandle,
+                           __in PPORT_MESSAGE Message,
+                           __in ULONG DataEntryIndex,
+                           __out_bcount(BufferSize) PVOID Buffer,
+                           __in SIZE_T BufferSize,
+                           __out_opt PSIZE_T NumberOfBytesRead
+)
 /*
 Routine Description:
     This routine is used to copy data from a port message into the user supplied buffer.
@@ -506,12 +508,13 @@ Return Value:
 }
 
 
-NTSTATUS NtWriteRequestData(__in HANDLE PortHandle, 
-__in PPORT_MESSAGE Message, 
-__in ULONG DataEntryIndex, 
-__in_bcount(BufferSize) PVOID Buffer, 
-__in SIZE_T BufferSize, 
-__out_opt PSIZE_T NumberOfBytesWritten)
+NTSTATUS NtWriteRequestData(__in HANDLE PortHandle,
+                            __in PPORT_MESSAGE Message,
+                            __in ULONG DataEntryIndex,
+                            __in_bcount(BufferSize) PVOID Buffer,
+                            __in SIZE_T BufferSize,
+                            __out_opt PSIZE_T NumberOfBytesWritten
+)
 /*
 Routine Description:
     This routine is used to copy data from the user supplied buffer into the port message
@@ -538,13 +541,14 @@ Return Value:
 //  Local support routine
 
 
-NTSTATUS LpcpCopyRequestData(IN BOOLEAN WriteToMessageData, 
-IN HANDLE PortHandle, 
-IN PPORT_MESSAGE Message, 
-IN ULONG DataEntryIndex, 
-IN PVOID Buffer, 
-IN SIZE_T BufferSize, 
-OUT PSIZE_T NumberOfBytesCopied OPTIONAL)
+NTSTATUS LpcpCopyRequestData(IN BOOLEAN WriteToMessageData,
+                             IN HANDLE PortHandle,
+                             IN PPORT_MESSAGE Message,
+                             IN ULONG DataEntryIndex,
+                             IN PVOID Buffer,
+                             IN SIZE_T BufferSize,
+                             OUT PSIZE_T NumberOfBytesCopied OPTIONAL
+)
 /*
 Routine Description:
     This routine will copy data to or from the user supplied buffer and the port message data information buffer
@@ -650,9 +654,21 @@ Return Value:
 
     //  Copy the message data
     if (WriteToMessageData) {
-        Status = MmCopyVirtualMemory(PsGetCurrentProcess(), Buffer, THREAD_TO_PROCESS(ClientThread), CapturedDataEntry.Base, BufferSize, PreviousMode, &BytesCopied);
+        Status = MmCopyVirtualMemory(PsGetCurrentProcess(),
+                                     Buffer,
+                                     THREAD_TO_PROCESS(ClientThread),
+                                     CapturedDataEntry.Base, 
+                                     BufferSize,
+                                     PreviousMode,
+                                     &BytesCopied);
     } else {
-        Status = MmCopyVirtualMemory(THREAD_TO_PROCESS(ClientThread), CapturedDataEntry.Base, PsGetCurrentProcess(), Buffer, BufferSize, PreviousMode, &BytesCopied);
+        Status = MmCopyVirtualMemory(THREAD_TO_PROCESS(ClientThread),
+                                     CapturedDataEntry.Base,
+                                     PsGetCurrentProcess(),
+                                     Buffer,
+                                     BufferSize,
+                                     PreviousMode,
+                                     &BytesCopied);
     }
 
     if (ARGUMENT_PRESENT(NumberOfBytesCopied)) {

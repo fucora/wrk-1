@@ -23,12 +23,13 @@ VOID LpcpPrepareToWakeClient(IN PETHREAD ClientThread);
 #endif
 
 
-NTSTATUS NtAcceptConnectPort(__out PHANDLE PortHandle, 
-__in_opt PVOID PortContext, 
-__in PPORT_MESSAGE ConnectionRequest, 
-__in BOOLEAN AcceptConnection, 
-__inout_opt PPORT_VIEW ServerView, 
-__out_opt PREMOTE_PORT_VIEW ClientView)
+NTSTATUS NtAcceptConnectPort(__out PHANDLE PortHandle,
+                             __in_opt PVOID PortContext,
+                             __in PPORT_MESSAGE ConnectionRequest,
+                             __in BOOLEAN AcceptConnection,
+                             __inout_opt PPORT_VIEW ServerView,
+                             __out_opt PREMOTE_PORT_VIEW ClientView
+)
 /*
 Routine Description:
     A server process can accept or reject a client connection request using the NtAcceptConnectPort service.
@@ -231,7 +232,8 @@ Return Value:
     //  At this point we have a good matching client for this accept connect call.
     LpcpTrace(("Replying to Connect Msg %lx to Port %lx\n", Msg, ClientPort->ConnectionPort));
 
-    //  Regardless of whether we are accepting or rejecting the connection, return the connection information to the waiting thread.
+    //  Regardless of whether we are accepting or rejecting the connection, 
+    //  return the connection information to the waiting thread.
     ConnectionInfoLength = CapturedReplyMessage.u1.s1.DataLength;
 
     if (ConnectionInfoLength > ConnectionPort->MaxConnectionInfoLength) {
@@ -342,16 +344,16 @@ Return Value:
             (PVOID *)&SectionToMap,
             NULL);
             if (NT_SUCCESS(Status)) {
-                Status = MmMapViewOfSection(SectionToMap, 
-                PsGetCurrentProcess(),
-                &ServerPort->ServerSectionBase,
-                0, 
-                0,
-                &LargeSectionOffset, 
-                &CapturedServerView.ViewSize, 
-                ViewUnmap, 
-                0, 
-                PAGE_READWRITE);
+                Status = MmMapViewOfSection(SectionToMap,
+                                            PsGetCurrentProcess(),
+                                            &ServerPort->ServerSectionBase,
+                                            0,
+                                            0,
+                                            &LargeSectionOffset,
+                                            &CapturedServerView.ViewSize,
+                                            ViewUnmap,
+                                            0,
+                                            PAGE_READWRITE);
                 if (NT_SUCCESS(Status)) {
                     //  The section was mapped into the server process. We'll add a
                     //  reference to the server process only if we didn't before.

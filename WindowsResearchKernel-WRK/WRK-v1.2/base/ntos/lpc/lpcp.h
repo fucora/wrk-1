@@ -120,7 +120,11 @@ IN PCLIENT_ID ClientId OPTIONAL)
 #else
 
 //  Entry points defined in lpcmove.s and lpcmove.asm
-VOID LpcpMoveMessage (OUT PPORT_MESSAGE DstMsg, IN PPORT_MESSAGE SrcMsg, IN PVOID SrcMsgData, IN ULONG MsgType OPTIONAL, IN PCLIENT_ID ClientId OPTIONAL);
+VOID LpcpMoveMessage (OUT PPORT_MESSAGE DstMsg,
+                      IN PPORT_MESSAGE SrcMsg, 
+                      IN PVOID SrcMsgData,
+                      IN ULONG MsgType OPTIONAL,
+                      IN PCLIENT_ID ClientId OPTIONAL);
 #endif
 
 //  Internal Entry Points defined in lpcpriv.c
@@ -128,7 +132,8 @@ VOID LpcpFreePortClientSecurity (IN PLPCP_PORT_OBJECT Port);
 
 //  Macro Procedures used by RequestWaitReply, Reply, ReplyWaitReceive, and ReplyWaitReply services
 
-#define LpcpGetDynamicClientSecurity(Thread,Port,DynamicSecurity)     SeCreateClientSecurity((Thread),&(Port)->SecurityQos,FALSE,(DynamicSecurity))
+#define LpcpGetDynamicClientSecurity(Thread,Port,DynamicSecurity)  \
+   SeCreateClientSecurity((Thread),&(Port)->SecurityQos,FALSE,(DynamicSecurity))
 
 #define LpcpFreeDynamicClientSecurity(DynamicSecurity)     SeDeleteClientSecurity( DynamicSecurity )
 

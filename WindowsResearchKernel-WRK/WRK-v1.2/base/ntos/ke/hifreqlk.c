@@ -14,9 +14,7 @@ Abstract:
 #include "ki.h"
 
 #if !defined(NT_UP)
-
 #pragma data_seg("SPINLOCK")
-
 #endif
 
 // Cache manager spin locks.

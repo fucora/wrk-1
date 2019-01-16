@@ -13,7 +13,10 @@ Abstract:
 
 #include "lpcp.h"
 
-NTSTATUS LpcpRequestWaitReplyPort(IN PVOID PortAddress, IN PPORT_MESSAGE RequestMessage, OUT PPORT_MESSAGE ReplyMessage, IN KPROCESSOR_MODE AccessMode);
+NTSTATUS LpcpRequestWaitReplyPort(IN PVOID PortAddress,
+                                  IN PPORT_MESSAGE RequestMessage,
+                                  OUT PPORT_MESSAGE ReplyMessage,
+                                  IN KPROCESSOR_MODE AccessMode);
 
 
 #ifdef ALLOC_PRAGMA
@@ -80,7 +83,8 @@ Return Value:
     }
 
     //  Make sure DataLength is valid with respect to header size and total length
-    if ((((CLONG)CapturedRequestMessage.u1.s1.DataLength) + sizeof(PORT_MESSAGE)) > ((CLONG)CapturedRequestMessage.u1.s1.TotalLength)) {
+    if ((((CLONG)CapturedRequestMessage.u1.s1.DataLength) + sizeof(PORT_MESSAGE)) > 
+         ((CLONG)CapturedRequestMessage.u1.s1.TotalLength)) {
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -703,7 +707,8 @@ Routine Description:
     This procedure is similar to NtRequestPort but without the Handle based interface.
 Arguments:
     PortAddress - Supplies a pointer to the communication port to send the request message to.
-    RequestMessage - Specifies a pointer to the request message.  The Type field of the message is set to LPC_DATAGRAM by the service.
+    RequestMessage - Specifies a pointer to the request message.  
+                     The Type field of the message is set to LPC_DATAGRAM by the service.
 Return Value:
     NTSTATUS - A status code that indicates whether or not the operation was successful.
 */
@@ -834,7 +839,11 @@ Return Value:
 }
 
 
-NTSTATUS LpcpRequestWaitReplyPort(IN PVOID PortAddress, IN PPORT_MESSAGE RequestMessage, OUT PPORT_MESSAGE ReplyMessage, IN KPROCESSOR_MODE AccessMode)
+NTSTATUS LpcpRequestWaitReplyPort(IN PVOID PortAddress, 
+                                  IN PPORT_MESSAGE RequestMessage,
+                                  OUT PPORT_MESSAGE ReplyMessage,
+                                  IN KPROCESSOR_MODE AccessMode
+)
 /*
 Routine Description:
     This procedure is similar to NtRequestWaitReplyPort but without the handle based interface

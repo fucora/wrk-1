@@ -19,7 +19,11 @@ Abstract:
 #endif
 
 
-NTSTATUS NtReplyWaitReceivePort(__in HANDLE PortHandle, __out_opt PVOID *PortContext, __in_opt PPORT_MESSAGE ReplyMessage, __out PPORT_MESSAGE ReceiveMessage)
+NTSTATUS NtReplyWaitReceivePort(__in HANDLE PortHandle, 
+                                __out_opt PVOID *PortContext,
+                                __in_opt PPORT_MESSAGE ReplyMessage,
+                                __out PPORT_MESSAGE ReceiveMessage
+)
 /*
 Routine Description:
     This procedure is used by the server process to wait for a message from a client process
@@ -59,11 +63,12 @@ Return Value:
 }
 
 
-NTSTATUS NtReplyWaitReceivePortEx(__in HANDLE PortHandle, 
-__out_opt PVOID *PortContext, 
-__in_opt PPORT_MESSAGE ReplyMessage,
- __out PPORT_MESSAGE ReceiveMessage, 
- __in_opt PLARGE_INTEGER Timeout)
+NTSTATUS NtReplyWaitReceivePortEx(__in HANDLE PortHandle,
+                                  __out_opt PVOID *PortContext,
+                                  __in_opt PPORT_MESSAGE ReplyMessage,
+                                  __out PPORT_MESSAGE ReceiveMessage,
+                                  __in_opt PLARGE_INTEGER Timeout
+)
 /*
 Routine Description:
     See NtReplyWaitReceivePort.
@@ -127,7 +132,8 @@ Return Value:
 
     if (ARGUMENT_PRESENT(ReplyMessage)) {
         //  Make sure DataLength is valid with respect to header size and total length
-        if ((((CLONG)CapturedReplyMessage.u1.s1.DataLength) + sizeof(PORT_MESSAGE)) > ((CLONG)CapturedReplyMessage.u1.s1.TotalLength)) {
+        if ((((CLONG)CapturedReplyMessage.u1.s1.DataLength) + sizeof(PORT_MESSAGE)) > 
+            ((CLONG)CapturedReplyMessage.u1.s1.TotalLength)) {
             return STATUS_INVALID_PARAMETER;
         }
         
