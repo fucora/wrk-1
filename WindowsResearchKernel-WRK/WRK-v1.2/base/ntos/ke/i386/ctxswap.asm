@@ -1171,16 +1171,11 @@ endif
         jmp     short kid20             ; Skip HalIdleProcessor on first iteration
 
 
-; There are no entries in the DPC list and a thread has not been selected
-; for execution on this processor. Call the HAL so power managment can be
-; performed.
-
-; N.B. The HAL is called with interrupts disabled. The HAL will return
-;      with interrupts enabled.
-
+; There are no entries in the DPC list and a thread has not been selected for execution on this processor.
+; Call the HAL so power managment can be performed.
+; N.B. The HAL is called with interrupts disabled. The HAL will return with interrupts enabled.
 ; N.B. Use a call instruction instead of a push-jmp, as the call instruction
-;      executes faster and won't invalidate the processor's call-return stack
-;      cache.
+;      executes faster and won't invalidate the processor's call-return stack cache.
 
 
 kid10:  lea     ecx, [ebx].PcPrcbData.PbPowerState
@@ -1189,9 +1184,7 @@ kid10:  lea     ecx, [ebx].PcPrcbData.PbPowerState
 
 ; Give the debugger an opportunity to gain control on debug systems.
 
-; N.B. On an MP system the lowest numbered idle processor is the only
-;      processor that polls for a breakin request.
-
+; N.B. On an MP system the lowest numbered idle processor is the only processor that polls for a breakin request.
 
 kid20:
 
@@ -1210,27 +1203,20 @@ endif
 endif
 
 kid30:
-
 if DBG
-
 ifndef NT_UP
         mov     edi, 20 * 1000          ; set breakin poll interval
 else
         mov     edi, 100                ; UP idle loop has a HLT in it
 endif
-
 endif
 
 CheckDpcList0:                          ;
         YIELD
 
 
-; Disable interrupts and check if there is any work in the DPC list of the
-; current processor or a target processor.
-
-
+; Disable interrupts and check if there is any work in the DPC list of the current processor or a target processor.
 CheckDpcList:
-
 
 ; N.B. The following code enables interrupts for a few cycles, then
 ;      disables them again for the subsequent DPC and next thread checks.
@@ -1325,8 +1311,7 @@ ifndef NT_UP
         and     dword ptr [ebx].PcPrcbData.PbPrcbLock, 0 ; release current PRCB lock
 endif
 
-kid35:                                  ;
-
+kid35:
         mov     ecx, APC_LEVEL          ; set APC bypass disable
         call    SwapContext             ; swap context
 

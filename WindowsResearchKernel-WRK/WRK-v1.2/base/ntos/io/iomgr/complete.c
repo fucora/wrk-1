@@ -28,7 +28,11 @@ VOID IopFreeMiniPacket(PIOP_MINI_COMPLETION_PACKET MiniPacket);
 #pragma alloc_text(PAGE, IopDeleteIoCompletion)
 
 
-NTSTATUS NtCreateIoCompletion(__out PHANDLE IoCompletionHandle, __in ACCESS_MASK DesiredAccess, __in_opt POBJECT_ATTRIBUTES ObjectAttributes, __in ULONG Count OPTIONAL)
+NTSTATUS NtCreateIoCompletion(__out PHANDLE IoCompletionHandle,
+                              __in ACCESS_MASK DesiredAccess,
+                              __in_opt POBJECT_ATTRIBUTES ObjectAttributes,
+                              __in ULONG Count OPTIONAL
+)
 /*
 Routine Description:
     This function creates an I/O completion object, sets the maximum target concurrent thread count to the specified value,
@@ -40,7 +44,8 @@ Arguments:
     Count - Supplies the target maximum  number of threads that should be concurrently active.
             If this parameter is not specified, then the number of processors is used.
 Return Value:
-    STATUS_SUCCESS is returned if the function is success. Otherwise, an error status is returned.
+    STATUS_SUCCESS is returned if the function is success. 
+    Otherwise, an error status is returned.
 */
 {
     HANDLE Handle;
@@ -80,7 +85,10 @@ Return Value:
 }
 
 
-NTSTATUS NtOpenIoCompletion(__out PHANDLE IoCompletionHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes)
+NTSTATUS NtOpenIoCompletion(__out PHANDLE IoCompletionHandle, 
+                            __in ACCESS_MASK DesiredAccess,
+                            __in POBJECT_ATTRIBUTES ObjectAttributes
+)
 /*
 Routine Description:
     This function opens a handle to an I/O completion object with the specified desired access.

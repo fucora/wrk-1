@@ -1676,7 +1676,8 @@ Routine Description:
     This function allocates a block of pool of the specified type and returns a pointer to the allocated block.
     This function is used to access both the page-aligned pools, and the list head entries (less than a page) pools.
 
-    If the number of bytes specifies a size that is too large to be satisfied by the appropriate list, then the page-aligned pool allocator is used.
+    If the number of bytes specifies a size that is too large to be satisfied by the appropriate list, 
+    then the page-aligned pool allocator is used.
     The allocated block will be page-aligned and a page-sized multiple.
 
     Otherwise, the appropriate pool list entry is used.
@@ -1689,7 +1690,8 @@ Routine Description:
 
 Arguments:
     PoolType - Supplies the type of pool to allocate.
-        If the pool type is one of the "MustSucceed" pool types, then this call will succeed and return a pointer to allocated pool or bugcheck on failure.
+        If the pool type is one of the "MustSucceed" pool types, 
+        then this call will succeed and return a pointer to allocated pool or bugcheck on failure.
         For all other cases, if the system cannot allocate the requested amount of memory, NULL is returned.
 
         Valid pool types:
@@ -1702,7 +1704,8 @@ Arguments:
 
     NumberOfBytes - Supplies the number of bytes to allocate.
     Tag - Supplies the caller's identifying tag.
-    Priority - Supplies an indication as to how important it is that this request succeed under low available pool conditions.  This can also be used to specify special pool.
+    Priority - Supplies an indication as to how important it is that this request succeed under low available pool conditions. 
+               This can also be used to specify special pool.
 Return Value:
     NULL - The PoolType is not one of the "MustSucceed" pool types, and not enough pool exists to satisfy the request.
     NON-NULL - Returns a pointer to the allocated pool.
@@ -1804,10 +1807,12 @@ __bcount(NumberOfBytes) PVOID ExAllocatePoolWithQuota(__in POOL_TYPE PoolType, _
 /*
 Routine Description:
     This function allocates a block of pool of the specified type,
-    returns a pointer to the allocated block, and if the binary buddy allocator was used to satisfy the request, charges pool quota to the current process.
+    returns a pointer to the allocated block, and if the binary buddy allocator was used to satisfy the request,
+    charges pool quota to the current process.
     This function is used to access both the page-aligned pools, and the binary buddy.
 
-    If the number of bytes specifies a size that is too large to be satisfied by the appropriate binary buddy pool, then the page-aligned pool allocator is used.
+    If the number of bytes specifies a size that is too large to be satisfied by the appropriate binary buddy pool,
+    then the page-aligned pool allocator is used.
     The allocated block will be page-aligned and a page-sized multiple.
     No quota is charged to the current process if this is the case.
 
@@ -1819,7 +1824,8 @@ Routine Description:
     Otherwise, the pool is deallocated, a "quota exceeded" condition is raised.
 Arguments:
     PoolType - Supplies the type of pool to allocate.
-        If the pool type is one of the "MustSucceed" pool types and sufficient quota exists, then this call will always succeed and return a pointer to allocated pool.
+        If the pool type is one of the "MustSucceed" pool types and sufficient quota exists,
+        then this call will always succeed and return a pointer to allocated pool.
         Otherwise, if the system cannot allocate the requested amount of memory a STATUS_INSUFFICIENT_RESOURCES status is raised.
     NumberOfBytes - Supplies the number of bytes to allocate.
 Return Value:
@@ -1862,7 +1868,8 @@ Routine Description:
     allocator was used to satisfy the request, charges pool quota to the current process.
     This function is used to access both the page-aligned pools, and the binary buddy.
 
-    If the number of bytes specifies a size that is too large to be satisfied by the appropriate binary buddy pool, then the page-aligned pool allocator is used.
+    If the number of bytes specifies a size that is too large to be satisfied by the appropriate binary buddy pool,
+    then the page-aligned pool allocator is used.
     The allocated block will be page-aligned and a page-sized multiple.
     No quota is charged to the current process if this is the case.
 
@@ -1874,7 +1881,8 @@ Routine Description:
     Otherwise, the pool is deallocated, a "quota exceeded" condition is raised.
 Arguments:
     PoolType - Supplies the type of pool to allocate.
-        If the pool type is one of the "MustSucceed" pool types and sufficient quota exists, then this call will always succeed and return a pointer to allocated pool.
+        If the pool type is one of the "MustSucceed" pool types and sufficient quota exists, 
+        then this call will always succeed and return a pointer to allocated pool.
         Otherwise, if the system cannot allocate the requested amount of memory a STATUS_INSUFFICIENT_RESOURCES status is raised.
     NumberOfBytes - Supplies the number of bytes to allocate.
 Return Value:
@@ -2121,7 +2129,8 @@ Environment:
 VOID ExpInsertPoolTrackerExpansion(IN ULONG Key, IN SIZE_T NumberOfBytes, IN POOL_TYPE PoolType)
 /*
 Routine Description:
-    This function inserts a pool tag in the expansion tag table (taking a spinlock to do so), increments the number of allocates and updates the total allocation size.
+    This function inserts a pool tag in the expansion tag table (taking a spinlock to do so),
+    increments the number of allocates and updates the total allocation size.
 Arguments:
     Key - Supplies the key value used to locate a matching entry in the tag table.
     NumberOfBytes - Supplies the allocation size.
@@ -2231,7 +2240,8 @@ Environment:
 
         // Recursively call ourself to insert the new table entry.
         // This entry must be inserted before releasing the tagged spinlock because
-        // another thread may be further growing the table and as soon as we release the spinlock, that thread may grow and try to free our new table !
+        // another thread may be further growing the table and as soon as we release the spinlock, 
+        // that thread may grow and try to free our new table !
         ExpInsertPoolTracker('looP', PoolTrackTableExpansionPages << PAGE_SHIFT, NonPagedPool);
         ExReleaseSpinLock(&ExpTaggedPoolLock, OldIrql);
 
@@ -2329,7 +2339,8 @@ Arguments:
 
 #if !defined (NT_UP)
     // Use the current processor to pick a pool tag table to use.
-    // Note that in rare cases, this thread may context switch to another processor but the algorithms below will still be correct.
+    // Note that in rare cases, 
+    // this thread may context switch to another processor but the algorithms below will still be correct.
     Processor = KeGetCurrentProcessorNumber();
     ASSERT(Processor < MAXIMUM_PROCESSOR_TAG_TABLES);
     TrackTable = ExPoolTagTables[Processor];
@@ -2485,7 +2496,8 @@ Environment:
         EntryEnd = &ExpSessionPoolBigPageTable[TableSize];
         do {
             OldVa = Entry->Va;
-            if (((ULONG_PTR)OldVa & POOL_BIG_TABLE_ENTRY_FREE) && (InterlockedCompareExchangePointer(&Entry->Va, Va, OldVa) == OldVa)) {
+            if (((ULONG_PTR)OldVa & POOL_BIG_TABLE_ENTRY_FREE) && 
+                (InterlockedCompareExchangePointer(&Entry->Va, Va, OldVa) == OldVa)) {
                 Entry->Key = Key;
                 Entry->NumberOfPages = NumberOfPages;
                 return TRUE;
@@ -2516,7 +2528,8 @@ Environment:
         EntryEnd = &PoolBigPageTable[TableSize];
         do {
             OldVa = Entry->Va;
-            if (((ULONG_PTR)OldVa & POOL_BIG_TABLE_ENTRY_FREE) && (InterlockedCompareExchangePointer(&Entry->Va, Va, OldVa) == OldVa)) {
+            if (((ULONG_PTR)OldVa & POOL_BIG_TABLE_ENTRY_FREE) && 
+                (InterlockedCompareExchangePointer(&Entry->Va, Va, OldVa) == OldVa)) {
                 Entry->Key = Key;
                 Entry->NumberOfPages = NumberOfPages;
                 InterlockedIncrement(&ExpPoolBigEntriesInUse);
@@ -2543,7 +2556,8 @@ Environment:
 
         // Try to expand the tracker table.
 
-        // Since this involves copying the existing entries over and deleting the old table, first acquire the lock exclusive.
+        // Since this involves copying the existing entries over and deleting the old table,
+        // first acquire the lock exclusive.
         if (ExTryAcquireSpinLockExclusive(&ExpLargePoolTableLock) == FALSE) {
             ExReleaseSpinLockShared(&ExpLargePoolTableLock, OldIrql);
             continue;
@@ -2646,7 +2660,8 @@ Environment:
 VOID ExFreePoolWithTag(__in PVOID P, __in ULONG TagToFree)
 /*
 Routine Description:
-    This function deallocates a block of pool. This function is used to deallocate to both the page aligned pools and the buddy (less than a page) pools.
+    This function deallocates a block of pool. 
+    This function is used to deallocate to both the page aligned pools and the buddy (less than a page) pools.
 
     If the address of the block being deallocated is page-aligned, then the page-aligned pool deallocator is used.
 
@@ -2683,8 +2698,12 @@ Arguments:
 
     // Initializing LockHandle is not needed for correctness but without it the compiler cannot compile this code W4 to check for use of uninitialized variables.
     LockHandle.OldIrql = 0;
-    if (ExpPoolFlags & (EX_CHECK_POOL_FREES_FOR_ACTIVE_TIMERS | EX_CHECK_POOL_FREES_FOR_ACTIVE_WORKERS | EX_CHECK_POOL_FREES_FOR_ACTIVE_RESOURCES |
-                        EX_KERNEL_VERIFIER_ENABLED | EX_VERIFIER_DEADLOCK_DETECTION_ENABLED | EX_SPECIAL_POOL_ENABLED)) {
+    if (ExpPoolFlags & (EX_CHECK_POOL_FREES_FOR_ACTIVE_TIMERS |
+                        EX_CHECK_POOL_FREES_FOR_ACTIVE_WORKERS |
+                        EX_CHECK_POOL_FREES_FOR_ACTIVE_RESOURCES |
+                        EX_KERNEL_VERIFIER_ENABLED | 
+                        EX_VERIFIER_DEADLOCK_DETECTION_ENABLED |
+                        EX_SPECIAL_POOL_ENABLED)) {
         if (ExpPoolFlags & EX_SPECIAL_POOL_ENABLED) {
             // Log all pool frees in this mode.
             ULONG Hash;
@@ -2755,7 +2774,8 @@ Arguments:
         }
     }
 
-    // If the entry is page aligned, then free the block to the page aligned pool.  Otherwise, free the block to the allocation lists.
+    // If the entry is page aligned, then free the block to the page aligned pool.
+    // Otherwise, free the block to the allocation lists.
     if (PAGE_ALIGNED(P)) {
         PoolType = MmDeterminePoolType(P);
         ASSERT_FREE_IRQL(PoolType, P);
@@ -3365,7 +3385,8 @@ PVOID ExCreatePoolTagTable(IN ULONG NewProcessorNumber, IN UCHAR NodeNumber)
     NewTagTable = MmAllocateIndependentPages(NumberOfBytes, NodeNumber);
     if (NewTagTable != NULL) {
         // Just zero the table here, the tags are lazy filled as various pool allocations and frees occur.
-        // Note no memory barrier is needed because only this processor will read it except when an ExGetPoolTagInfo call occurs, and in that case, explicit memory barriers are used as needed.
+        // Note no memory barrier is needed because only this processor will read it except when an ExGetPoolTagInfo call occurs,
+        // and in that case, explicit memory barriers are used as needed.
         RtlZeroMemory(NewTagTable, PoolTrackTableSize * sizeof(POOL_TRACKER_TABLE));
         ExPoolTagTables[NewProcessorNumber] = NewTagTable;
     }
@@ -3474,7 +3495,9 @@ Environment:
 #endif
 
         if (Context->PoolTrackTableSizeExpansion != 0) {
-            RtlCopyMemory((PVOID)(Context->PoolTrackTableExpansion), (PVOID)PoolTrackTableExpansion, Context->PoolTrackTableSizeExpansion * sizeof(POOL_TRACKER_TABLE));
+            RtlCopyMemory((PVOID)(Context->PoolTrackTableExpansion), 
+                (PVOID)PoolTrackTableExpansion,
+                          Context->PoolTrackTableSizeExpansion * sizeof(POOL_TRACKER_TABLE));
         }
     }
 
@@ -3580,7 +3603,11 @@ Return Value:
 }
 
 
-NTSTATUS ExGetSessionPoolTagInfo(IN PVOID SystemInformation, IN ULONG SystemInformationLength, IN OUT PULONG ReturnedEntries, IN OUT PULONG ActualEntries)
+NTSTATUS ExGetSessionPoolTagInfo(IN PVOID SystemInformation,
+                                 IN ULONG SystemInformationLength,
+                                 IN OUT PULONG ReturnedEntries,
+                                 IN OUT PULONG ActualEntries
+)
 /*
 Routine Description:
     This function copies the current session's pool tag information to the supplied system-mapped buffer.

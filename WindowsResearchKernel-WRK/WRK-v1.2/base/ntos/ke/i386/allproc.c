@@ -230,8 +230,7 @@ Return value:
         (PKGDTENTRY)pProcessorState->SpecialRegisters.Gdtr.Base,
         (PKTSS)TSSDesc.Base,
         (PKTHREAD)pThreadObject,
-        (PVOID)*ppDpcStack
-    );
+        (PVOID)*ppDpcStack);
 
     NewPrcb = ((PKPCR)(PCRDesc.Base))->Prcb;
 

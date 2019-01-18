@@ -57,12 +57,12 @@ extern ULONG InitWinPEModeType;
 #if defined(_M_IX86) || defined(_M_AMD64)
 VOID KiSystemStartup(IN PVOID LoaderBlock);
 #else
-VOID KiSystemStartup( VOID );
+VOID KiSystemStartup(VOID);
 #endif
 
 VOID Phase1Initialization(IN PVOID Context);
 
-typedef BOOLEAN (*PTESTFCN)( VOID );
+typedef BOOLEAN(*PTESTFCN)(VOID);
 
 extern PTESTFCN TestFunction;
 extern ULONG InitializationPhase;

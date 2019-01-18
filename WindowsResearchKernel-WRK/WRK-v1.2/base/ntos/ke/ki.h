@@ -807,10 +807,13 @@ Arguments:
     WaitMode - Supplies the processor mode of the wait operation.
     Thread - Supplies a pointer to a dispatcher object of type thread.
 Return Value:
-    If the kernel stack for the specified thread is swappable, then TRUE is returned. Otherwise, FALSE is returned.
+    If the kernel stack for the specified thread is swappable, then TRUE is returned. 
+    Otherwise, FALSE is returned.
 */
 {
-    return ((WaitMode != KernelMode) && (Thread->EnableStackSwap != FALSE) && (Thread->Priority < (LOW_REALTIME_PRIORITY + 9)));
+    return ((WaitMode != KernelMode) && 
+            (Thread->EnableStackSwap != FALSE) && 
+            (Thread->Priority < (LOW_REALTIME_PRIORITY + 9)));
 }
 
 
@@ -877,11 +880,15 @@ Routine Description:
     This function waits until the specified set of processors have signaled their completion of a requested function.
     N.B. The exact protocol used between the source and the target of an interprocessor request is not specified.
          Minimally the source must construct an appropriate packet and send the packet to a set of specified targets.
-         Each target receives the address of the packet address as an argument, and minimally must clear the packet address when the mutually agreed upon protocol allows.
+         Each target receives the address of the packet address as an argument, 
+         and minimally must clear the packet address when the mutually agreed upon protocol allows.
          The target has three options:
-         1. Capture necessary information, release the source by clearing the packet address, execute the request in parallel with the source, and return from the interrupt.
-         2. Execute the request in series with the source, release the source by clearing the packet address, and return from the interrupt.
-         3. Execute the request in series with the source, release the source, wait for a reply from the source based on a packet parameter, and return from the interrupt.
+         1. Capture necessary information, release the source by clearing the packet address, 
+            execute the request in parallel with the source, and return from the interrupt.
+         2. Execute the request in series with the source, 
+            release the source by clearing the packet address, and return from the interrupt.
+         3. Execute the request in series with the source, release the source, 
+            wait for a reply from the source based on a packet parameter, and return from the interrupt.
     This function is provided to enable the source to synchronize with the target for cases 2 and 3 above.
     N.B. There is no support for method 3 above.
 Arguments:
@@ -893,7 +900,8 @@ Arguments:
 
     ASSERT(Prcb == KeGetCurrentPrcb());
 
-    // If there is one and only one bit set in the target set, then wait on the target set. Otherwise, wait on the packet barrier.
+    // If there is one and only one bit set in the target set, then wait on the target set.
+    // Otherwise, wait on the packet barrier.
     Barrier = &Prcb->TargetSet;
     if ((TargetSet & (TargetSet - 1)) != 0) {
        Barrier = &Prcb->PacketBarrier;
@@ -927,7 +935,8 @@ FORCEINLINE VOID KiActivateWaiterQueue (IN PRKQUEUE Queue)
 /*
 Routine Description:
     This function is called when the current thread is about to enter a wait state and is currently processing a queue entry.
-    The current number of threads processign entries for the queue is decrement and an attempt is made to activate another thread if the current count is less than the maximum count, there is a waiting thread, and the queue is not empty.
+    The current number of threads processign entries for the queue is decrement and an attempt is made to activate another thread if the current count is less than the maximum count,
+    there is a waiting thread, and the queue is not empty.
     N.B. It is possible that this function is called on one processor holding the dispatcher database lock while the state of the specified queue object is being modified on another processor while holding only the queue object lock.
          This does not cause a problem since holding the queue object lock ensures that there are no waiting threads.
 Arguments:
@@ -940,8 +949,9 @@ Arguments:
     PRLIST_ENTRY WaitEntry;
 
     // Decrement the current count of active threads and check if another thread can be activated.
-    // If the current number of active threads is less than the target maximum number of threads, there is a entry in in the queue,
-    // and a thread is waiting, then remove the entry from the queue, decrement the number of entries in the queue, and unwait the respective thread.
+    // If the current number of active threads is less than the target maximum number of threads,
+    // there is a entry in in the queue, and a thread is waiting, then remove the entry from the queue, 
+    // decrement the number of entries in the queue, and unwait the respective thread.
     Queue->CurrentCount -= 1;
     if (Queue->CurrentCount < Queue->MaximumCount) {
         Entry = Queue->EntryListHead.Flink;
@@ -997,7 +1007,8 @@ Arguments:
     ULONG Hand;
     PKTIMER_TABLE_ENTRY TableEntry;
 
-    // Remove the timer from the timer table. If the timer table list is empty, then set the respective timer table due time to an infinite absolute time.
+    // Remove the timer from the timer table. If the timer table list is empty, 
+    // then set the respective timer table due time to an infinite absolute time.
 
     // N.B. It is the responsibility of the caller to set the timer inserted state.
     Hand = Timer->Header.Hand;
@@ -1061,7 +1072,8 @@ Arguments:
     Timer - Supplies a pointer to a dispatcher object of type timer.
     Interval - Supplies the absolute or relative time at which the time is to expire.
 Return Value:
-    If the timer is inserted in the timer tree, than a value of TRUE is returned. Otherwise, a value of FALSE is returned.
+    If the timer is inserted in the timer tree, than a value of TRUE is returned.
+    Otherwise, a value of FALSE is returned.
 */
 {
     LOGICAL Inserted;
@@ -1093,8 +1105,10 @@ BOOLEAN FASTCALL KiSignalTimer (__inout PKTIMER Timer);
 FORCEINLINE VOID KiInsertOrSignalTimer (__inout PKTIMER Timer, __in ULONG Hand)
 /*
 Routine Description:
-    This function inserts the specified timer in the timer table if the due time has not already expired. Otherwise, the timer is signaled.
-    N.B. This function must be called with the dispatcher lock held. It returns with the dispatcher lock released at raised IRQL.
+    This function inserts the specified timer in the timer table if the due time has not already expired.
+    Otherwise, the timer is signaled.
+    N.B. This function must be called with the dispatcher lock held. 
+         It returns with the dispatcher lock released at raised IRQL.
 Arguments:
     Timer - Supplies a pointer to a dispatcher object of type timer.
     Hand - Supplies the timer table hand value.
@@ -1146,7 +1160,8 @@ Routine Description:
     LONG Value;
 #endif
 
-    // While the TB flush time stamp counter is being updated the low order bit of the time stamp value is set. Otherwise, the bit is clear.
+    // While the TB flush time stamp counter is being updated the low order bit of the time stamp value is set.
+    // Otherwise, the bit is clear.
 #if defined(_AMD64_)
     while (InterlockedBitTestAndSet((LONG *)&KiTbFlushTimeStamp, 0)) {
         do {
@@ -1186,7 +1201,12 @@ IN PKSYSTEM_ROUTINE SystemRoutine,
 IN PKSTART_ROUTINE StartRoutine OPTIONAL,
 IN PVOID StartContext OPTIONAL,
 IN PCONTEXT ContextFrame OPTIONAL);
-VOID KiInitializeKernel (IN PKPROCESS Process, IN PKTHREAD Thread, IN PVOID IdleStack, IN PKPRCB Prcb, IN CCHAR Number, IN PLOADER_PARAMETER_BLOCK LoaderBlock);
+VOID KiInitializeKernel (IN PKPROCESS Process,
+                         IN PKTHREAD Thread,
+                         IN PVOID IdleStack, 
+                         IN PKPRCB Prcb,
+                         IN CCHAR Number, 
+                         IN PLOADER_PARAMETER_BLOCK LoaderBlock);
 VOID KiInitSpinLocks (PKPRCB Prcb, ULONG Number);
 VOID KiInitSystem (VOID);
 BOOLEAN KiInitMachineDependent (VOID);
@@ -1207,7 +1227,8 @@ Arguments:
     Thread - Supplies a pointer to a thread object.
 */
 {
-    // On the MP system, insert the specified thread in the deferred ready list. On the UP system, ready the thread immediately.
+    // On the MP system, insert the specified thread in the deferred ready list.
+    // On the UP system, ready the thread immediately.
 #if defined(NT_UP)
     Thread->State = DeferredReady;
     Thread->DeferredProcessor = 0;
@@ -1621,7 +1642,8 @@ Arguments:
     PRKWAIT_BLOCK WaitBlock;
     PLIST_ENTRY WaitEntry;
 
-    // As long as the signal state of the specified event is signaled and there are waiters in the event wait list, then try to satisfy a wait.
+    // As long as the signal state of the specified event is signaled and there are waiters in the event wait list, 
+    // then try to satisfy a wait.
     ListHead = &Event->Header.WaitListHead;
     ASSERT(IsListEmpty(&Event->Header.WaitListHead) == FALSE);
     WaitEntry = ListHead->Flink;
@@ -1648,7 +1670,8 @@ FORCEINLINE VOID KiWaitTestWithoutSideEffects (IN PVOID Object, IN KPRIORITY Inc
 /*
 Routine Description:
     This function tests if a wait can be satisfied when a dispatcher object without side effects attains a state of signaled.
-    Dispatcher objects that have no side effects when a wait is satisfied include notification events, notification timers, processes, and threads.
+    Dispatcher objects that have no side effects when a wait is satisfied include notification events, 
+    notification timers, processes, and threads.
 Arguments:
     Object - Supplies a pointer to a dispatcher object that has no side effects when a wait is satisfied.
     Increment - Supplies the priority increment.
@@ -1669,7 +1692,8 @@ Arguments:
         WaitBlock = CONTAINING_RECORD(WaitEntry, KWAIT_BLOCK, WaitListEntry);
         Thread = WaitBlock->Thread;
 
-        // If the wait type is wait any, then unwait the thread with the wait key status. Otherwise, unwait the thread with a kernel APC status.
+        // If the wait type is wait any, then unwait the thread with the wait key status.
+        // Otherwise, unwait the thread with a kernel APC status.
         if (WaitBlock->WaitType == WaitAny) {
             KiUnwaitThread(Thread, (NTSTATUS)WaitBlock->WaitKey, Increment);
         } else {
@@ -1759,7 +1783,9 @@ Arguments:
     LowPriority - Supplies the lowest priority dispatcher ready queue to examine.
     Prcb - Supplies a pointer to a processor control block.
 Return Value:
-    If a thread is located that can execute on the specified processor, then the address of the thread object is returned. Otherwise a null pointer is returned.
+    If a thread is located that can execute on the specified processor,
+    then the address of the thread object is returned. 
+    Otherwise a null pointer is returned.
 */
 {
     ULONG HighPriority;

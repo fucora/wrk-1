@@ -20,8 +20,7 @@ Environment:
 // Define DPC entry structure and maximum DPC List size.
 #define MAXIMUM_DPC_TABLE_SIZE 16
 
-typedef struct _DPC_ENTRY
-{
+typedef struct _DPC_ENTRY{
     PRKDPC Dpc;
     PKDEFERRED_ROUTINE Routine;
     PVOID Context;
@@ -562,7 +561,8 @@ RestartScan:
         }
 
         // If the timer is periodic, then compute the next interval time and reinsert the timer in the timer tree.
-        // N.B. Even though the timer insertion is relative, it can still fail if the period of the timer elapses in between computing the time and inserting the timer.
+        // N.B. Even though the timer insertion is relative, 
+        //      it can still fail if the period of the timer elapses in between computing the time and inserting the timer.
         //      If this happens, then the insertion is retried.
         if (Period != 0) {
             Interval.QuadPart = Int32x32To64(Period, -10 * 1000);
@@ -661,7 +661,8 @@ Arguments:
         if (DpcData->DpcQueueDepth != 0) {// If the DPC list is not empty, then process the DPC list.
             // If the DPC list is not empty, then remove the first entry from the DPC list,
             // capture the DPC parameters, set the DPC inserted state false,
-            // decrement the DPC queue depth, release the DPC lock, enable interrupts, and call the specified DPC routine.
+            // decrement the DPC queue depth, release the DPC lock, enable interrupts, 
+            // and call the specified DPC routine.
             // Otherwise, release the DPC lock and enable interrupts.
             do {// Acquire the DPC lock for the current processor and check if the DPC list is empty.
                 KeAcquireSpinLockAtDpcLevel(&DpcData->DpcLock);

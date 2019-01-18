@@ -1,20 +1,15 @@
         title  "System Startup"
 
-
 ; Copyright (c) Microsoft Corporation. All rights reserved.
 
 ; You may only use this code if you agree to the terms of the Windows Research Kernel Source Code License agreement (see License.txt).
 ; If you do not agree to the terms, do not use the code.
 
-
 ; Module Name:
-
 ;    systembg.asm
 
 ; Abstract:
-
-;    This module implements the code necessary to initially startup the
-;    NT system.
+;    This module implements the code necessary to initially startup the NT system.
 
 
 .386p
@@ -116,9 +111,8 @@ INIT    SEGMENT DWORD PUBLIC 'CODE'
 ; For processor 0, Routine Description:
 
 ;    This routine is called when the NT system begins execution.
-;    Its function is to initialize system hardware state, call the
-;    kernel initialization routine, and then fall into code that
-;    represents the idle thread for all processors.
+;    Its function is to initialize system hardware state, call the kernel initialization routine,
+;    and then fall into code that represents the idle thread for all processors.
 
 ;    Entry state created by the boot loader:
 ;       A short-form IDT (0-1f) exists and is active.
@@ -143,25 +137,17 @@ INIT    SEGMENT DWORD PUBLIC 'CODE'
 ;       LoaderBlock - parameters for this processor
 
 ; Arguments:
-
 ;    PLOADER_PARAMETER_BLOCK LoaderBlock
 
 ; Return Value:
-
 ;    None.
 
 
-
 ; Arguments for KiSystemStartupPx
-
-
-
 KissLoaderBlock         equ     [ebp+8]
 
 
 ; Local variables
-
-
 KissGdt                 equ     [ebp-4]
 KissPcr                 equ     [ebp-8]
 KissTss                 equ     [ebp-12]
@@ -214,7 +200,6 @@ cPublicProc _KiSystemStartup        ,1
 
 ; Initialize the PCR
 
-
         stdCall   GetMachineBootPointers
 
 ; Upon return:
@@ -223,8 +208,6 @@ cPublicProc _KiSystemStartup        ,1
 ;   (edx) -> tss
 ;   (eax) -> idt
 ; Now, save them in our local variables
-
-
 
         mov     KissGdt, edi
         mov     KissPcr, esi
@@ -574,11 +557,9 @@ endif   ; DEVL
 
 
 ifndef NT_UP
-
 @@:     cmp     _KiBarrierWait, 0       ; check if barrier set
         YIELD
         jnz     short @b                ; if nz, barrier set
-
 endif
 
         push    0                       ; terminate KD traceback 0 RA.
@@ -598,21 +579,16 @@ stdENDP _KiSystemStartup
 ;    If the 387 hardware exists, EM+TS+MP will all be cleared on the
 ;    first trap 07.  Thereafter, EM will never be seen for this thread.
 ;    MP+TS will only be set when an error is detected (via IRQ 13), and
-;    it will be cleared by the trap 07 that will occur on the next FP
-;    instruction.
+;    it will be cleared by the trap 07 that will occur on the next FP instruction.
 
 ;    If we're emulating, EM+TS+MP are all always set to ensure that all
 ;    FP instructions trap to the emulator (the trap 07 handler is edited
 ;    to point to the emulator, rather than KiTrap07).
 
 ; Arguments:
-
 ;    None.
-
 ; Return Value:
-
 ;    None.
-
 
 
 cPublicProc _KiSetCR0Bits ,0

@@ -73,8 +73,8 @@ KiIL10: xor     ecx, ecx                ; lower IRQL to passive level
 KiIL20:                                 ; reference label
 
 ; Disable interrupts and check if there is any work in the DPC list of the current processor or a target processor.
-
-; N.B. The following code enables interrupts for a few cycles, then disables them again for the subsequent DPC and next thread checks.
+; N.B. The following code enables interrupts for a few cycles, 
+;      then disables them again for the subsequent DPC and next thread checks.
 
 CheckDpcList:                           ; reference label
 
@@ -91,9 +91,7 @@ CheckDpcList:                           ; reference label
         or      rax, PbTimerRequest[rbx] ; merge timer request value
 
 ifndef NT_UP
-
         or      rax, PbDeferredReadyListHead[rbx] ; merge ready list head
-
 endif
 
         jz      short CheckNextThread   ; if z, no DPCs to process
@@ -116,13 +114,9 @@ CheckNextThread: ;
         cmp     qword ptr PbNextThread[rbx], 0 ; check if thread selected
 
 ifdef NT_UP
-
         je      KiIL10                  ; if e, no thread selected
-
 else
-
         je      KiIL50                  ; if e, no thread selected
-
 endif
 
         and     byte ptr PbIdleHalt[rbx], 0 ; clear idle halt
@@ -137,11 +131,8 @@ endif
         mov     rdi, PbIdleThread[rbx]  ; get idle thread address
 
 ifndef NT_UP
-
         mov     byte ptr ThSwapBusy[rdi], 1 ; set context swap busy
-
         AcquireSpinLock PbPrcbLock[rbx] ; acquire current PRCB Lock
-
 endif
 
         mov     rsi, PbNextThread[rbx]  ; set next thread address
@@ -150,10 +141,8 @@ endif
 ; eligibility (e.g., an affinity change), then the new thread could be the idle thread.
 
 ifndef NT_UP
-
         cmp     rsi, rdi                ; check if swap from idle to idle
         je      short KiIL40            ; if eq, idle to idle
-
 endif
 
         and     qword ptr PbNextThread[rbx], 0 ; clear next thread address
@@ -163,10 +152,8 @@ endif
 ; Clear idle schedule since a new thread has been selected for execution on this processor and release the PRCB lock.
 
 ifndef NT_UP
-
         and     byte ptr PbIdleSchedule[rbx], 0 ; clear idle schedule
         and     qword ptr PbPrcbLock[rbx], 0 ; release current PRCB lock
-
 endif
 
 ; Switch context to new thread.
@@ -175,11 +162,8 @@ KiIL30: mov     ecx, APC_LEVEL          ; set APC bypass disable
         call    SwapContext             ; swap context to next thread
 
 ifndef NT_UP
-
         mov     ecx, DISPATCH_LEVEL     ; set IRQL to dispatch level
-
         SetIrql
-
 endif
 
         jmp     KiIL20                  ; loop

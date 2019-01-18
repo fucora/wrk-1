@@ -38,7 +38,8 @@ TotalFrameLength EQU (KERNEL_STACK_CONTROL_LENGTH + KEXCEPTION_FRAME_LENGTH + KS
 ; Arguments:
 ;   LoaderBlock (rcx) - Supplies a pointer to the loader block.
 ; Implicit Arguments:
-;   When the system starts up the loader has done some initialization. In particular all structures have at least been zeroed and the GDT and TSS have been completely initialized.
+;   When the system starts up the loader has done some initialization.
+;   In particular all structures have at least been zeroed and the GDT and TSS have been completely initialized.
 ;   The loader block has been reformatted by the loader into a 64-bit loader block and all pertinent fields have been filled in.
 ;   The address of the PRCB is passed in the loader block (only for processors other than zero).
 ;   The address of the idle thread and idle process are passed in the loader block (only for processors other than zero).
@@ -111,7 +112,6 @@ SsFrame ends
         ldmxcsr PcMxCsr[rdx]            ;
 
 ; Set canonical selector values (note CS, GS, and SS are already set).
-
         mov     ax, KGDT64_R3_DATA or RPL_MASK ;
         mov     ds, ax                  ;
         mov     es, ax                  ;
@@ -119,12 +119,10 @@ SsFrame ends
         mov     fs, ax                  ;
 
 ; Load a NULL selector into the LDT.
-
         xor     eax, eax                ; set NULL selector for LDT
         lldt    ax                      ;
 
 ; Extract TSS address from GDT entry and store in PCR.
-
         mov     ax, KGDT64_SYS_TSS + KgdtBaseLow[r8] ; set low 16-bits
         mov     PcTss[rdx], ax          ;
         mov     al, KGDT64_SYS_TSS + KgdtBaseMiddle[r8] ; set middle 8-bits
@@ -135,7 +133,6 @@ SsFrame ends
         mov     PcTss + 4[rdx], eax     ;
 
 ; Initialize the GS base and swap addresses.
-
         mov     eax, edx                ; set low 32-bits of address
         shr     rdx, 32                 ; set high 32-bits of address
         mov     ecx, MSR_GS_BASE        ; get GS base address MSR number
@@ -144,12 +141,10 @@ SsFrame ends
         wrmsr                           ; write GS swap base address
 
 ; Initialize boot structures.
-
         mov     rcx, KeLoaderBlock      ; set loader block address
         call    KiInitializeBootStructures ; initialize boot structures
 
 ; Initialize the kernel debugger if this is processor zero.
-
         xor     ecx, ecx                ; set phase to 0
         mov     rdx, KeLoaderBlock      ; set loader block address
         call    KdInitSystem            ; initialize debugger
@@ -199,15 +194,11 @@ SsFrame ends
 
 
 ; Reset stack to include only the space for the legacy NPX state.
-
-
 @@:     mov     rcx, gs:[PcRspBase]     ; get idle stack address
         lea     rsp, (-KERNEL_STACK_CONTROL_LENGTH)[rcx] ; deallocate stack space
 
 
 ; Set the wait IRQL for the idle thread.
-
-
         mov     rcx, gs:[PcCurrentThread] ; get current thread address
         mov     byte ptr ThWaitIrql[rcx], DISPATCH_LEVEL ; set wait IRQL
 
@@ -216,13 +207,9 @@ SsFrame ends
 ; the idle loop directly - they spin until all processors have been started and the boot master allows them to proceed.
 
 ifndef NT_UP
-
 KiSS20: cmp     KiBarrierWait, 0        ; check if barrier set
-
         Yield                           ; yield processor execution
-
         jnz     short KiSS20            ; if nz, barrier set
-
 endif
 
         call    KiIdleLoop              ; enter idle loop - no return

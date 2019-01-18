@@ -138,9 +138,7 @@ KiDI10: cli                             ; disable interrupts
         or      rax, PbTimerRequest[rbx] ; merge timer request value
 
 ifndef NT_UP
-
         or      rax, PbDeferredReadyListHead[rbx] ; merge deferred ready list
-
 endif
 
         jz      short KiDI20            ; if z, no DPCs to process
@@ -191,15 +189,11 @@ KiDI40: cmp     qword ptr PbNextThread[rbx], 0 ; check if new thread selected
 ; There is a new thread scheduled for execution and the dispatcher lock
 ; has been acquired. Context switch to the new thread immediately.
 
-; N.B. The following routine is entered by falling through from the above
-;      routine.
-
+; N.B. The following routine is entered by falling through from the above routine.
 ; N.B. The following routine is carefully written as a nested function that
 ;      appears to have been called directly by the caller of the above
 ;      function which processes the dispatch interrupt.
-
 ; Arguments:
-
 ;   None.
 
 
@@ -263,36 +257,21 @@ endif
 
 
 ; Routine Description:
-
 ;   This routine is called to swap context from one thread to the next. It
 ;   swaps context, flushes the translation buffer, swaps the process address
 ;   space if necessary, and returns to its caller.
-
 ;   N.B. This routine is only called by code within this module and the idle
 ;        thread code and uses special register calling conventions.
-
 ; Arguments:
-
-;   al - Supplies a boolean value that determines whether the full legacy
-;       floating state needs to be saved.
-
+;   al - Supplies a boolean value that determines whether the full legacy floating state needs to be saved.
 ;   cl - Supplies the APC interrupt bypass disable IRQL value.
-
 ;   rbx - Supplies the address of the current PRCB.
-
 ;   rdi - Supplies the address of previous thread.
-
 ;   rsi - Supplies the address of next thread.
-
 ; Return value:
-
 ;   al - Supplies the kernel APC pending flag.
-
 ;   rbx - Supplies the address of the current PRCB.
-
 ;   rsi - Supplies the address of current thread.
-
-
 
         NESTED_ENTRY SwapContext, _TEXT$00
 
@@ -396,9 +375,7 @@ endif
 
 
 ifndef NT_UP
-
    lock xor     PrActiveProcessors[r14], rcx ; set bit in new set
-
 if DBG
 
         test    PrActiveProcessors[r14], rcx ; test if bit set in new set
@@ -424,9 +401,7 @@ endif
 KiSC20:                                 ;
 
 ifndef NT_UP
-
         mov     byte ptr ThSwapBusy[rdi], 0  ; set context swap idle
-
 endif
 
 
