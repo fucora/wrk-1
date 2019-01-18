@@ -158,7 +158,8 @@ Return Value:
         Dpc->SystemArgument1 = SystemArgument1;
         Dpc->SystemArgument2 = SystemArgument2;
 
-        // If the DPC is of high importance, then insert the DPC at the head of the DPC queue. Otherwise, insert the DPC at the end of the DPC queue.
+        // If the DPC is of high importance, then insert the DPC at the head of the DPC queue.
+        // Otherwise, insert the DPC at the end of the DPC queue.
         Inserted = TRUE;
         if (Dpc->Importance == HighImportance) {
             InsertHeadList(&DpcData->DpcListHead, &Dpc->DpcListEntry);
@@ -168,7 +169,8 @@ Return Value:
 
         KeMemoryBarrier();
 
-        // If the DPC is a normal DPC, then determine if a DPC interrupt should be request. Otherwise, check if the DPC thread should be activated.
+        // If the DPC is a normal DPC, then determine if a DPC interrupt should be request.
+        // Otherwise, check if the DPC thread should be activated.
         if (DpcData == &TargetPrcb->DpcData[DPC_THREADED]) {
             // If the DPC thread is not active on the target processor and a thread activation has not been requested, 
             // then request a dispatch interrupt on the target processor.
@@ -205,8 +207,9 @@ Return Value:
 #endif
                 // If the DPC is being queued to another processor and the DPC is of high importance, or the length of the other
                 // processor's DPC queue has exceeded the maximum threshold, then request a dispatch interrupt.
-                // Otherwise, request a dispatch interrupt on the current processor if the DPC is not of low importance, the length of the DPC queue has
-                // exceeded the maximum threshold, or if the DPC request rate is below the minimum threshold.
+                // Otherwise, request a dispatch interrupt on the current processor if the DPC is not of low importance,
+                // the length of the DPC queue has exceeded the maximum threshold,
+                // or if the DPC request rate is below the minimum threshold.
 #if !defined(NT_UP)
                 if (CurrentPrcb != TargetPrcb) {
                     if (((Dpc->Importance == HighImportance) || (DpcData->DpcQueueDepth >= TargetPrcb->MaximumDpcQueueDepth))) {
@@ -228,7 +231,8 @@ Return Value:
         }
     }
 
-    // Release the DPC lock, request a DPC interrupt if required, enable interrupts, and return whether the DPC was queued or not.
+    // Release the DPC lock, request a DPC interrupt if required, enable interrupts, 
+    // and return whether the DPC was queued or not.
 #if !defined(NT_UP)
     KiReleaseSpinLock(&DpcData->DpcLock);
 #endif
@@ -349,8 +353,11 @@ Routine Description:
         CurrentProcessorMask = AFFINITY_MASK(CurrentProcessor);
 
         // Check to determine if there are DPCs that haven't been delivered yet.
-        // Low importance DPCs do not run right away and need to be forced to run now. This only needs to do this once per processor.
-        if ((SentDpcMask & CurrentProcessorMask) == 0 && (CurrentPrcb->DpcData[DPC_NORMAL].DpcQueueDepth > 0) || (CurrentPrcb->DpcData[DPC_THREADED].DpcQueueDepth > 0)) {
+        // Low importance DPCs do not run right away and need to be forced to run now.
+        // This only needs to do this once per processor.
+        if ((SentDpcMask & CurrentProcessorMask) == 0 && 
+            (CurrentPrcb->DpcData[DPC_NORMAL].DpcQueueDepth > 0) || 
+            (CurrentPrcb->DpcData[DPC_THREADED].DpcQueueDepth > 0)) {
             SentDpcMask |= CurrentProcessorMask;
             KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
             KiSendSoftwareInterrupt(CurrentProcessorMask, DISPATCH_LEVEL);
@@ -395,14 +402,12 @@ Arguments:
 */
 {
     ULONG Barrier;
-
 #if !defined(NT_UP)
     PKDPC Dpc;
     ULONG Index;
     ULONG Limit;
     ULONG Number;
 #endif
-
     KIRQL OldIrql;
     DEFERRED_REVERSE_BARRIER ReverseBarrier;
 
@@ -411,7 +416,6 @@ Arguments:
     Barrier = KeNumberProcessors;
     ReverseBarrier.Barrier = Barrier;
     ReverseBarrier.TotalProcessors = Barrier;
-
 #if !defined(NT_UP)
     Index = 0;
     Limit = Barrier;
@@ -494,7 +498,8 @@ Return Value:
         KeYieldProcessor();
     }
 
-    // The barrier value is now of the form 1..MaxProcessors. Decrement this processor's contribution and wait till the value goes to zero.
+    // The barrier value is now of the form 1..MaxProcessors. 
+    // Decrement this processor's contribution and wait till the value goes to zero.
     if (InterlockedDecrement(Barrier) == 0) {
         if (ReverseBarrier->TotalProcessors == 1) {
             InterlockedExchange(Barrier, ReverseBarrier->TotalProcessors);

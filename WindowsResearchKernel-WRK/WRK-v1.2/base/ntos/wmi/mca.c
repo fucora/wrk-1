@@ -42,7 +42,10 @@ NTSTATUS WmipGetLogFromHal(HAL_QUERY_INFORMATION_CLASS InfoClass,
                            ULONG MaxSize,
                            LPGUID Guid);
 NTSTATUS WmipRegisterMcaHandler(ULONG Phase);
-NTSTATUS WmipBuildMcaCmcEvent(OUT PWNODE_SINGLE_INSTANCE Wnode, IN LPGUID EventGuid, IN PERROR_LOGRECORD McaCmcEvent, IN ULONG McaCmcSize);
+NTSTATUS WmipBuildMcaCmcEvent(OUT PWNODE_SINGLE_INSTANCE Wnode,
+                              IN LPGUID EventGuid,
+                              IN PERROR_LOGRECORD McaCmcEvent,
+                              IN ULONG McaCmcSize);
 NTSTATUS WmipGetRawMCAInfo(OUT PUCHAR Buffer, IN OUT PULONG BufferSize);
 NTSTATUS WmipWriteMCAEventLogEvent(PUCHAR Event);
 NTSTATUS WmipSetupWaitForWbem(void);
@@ -76,7 +79,8 @@ void WmipProcessPrevMcaLogs(void);
 #pragma alloc_text(PAGE,WmipProcessPrevMcaLogs)
 #endif
 
-// Set to TRUE when the registry indicates that popups should be disabled. HKLM\System\CurrentControlSet\Control\WMI\DisableMCAPopups
+// Set to TRUE when the registry indicates that popups should be disabled.
+// HKLM\System\CurrentControlSet\Control\WMI\DisableMCAPopups
 ULONG WmipDisableMCAPopups;
 
 GUID WmipMSMCAEvent_InvalidErrorGuid = MSMCAEvent_InvalidErrorGuid;
@@ -282,7 +286,11 @@ NTSTATUS WmipFireOffWmiEvent(LPGUID Guid, ULONG DataSize, PVOID DataPtr)
 }
 
 
-NTSTATUS WmipBuildMcaCmcEvent(OUT PWNODE_SINGLE_INSTANCE Wnode, IN LPGUID EventGuid, IN PERROR_LOGRECORD McaCmcEvent, IN ULONG McaCmcSize)
+NTSTATUS WmipBuildMcaCmcEvent(OUT PWNODE_SINGLE_INSTANCE Wnode,
+                              IN LPGUID EventGuid,
+                              IN PERROR_LOGRECORD McaCmcEvent,
+                              IN ULONG McaCmcSize
+)
 /*
 Routine Description:
     This routine will take a MCA or CMC log and build a WNODE_EVENT_ITEM for it.
@@ -359,7 +367,8 @@ void WmipMceWorkerRoutine(IN PVOID Context             // MCEQUERYINFO
 )
 /*
 Routine Description:
-    Worker routine that handles polling for corrected MCA, CMC and CPE logs from the HAL and then firing them as WMI events.
+    Worker routine that handles polling for corrected MCA, 
+    CMC and CPE logs from the HAL and then firing them as WMI events.
 Arguments:
     Context is a pointer to the MCEQUERYINFO for the type of log that needs to be queried.
 */
@@ -390,7 +399,8 @@ Arguments:
         // We want to protect ourselves from the case where a repeated corrected error would cause the loop to be infinite.
         i = 0;
         do {
-            // Remember how many corrected errors we have received up until this point. We guarantee that we've handled them up until this point
+            // Remember how many corrected errors we have received up until this point.
+            // We guarantee that we've handled them up until this point
             Count = QueryInfo->ItemsOutstanding;
             Status = WmipQueryLogAndFireEvent(QueryInfo);
         } while ((NT_SUCCESS(Status) && (i++ < 256)));
@@ -402,7 +412,8 @@ Arguments:
         WmipEnterSMCritSection();
         x = InterlockedExchange(&QueryInfo->ItemsOutstanding, 0);
         if ((x > Count) && (i < 257)) {
-            // Since there are still more corrected errors to process, queue a new DPC to cause a new worker routine to be run.
+            // Since there are still more corrected errors to process, 
+            // queue a new DPC to cause a new worker routine to be run.
             WmipInsertQueueMCEDpc(QueryInfo);
         }
 
@@ -493,26 +504,18 @@ Return Value:
     switch (Operation) {
     case CmcAvailable:
     case CmcSwitchToPolledMode:
-    {
         QueryInfo = &WmipCmcQueryInfo;
         break;
-    }
     case CpeAvailable:
     case CpeSwitchToPolledMode:
-    {
         QueryInfo = &WmipCpeQueryInfo;
         break;
-    }
     case McaAvailable:
-    {
         QueryInfo = &WmipMcaQueryInfo;
         break;
-    }
     default:
-    {
         WmipAssert(FALSE);
         return(FALSE);
-    }
     }
 
     // Next determine what action to perform
@@ -520,7 +523,6 @@ Return Value:
     case CmcAvailable:
     case CpeAvailable:
     case McaAvailable:
-    {
         // Store the HAL token which is needed to retrieve the logs from the hal
         QueryInfo->Token = Reserved;
 
@@ -535,19 +537,14 @@ Return Value:
             ret = FALSE;
         }
         break;
-    }
     case CmcSwitchToPolledMode:
     case CpeSwitchToPolledMode:
-    {
         KeInsertQueueDpc(&QueryInfo->PollingDpc, Argument2, NULL);
         ret = TRUE;
         break;
-    }
     default:
-    {
         ret = FALSE;
         break;
-    }
     }
 
     return(ret);
@@ -581,19 +578,13 @@ Arguments:
 
         switch (MceType) {
         case KERNEL_MCE_EVENTTYPE_CMC:
-        {
             QueryInfo = &WmipCmcQueryInfo;
             break;
-        }
         case KERNEL_MCE_EVENTTYPE_CPE:
-        {
             QueryInfo = &WmipCpeQueryInfo;
             break;
-        }
         default:
-        {
             QueryInfo = NULL;
-        }
         }
 
         if (QueryInfo != NULL) {
@@ -780,7 +771,10 @@ Routine Description:
                 WmipMCEState = MCE_STATE_REGISTERED;
             } else {
                 WmipMCEState = (ULONG)MCE_STATE_ERROR;
-                WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_MCA_LEVEL | DPFLTR_ERROR_LEVEL, "WMI: Error %x registering MCA error handlers\n", Status));
+                WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                                  DPFLTR_MCA_LEVEL | DPFLTR_ERROR_LEVEL,
+                                  "WMI: Error %x registering MCA error handlers\n",
+                                  Status));
             }
         }
     } else if (WmipMCEState != MCE_STATE_ERROR) {
@@ -866,7 +860,8 @@ NTSTATUS WmipGetLogFromHal(IN HAL_QUERY_INFORMATION_CLASS InfoClass,
                            OUT PERROR_LOGRECORD *Mca,
                            OUT PULONG McaSize,
                            IN ULONG MaxSize,
-                           IN LPGUID Guid)
+                           IN LPGUID Guid
+)
 /*
 Routine Description:
     This routine will call the HAL to get a log and possibly build a wnode event for it.
@@ -1131,6 +1126,7 @@ NTSTATUS WmipSetupWaitForWbem(void)
     Status = STATUS_SUCCESS;
     return(Status);
 }
+
 
 void WmipIsWbemRunningDispatch(
     IN PKDPC Dpc,

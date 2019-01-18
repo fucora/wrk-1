@@ -40,8 +40,8 @@ Routine Description:
             // Acquire the thread lock and the PRCB lock.
             KiAcquireThreadLock(Thread);
             KiAcquirePrcbLock(Prcb);
-            if (Prcb->NextThread == NULL) {// If a thread has not already been selected for execution, then attempt to select another thread for execution.
-                Prcb->NextThread = KiSelectReadyThread(1, Prcb);
+            if (Prcb->NextThread == NULL) {// If a thread has not already been selected for execution, 
+                Prcb->NextThread = KiSelectReadyThread(1, Prcb);//then attempt to select another thread for execution.
             }
 
             if ((NewThread = Prcb->NextThread) != NULL) {// If a new thread has been selected for execution, then switch immediately to the selected thread.
@@ -51,8 +51,10 @@ Routine Description:
                 // N.B. The new priority will never be greater than the previous priority.
                 Thread->Priority = KiComputeNewPriority(Thread, 1);
 
-                // Release the thread lock, set swap busy for the old thread, set the next thread to NULL, set the current thread to the new thread,
-                // set the new thread state to running, set the wait reason, queue the old running thread, and release the PRCB lock, and swp context to the new thread.
+                // Release the thread lock, set swap busy for the old thread, 
+                // set the next thread to NULL, set the current thread to the new thread,
+                // set the new thread state to running, set the wait reason, queue the old running thread,
+                // and release the PRCB lock, and swp context to the new thread.
                 KiReleaseThreadLock(Thread);
                 KiSetContextSwapBusy(Thread);
                 Prcb->NextThread = NULL;

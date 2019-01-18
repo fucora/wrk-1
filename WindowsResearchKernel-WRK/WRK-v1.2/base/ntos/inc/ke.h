@@ -1102,10 +1102,12 @@ NTKERNELAPI VOID KeInitializeApc (
     __in_opt PKRUNDOWN_ROUTINE RundownRoutine,
     __in_opt PKNORMAL_ROUTINE NormalRoutine,
     __in_opt KPROCESSOR_MODE ProcessorMode,
-    __in_opt PVOID NormalContext
-    );
+    __in_opt PVOID NormalContext);
 PLIST_ENTRY KeFlushQueueApc (__inout PKTHREAD Thread, __in KPROCESSOR_MODE ProcessorMode);
-NTKERNELAPI BOOLEAN KeInsertQueueApc (__inout PRKAPC Apc, __in_opt PVOID SystemArgument1, __in_opt PVOID SystemArgument2, __in KPRIORITY Increment);
+NTKERNELAPI BOOLEAN KeInsertQueueApc (__inout PRKAPC Apc,
+                                      __in_opt PVOID SystemArgument1,
+                                      __in_opt PVOID SystemArgument2, 
+                                      __in KPRIORITY Increment);
 BOOLEAN KeRemoveQueueApc (__inout PKAPC Apc);
 VOID KeGenericCallDpc (__in PKDEFERRED_ROUTINE Routine, __in_opt PVOID Context);
 VOID KeSignalCallDpcDone (__in PVOID SystemArgument1);

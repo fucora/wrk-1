@@ -2981,7 +2981,8 @@ typedef struct _IO_REMOVE_LOCK
 #endif
 } IO_REMOVE_LOCK, *PIO_REMOVE_LOCK;
 
-#define IoInitializeRemoveLock(Lock, Tag, Maxmin, HighWater)         IoInitializeRemoveLockEx (Lock, Tag, Maxmin, HighWater, sizeof (IO_REMOVE_LOCK))
+#define IoInitializeRemoveLock(Lock, Tag, Maxmin, HighWater)  \
+       IoInitializeRemoveLockEx (Lock, Tag, Maxmin, HighWater, sizeof (IO_REMOVE_LOCK))
 
 NTKERNELAPI
 VOID
@@ -2998,7 +2999,8 @@ IoInitializeRemoveLockEx(
 
 //  Note: Allocation for remove locks needs to be within the device extension,
 //  so that the memory for this structure stays allocated until such time as the device object itself is deallocated.
-#define IoAcquireRemoveLock(RemoveLock, Tag)         IoAcquireRemoveLockEx(RemoveLock, Tag, __FILE__, __LINE__, sizeof (IO_REMOVE_LOCK))
+#define IoAcquireRemoveLock(RemoveLock, Tag)   \
+      IoAcquireRemoveLockEx(RemoveLock, Tag, __FILE__, __LINE__, sizeof (IO_REMOVE_LOCK))
 
 NTKERNELAPI
 NTSTATUS

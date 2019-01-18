@@ -570,7 +570,8 @@ RestartScan:
             } while (KiInsertTreeTimer(Timer, Interval) == FALSE);
         }
 
-        // If a DPC is specified, then insert it in the target  processor's DPC queue or capture the parameters in the DPC table for subsequent execution on the current processor.
+        // If a DPC is specified, then insert it in the target  processor's DPC queue or 
+        // capture the parameters in the DPC table for subsequent execution on the current processor.
         if (Dpc != NULL) {
             // If the DPC is explicitly targeted to another processor, then queue the DPC to the target processor.
             // Otherwise, capture the DPC parameters for execution on the current processor.

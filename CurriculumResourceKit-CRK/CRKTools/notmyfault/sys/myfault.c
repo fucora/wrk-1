@@ -52,11 +52,8 @@ VOID Hang(VOID)
 }
 
 
-// HangIrp
-
-// Never completes the IRP, resulting in an unkillable process.
-
 VOID HangIrp(VOID)
+// Never completes the IRP, resulting in an unkillable process.
 {
     KEVENT event;
 
@@ -65,11 +62,9 @@ VOID HangIrp(VOID)
 }
 
 
-// PageFault
-
+VOID PageFault(VOID)
 // Fault at high IRQL in user-mode.
 // This is virtually impossible to debug, but Verifier with IRQL checking on XP catches it.
-VOID PageFault(VOID)
 {
     KIRQL  prevIrql;
 
@@ -77,10 +72,8 @@ VOID PageFault(VOID)
 }
 
 
-// IrqlFault
-
-// Fault at high IRQL. !analyze easily figures this one out.
 VOID IrqlFault(VOID)
+// Fault at high IRQL. !analyze easily figures this one out.
 {
     KIRQL  prevIrql;
     PCHAR  memoryPtr;
@@ -105,11 +98,9 @@ VOID IrqlFault(VOID)
 }
 
 
-// TrashStack
-
+VOID TrashStack(VOID)
 // Just blast through the stack. The pending IRP on the current
 // thread in the crash dump hints that this driver might be the cause, but otherwise there's no way to verify it.
-VOID TrashStack(VOID)
 {
     volatile CHAR  buffer[256];
     static int i;
@@ -136,8 +127,7 @@ NTSYSAPI NTSTATUS NTAPI NtReadFile(
     OUT PVOID Buffer,
     IN ULONG Length,
     IN PLARGE_INTEGER ByteOffset OPTIONAL,
-    IN PULONG Key OPTIONAL
-);
+    IN PULONG Key OPTIONAL);
 
 VOID WildPointer(VOID)
 {
@@ -145,10 +135,8 @@ VOID WildPointer(VOID)
 }
 
 
-// BufferOverflow
-
-// Write past the end of the buffer. Verifier will catch it, but without it the crash is impossible to diagnose.
 VOID BufferOverflow(VOID)
+// Write past the end of the buffer. Verifier will catch it, but without it the crash is impossible to diagnose.
 {
     PCHAR   buffer;
     int     i;
@@ -165,16 +153,13 @@ VOID BufferOverflow(VOID)
 }
 
 
-// PoolLeak
-
-// Leak some pool.
 VOID PoolLeak(VOID)
+// Leak some pool.
 {
     ExAllocatePoolWithTag(PagedPool, ALLOCATION_SIZE, 'kaeL');
 }
 
 
-// MyfaultDeviceControl
 NTSTATUS  MyfaultDeviceControl(
     IN PFILE_OBJECT FileObject,
     IN BOOLEAN Wait,
@@ -184,8 +169,7 @@ NTSTATUS  MyfaultDeviceControl(
     IN ULONG OutputBufferLength,
     IN ULONG IoControlCode,
     OUT PIO_STATUS_BLOCK IoStatus,
-    IN PDEVICE_OBJECT DeviceObject
-)
+    IN PDEVICE_OBJECT DeviceObject)
 {
     IoStatus->Status = STATUS_SUCCESS;
     IoStatus->Information = 0;
@@ -224,12 +208,10 @@ NTSTATUS  MyfaultDeviceControl(
 }
 
 
-// MyfaultDispatch
-
-// In this routine we Myfault requests to our own device. The only
-// requests we care about handling explicitely are IOCTL commands that
-// we will get from the GUI. We also expect to get Create and Close commands when the GUI opens and closes communications with us.
 NTSTATUS MyfaultDispatch(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
+// In this routine we Myfault requests to our own device.
+// The only requests we care about handling explicitely are IOCTL commands that we will get from the GUI.
+// We also expect to get Create and Close commands when the GUI opens and closes communications with us.
 {
     PIO_STACK_LOCATION      iosp;
     PVOID                   inputBuffer;
@@ -258,7 +240,15 @@ NTSTATUS MyfaultDispatch(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
             HangIrp();
             return STATUS_PENDING;
         } else {
-            status = MyfaultDeviceControl(iosp->FileObject, TRUE, inputBuffer, inputBufferLength, outputBuffer, outputBufferLength, ioControlCode, &Irp->IoStatus, DeviceObject);
+            status = MyfaultDeviceControl(iosp->FileObject, 
+                                          TRUE,
+                                          inputBuffer,
+                                          inputBufferLength,
+                                          outputBuffer,
+                                          outputBufferLength,
+                                          ioControlCode,
+                                          &Irp->IoStatus, 
+                                          DeviceObject);
         }
         break;
     default:
@@ -273,10 +263,8 @@ NTSTATUS MyfaultDispatch(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 }
 
 
-// MyfaultUnload
-
-// Our job is done - time to leave.
 VOID MyfaultUnload(IN PDRIVER_OBJECT DriverObject)
+// Our job is done - time to leave.
 {
     WCHAR                   deviceLinkBuffer[] = L"\\Device\\MyFault";
     UNICODE_STRING          deviceLinkUnicodeString;
@@ -289,21 +277,18 @@ VOID MyfaultUnload(IN PDRIVER_OBJECT DriverObject)
 }
 
 
-// Tiner crash
-
-// This causes a crash during the boot process, after smss.exe has saved a boot log.
 KDPC  TimerDpc;
 KTIMER CrashTimer;
 VOID TimerDpcRoutine(PKDPC Dpc, PVOID Context, PVOID SystemArgument1, PVOID SystemArgument2)
+// Tiner crash
+// This causes a crash during the boot process, after smss.exe has saved a boot log.
 {
     IrqlFault();
 }
 
 
-// DriverEntry
-
-// Installable driver initialization. Here we just set ourselves up.
 NTSTATUS DriverEntry(IN PDRIVER_OBJECT DriverObject, IN PUNICODE_STRING RegistryPath)
+// Installable driver initialization. Here we just set ourselves up.
 {
     NTSTATUS                status;
     WCHAR                   deviceNameBuffer[] = L"\\Device\\Myfault";
@@ -331,8 +316,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT DriverObject, IN PUNICODE_STRING Registry
         DriverObject->DriverUnload = MyfaultUnload;
     }
 
-    if (!NT_SUCCESS(status)) {
-        // Something went wrong, so clean up
+    if (!NT_SUCCESS(status)) {// Something went wrong, so clean up        
         if (interfaceDevice) {
             IoDeleteDevice(interfaceDevice);
         }
@@ -361,9 +345,8 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT DriverObject, IN PUNICODE_STRING Registry
     paramTable[0].DefaultLength = sizeof(ULONG);
 
     RtlQueryRegistryValues(RTL_REGISTRY_ABSOLUTE, registryPath.Buffer, &paramTable[0], NULL, NULL);
-    if (startType != SERVICE_DEMAND_START) {
-        // Crash here during the boot process
-        KeInitializeDpc(&TimerDpc, TimerDpcRoutine, NULL);
+    if (startType != SERVICE_DEMAND_START) {        
+        KeInitializeDpc(&TimerDpc, TimerDpcRoutine, NULL);// Crash here during the boot process
 
         KeInitializeTimer(&CrashTimer);
 

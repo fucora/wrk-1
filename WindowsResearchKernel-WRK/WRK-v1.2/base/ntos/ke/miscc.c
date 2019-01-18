@@ -262,10 +262,13 @@ Arguments:
     LARGE_INTEGER SetTime;
 
     // As each processor arrives, decrement the remaining processor count.
-    // If this is the last processor to arrive, then compute the time change, and signal all processor when to apply the performance counter change.
+    // If this is the last processor to arrive, then compute the time change, 
+    // and signal all processor when to apply the performance counter change.
     if (InterlockedDecrement((PLONG)&Adjust->KiNumber)) {
         Enable = KeDisableInterrupts();
-        // It is possible to deadlock if one or more of the other processors receives and processes a freeze request while this processor has interrupts disabled. Poll for a freeze request until all processors are known to be in this code.
+        // It is possible to deadlock if one or more of the other processors receives and 
+        // processes a freeze request while this processor has interrupts disabled.
+        // Poll for a freeze request until all processors are known to be in this code.
         do {
             KiPollFreezeExecution();
         } while (Adjust->KiNumber != (ULONG)-1);
@@ -288,7 +291,8 @@ Arguments:
         PerfCount = KeQueryPerformanceCounter(&PerfFreq);
 
         // Compute performance counter for current time.
-        // Multiply SetTime * PerfCount and obtain 96-bit result in cl, li.LowPart, li.HighPart.  Then divide the 96-bit result by 10,000,000 to get new performance counter value.
+        // Multiply SetTime * PerfCount and obtain 96-bit result in cl, li.LowPart, li.HighPart.  
+        // Then divide the 96-bit result by 10,000,000 to get new performance counter value.
         li.QuadPart = RtlEnlargedUnsignedMultiply((ULONG)SetTime.LowPart, (ULONG)PerfFreq.LowPart).QuadPart;
         cl = li.LowPart;
         li.QuadPart = li.HighPart + RtlEnlargedUnsignedMultiply((ULONG)SetTime.LowPart, (ULONG)PerfFreq.HighPart).QuadPart;
@@ -355,7 +359,8 @@ Arguments:
 VOID KeSetTimeIncrement(IN ULONG MaximumIncrement, IN ULONG MinimumIncrement)
 /*
 Routine Description:
-    This function sets the time increment value in 100ns units. This value is added to the system time at each interval clock interrupt.
+    This function sets the time increment value in 100ns units.
+    This value is added to the system time at each interval clock interrupt.
 Arguments:
     MaximumIncrement - Supplies the maximum time between clock interrupts in 100ns units supported by the host HAL.
     MinimumIncrement - Supplies the minimum time between clock interrupts in 100ns units supported by the host HAL.
@@ -385,13 +390,17 @@ Arguments:
     Index - Supplies index of the service table.
 Return Value:
     TRUE - The operation was successful.
-    FALSE - the operation failed. A service table is already bound to the specified location, or the specified index is larger than the maximum allowed index.
+    FALSE - the operation failed. A service table is already bound to the specified location,
+            or the specified index is larger than the maximum allowed index.
 */
 {
     PAGED_CODE();
 
-    // If a system service table is already defined for the specified index, then return FALSE. Otherwise, establish the new system service table.
-    if ((Index > NUMBER_SERVICE_TABLES - 1) || (KeServiceDescriptorTable[Index].Base != NULL) || (KeServiceDescriptorTableShadow[Index].Base != NULL)) {
+    // If a system service table is already defined for the specified index, then return FALSE.
+    // Otherwise, establish the new system service table.
+    if ((Index > NUMBER_SERVICE_TABLES - 1) || 
+        (KeServiceDescriptorTable[Index].Base != NULL) || 
+        (KeServiceDescriptorTableShadow[Index].Base != NULL)) {
         return FALSE;
     } else {
         // If the service table index is equal to the Win32 table, then only update the shadow system service table.
@@ -425,7 +434,8 @@ Return Value:
 {
     PAGED_CODE();
 
-    if ((Index > NUMBER_SERVICE_TABLES - 1) || ((KeServiceDescriptorTable[Index].Base == NULL) && (KeServiceDescriptorTableShadow[Index].Base == NULL))) {
+    if ((Index > NUMBER_SERVICE_TABLES - 1) || 
+        ((KeServiceDescriptorTable[Index].Base == NULL) && (KeServiceDescriptorTableShadow[Index].Base == NULL))) {
         return FALSE;
     } else {
         KeServiceDescriptorTableShadow[Index].Base = NULL;
@@ -668,7 +678,8 @@ Routine Description:
     This routine is called from the NMI interrupt vector, the IRQL is unknown and must be treated as if at HIGH_LEVEL.
     Neither this function or any called function can alter system IRQL.
 
-    The list of handlers must be edited in such a way that it is always valid.   This routine cannot acquire a lock before transiting the list.
+    The list of handlers must be edited in such a way that it is always valid.  
+    This routine cannot acquire a lock before transiting the list.
 Return Value:
     Returns TRUE is any handler on the list claims to have handled the interrupt, FALSE otherwise.
 */
@@ -692,7 +703,8 @@ PVOID KeRegisterNmiCallback(__in PNMI_CALLBACK CallbackRoutine, __in_opt PVOID C
 Routine Description:
     This routine is called to add a callback to the list of Non-Maskable-Interrupt (NMI) handlers.
     This routine must be called at IRQL < DISPATCH_LEVEL.
-    List insertion must be such that the list is ALWAYS valid, an NMI could occur during insertion and the NMI handler must be able to safely transit the list.
+    List insertion must be such that the list is ALWAYS valid, 
+    an NMI could occur during insertion and the NMI handler must be able to safely transit the list.
 Arguments:
     CallbackRoutine supplies a pointer to the routine to be called on NMI.
     Context         supplies an arbitary value which will be passed to the CallbackRoutine.
@@ -736,11 +748,13 @@ NTSTATUS KeDeregisterNmiCallback(__in PVOID Handle)
 Routine Description:
     This routine is called to remove a callback from the list of Non-Maskable-Interrupt callbacks.
     This routine must be called at IRQL < DISPATCH_LEVEL.
-    List removal must be such that the list is ALWAYS valid, an NMI could occur during removal and the NMI handler must be able to safely transit the list.
+    List removal must be such that the list is ALWAYS valid, 
+    an NMI could occur during removal and the NMI handler must be able to safely transit the list.
 Arguments:
     Handle  supplied an opaque handle to the callback object that was returned by KeRegisterNmiCallback.
 Return Value:
-    Returns STATUS_SUCCESS if the object was successfully removed from the list.   STATUS_INVALID_HANDLE otherwise.
+    Returns STATUS_SUCCESS if the object was successfully removed from the list. 
+    STATUS_INVALID_HANDLE otherwise.
 */
 {
     PKNMI_HANDLER_CALLBACK Handler;
