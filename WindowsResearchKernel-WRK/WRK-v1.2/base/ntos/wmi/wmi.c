@@ -27,8 +27,7 @@ BOOLEAN WmipFastIoDeviceControl(
     IN ULONG OutputBufferLength,
     IN ULONG IoControlCode,
     OUT PIO_STATUS_BLOCK IoStatus,
-    IN struct _DEVICE_OBJECT *DeviceObject
-);
+    IN struct _DEVICE_OBJECT *DeviceObject);
 NTSTATUS DriverEntry(IN PDRIVER_OBJECT DriverObject, IN PUNICODE_STRING RegistryPath);
 NTSTATUS WmipProbeWnodeAllData(PWNODE_ALL_DATA Wnode, ULONG InBufferLen, ULONG OutBufferLen);
 NTSTATUS WmipProbeWnodeSingleInstance(PWNODE_SINGLE_INSTANCE Wnode, ULONG InBufferLen, ULONG OutBufferLen, BOOLEAN OutBound);

@@ -115,11 +115,9 @@ Return Value:
     PKPRCB CurrentPrcb;
     PKDPC_DATA DpcData;
     BOOLEAN Inserted;
-
 #if !defined(NT_UP)
     ULONG_PTR Number;
 #endif
-
     KIRQL OldIrql;
     BOOLEAN RequestInterrupt;
     PKPRCB TargetPrcb;
@@ -282,7 +280,6 @@ Return Value:
 #endif
 
         // If the specified DPC is still in the DPC queue, then remove it.
-
         // N.B. It is possible for specified DPC to be removed from the specified DPC queue before the DPC lock is obtained.
         if (DpcData == Dpc->DpcData) {
             DpcData->DpcQueueDepth -= 1;
@@ -317,7 +314,6 @@ Routine Description:
     ULONG CurrentProcessor;
     KIRQL OldIrql;
 #endif
-
     PKPRCB CurrentPrcb;
 
     PAGED_CODE();

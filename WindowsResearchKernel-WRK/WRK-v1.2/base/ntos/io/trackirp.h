@@ -22,7 +22,6 @@ extern ULONG IovpIrpTrackingSpewLevel;
 #define IRP_DIAG_HAS_SURROGATE         0x02000000
 #define IRP_DIAG_IS_SURROGATE          0x01000000
 
-
 //#define TRACKFLAG_ACTIVE               0x00000001
 #define TRACKFLAG_SURROGATE            0x00000002
 #define TRACKFLAG_HAS_SURROGATE        0x00000004
@@ -116,8 +115,7 @@ VOID FASTCALL IovpCompleteRequest4(IN PIRP Irp, IN NTSTATUS ReturnedStatus, IN O
 VOID FASTCALL IovpCompleteRequest5(IN PIRP Irp, IN OUT PIOFCOMPLETEREQUEST_STACKDATA CompletionPacket);
 VOID FASTCALL IovpCompleteRequestApc(IN PIRP Irp, IN PVOID BestStackOffset);
 VOID FASTCALL IovpCancelIrp(IN PIRP Irp, IN OUT PBOOLEAN CancelHandled, IN OUT PBOOLEAN ReturnValue);
-VOID
-IovpExamineIrpStackForwarding(
+VOID IovpExamineIrpStackForwarding(
     IN OUT  PIOV_REQUEST_PACKET  IovPacket,
     IN      BOOLEAN              IsNewSession,
     IN      ULONG                ForwardMethod,
@@ -126,8 +124,7 @@ IovpExamineIrpStackForwarding(
     IN      PVOID                CallerAddress,
     IN OUT  PIO_STACK_LOCATION  *IoCurrentStackLocation,
     OUT     PIO_STACK_LOCATION  *IoLastStackLocation,
-    OUT     ULONG               *StackLocationsAdvanced
-    );
+    OUT     ULONG               *StackLocationsAdvanced);
 NTSTATUS IovpSwapSurrogateIrp(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp, IN PVOID Context);
 VOID FASTCALL IovpExamineDevObjForwarding(IN  PDEVICE_OBJECT DeviceBeingCalled, IN  PDEVICE_OBJECT DeviceLastCalled, OUT PULONG ForwardingTechnique);
 VOID FASTCALL IovpFinalizeIrpSettings(IN OUT PIOV_REQUEST_PACKET IrpTrackingData, IN BOOLEAN SurrogateIrpSwapped);
@@ -135,8 +132,7 @@ NTSTATUS IovpInternalCompletionTrap(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp,
 NTSTATUS IovpInternalDeferredCompletion(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp, IN PVOID Context);
 VOID IovpInternalCompleteAfterWait(IN PVOID Context);
 VOID IovpInternalCompleteAtDPC(IN PKDPC Dpc, IN PVOID DeferredContext, IN PVOID SystemArgument1, IN PVOID SystemArgument2);
-BOOLEAN
-IovpAdvanceStackDownwards(
+BOOLEAN IovpAdvanceStackDownwards(
     IN  PIOV_STACK_LOCATION   StackDataArray,
     IN  CCHAR                 CurrentLocation,
     IN  PIO_STACK_LOCATION    IrpSp,
@@ -144,8 +140,7 @@ IovpAdvanceStackDownwards(
     IN  ULONG                 LocationsAdvanced,
     IN  BOOLEAN               IsNewRequest,
     IN  BOOLEAN               MarkAsTaken,
-    OUT PIOV_STACK_LOCATION   *StackLocationInfo
-    );
+    OUT PIOV_STACK_LOCATION   *StackLocationInfo);
 VOID IovpBuildMiniIrpSnapshot(IN  PIRP Irp, OUT IRP_MINI_SNAPSHOT *IrpSnapshot);
 
 #define SPECIALIRP_MARK_NON_TRACKABLE(Irp) { \

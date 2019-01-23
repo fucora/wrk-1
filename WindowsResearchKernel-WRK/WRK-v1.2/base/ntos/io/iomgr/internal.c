@@ -961,7 +961,8 @@ Routine Description:
     }
 
     // Get a pointer to the first packet on the queue, and begin examining it.
-    // Note that because the processor is at raised IRQL, and because the packet can only be removed in the context of the currently executing thread, 
+    // Note that because the processor is at raised IRQL,
+	// and because the packet can only be removed in the context of the currently executing thread, 
     // that it is not possible for the packet to be removed from the list.
     // On the other hand, it IS possible for the packet to be queued to the thread's APC list at this point, 
     // and this must be blocked/synchronized in order to examine the request.
@@ -969,7 +970,8 @@ Routine Description:
     // Begin, therefore, by acquiring the I/O completion spinlock, so that the packet can be safely examined.
     spIrql = KeAcquireQueuedSpinLock(LockQueueIoCompletionLock);
 
-    // Check to see whether or not the packet has been completed (that is, queued to the current thread).  If not, change threads.
+    // Check to see whether or not the packet has been completed (that is, queued to the current thread). 
+	// If not, change threads.
     entry = thread->IrpList.Flink;
     irp = CONTAINING_RECORD(entry, IRP, ThreadListEntry);
     if (irp->CurrentLocation == irp->StackCount + 2) {
@@ -1012,7 +1014,12 @@ Routine Description:
 }
 
 
-VOID IopDeallocateApc(IN PKAPC Apc, IN PKNORMAL_ROUTINE *NormalRoutine, IN PVOID *NormalContext, IN PVOID *SystemArgument1, IN PVOID *SystemArgument2)
+VOID IopDeallocateApc(IN PKAPC Apc,
+					  IN PKNORMAL_ROUTINE *NormalRoutine,
+					  IN PVOID *NormalContext,
+					  IN PVOID *SystemArgument1,
+					  IN PVOID *SystemArgument2
+)
 /*
 Routine Description:
     This routine is invoked to deallocate an APC that was used to queue a request to a target thread.

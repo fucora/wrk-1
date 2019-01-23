@@ -844,15 +844,20 @@ reparse_loop:
     status = IoCallDriver(deviceObject, irp);// Now invoke the driver itself to open the file.
 
     // One of four things may have happened when the driver was invoked:
-    //    1.  The I/O operation is pending (Status == STATUS_PENDING).  This can occur on devices which need to perform some sort of device manipulation (such as opening a file for a file system).
-    //    2.  The driver returned an error (Status < 0). This occurs when either a supplied parameter was in error, or the device or file system incurred or discovered an error.
-    //    3.  The operation ended in a reparse (Status == STATUS_REPARSE).  This occurs when a file system opens the file, only to discover that it represents a symbolic link.
-    //    4.  The operation is complete and was successful (Status == STATUS_SUCCESS).  Note that for this case the only action is to return a pointer to the file object.
+    //    1.  The I/O operation is pending (Status == STATUS_PENDING).  
+	//        This can occur on devices which need to perform some sort of device manipulation (such as opening a file for a file system).
+    //    2.  The driver returned an error (Status < 0). 
+	//        This occurs when either a supplied parameter was in error, or the device or file system incurred or discovered an error.
+    //    3.  The operation ended in a reparse (Status == STATUS_REPARSE). 
+	//        This occurs when a file system opens the file, only to discover that it represents a symbolic link.
+    //    4.  The operation is complete and was successful (Status == STATUS_SUCCESS). 
+	//        Note that for this case the only action is to return a pointer to the file object.
     if (status == STATUS_PENDING) {
         (VOID)KeWaitForSingleObject(&fileObject->Event, Executive, KernelMode, FALSE, (PLARGE_INTEGER)NULL);
         status = ioStatus.Status;
     } else {
-        // The I/O operation was completed without returning a status of pending.  This means that at this point, the IRP has not been fully completed.  Complete it now.
+        // The I/O operation was completed without returning a status of pending. 
+		// This means that at this point, the IRP has not been fully completed.  Complete it now.
 
         KIRQL irql;
 
@@ -973,7 +978,8 @@ reparse_loop:
         if (ioStatus.Information == IO_REPARSE_TAG_RESERVED_ONE) {
             // If we are reparsing to verify a volume, restart the reparse by attempting to parse the device once again.
             // Note that it would be best to simply recurse, but it's not possible since
-            // there is a limited amount of stack available to kernel mode and a limit needs to be enforced for the number of times that verify reparse can occur.
+            // there is a limited amount of stack available to kernel mode and 
+			// a limit needs to be enforced for the number of times that verify reparse can occur.
             if (++retryCount > IO_MAX_REMOUNT_REPARSE_ATTEMPTS) {
                 return STATUS_UNSUCCESSFUL;
             }

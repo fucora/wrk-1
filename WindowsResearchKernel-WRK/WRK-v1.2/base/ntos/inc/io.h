@@ -1391,7 +1391,8 @@ typedef struct DECLSPEC_ALIGN(MEMORY_ALLOCATION_ALIGNMENT) _IRP
 
     // The following union is used for one of three purposes:
     //    1. This IRP is an associated IRP.  The field is a pointer to a master IRP.
-    //    2. This is the master IRP.  The field is the count of the number of IRPs which must complete (associated IRPs) before the master can complete.
+    //    2. This is the master IRP.  
+	//       The field is the count of the number of IRPs which must complete (associated IRPs) before the master can complete.
     //    3. This operation is being buffered and the field is the address of the system space buffer.
     union
     {
@@ -2539,8 +2540,7 @@ NTKERNELAPI NTSTATUS IoGetDeviceObjectPointer(IN PUNICODE_STRING ObjectName,
 NTKERNELAPI struct _DMA_ADAPTER * IoGetDmaAdapter(
     IN PDEVICE_OBJECT PhysicalDeviceObject, OPTIONAL // required for PnP drivers
     IN struct _DEVICE_DESCRIPTION *DeviceDescription,
-    IN OUT PULONG NumberOfMapRegisters
-);
+    IN OUT PULONG NumberOfMapRegisters);
 NTKERNELAPI BOOLEAN IoForwardIrpSynchronously(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp);
 
 #define IoForwardAndCatchIrp IoForwardIrpSynchronously
@@ -2619,9 +2619,7 @@ NTKERNELAPI PIRP IoGetTopLevelIrp(VOID);
 //     DeviceObject - Pointer to the device object that the request is for.
 //     DpcRoutine - Address of the driver's DPC routine to be executed when the DPC is dequeued for processing.
 #define IoInitializeDpcRequest( DeviceObject, DpcRoutine ) (\
-    KeInitializeDpc( &(DeviceObject)->Dpc,                  \
-                     (PKDEFERRED_ROUTINE) (DpcRoutine),     \
-                     (DeviceObject) ) )
+    KeInitializeDpc( &(DeviceObject)->Dpc, (PKDEFERRED_ROUTINE) (DpcRoutine), (DeviceObject) ) )
 
 // end_ntddk end_wdm end_nthal
 #define IoInitializeThreadedDpcRequest( DeviceObject, DpcRoutine ) (\
@@ -3002,10 +3000,7 @@ IoInitializeRemoveLockEx(
 #define IoAcquireRemoveLock(RemoveLock, Tag)   \
       IoAcquireRemoveLockEx(RemoveLock, Tag, __FILE__, __LINE__, sizeof (IO_REMOVE_LOCK))
 
-NTKERNELAPI
-NTSTATUS
-NTAPI
-IoAcquireRemoveLockEx(
+NTKERNELAPI NTSTATUS NTAPI IoAcquireRemoveLockEx(
     IN PIO_REMOVE_LOCK RemoveLock,
     IN OPTIONAL PVOID   Tag, // Optional
     IN PCSTR            File,
@@ -3246,7 +3241,9 @@ NTKERNELAPI ULONG IoWMIDeviceObjectToProviderId(__in PDEVICE_OBJECT DeviceObject
 #endif
 
 NTKERNELAPI NTSTATUS IoWMIOpenBlock(__in GUID *DataBlockGuid, __in ULONG DesiredAccess, __out PVOID *DataBlockObject);
-NTKERNELAPI NTSTATUS IoWMIQueryAllData(__in PVOID DataBlockObject, __inout ULONG *InOutBufferSize, __out_bcount_opt(*InOutBufferSize) /* non paged */ PVOID OutBuffer);
+NTKERNELAPI NTSTATUS IoWMIQueryAllData(__in PVOID DataBlockObject,
+	__inout ULONG *InOutBufferSize,
+	__out_bcount_opt(*InOutBufferSize) /* non paged */ PVOID OutBuffer);
 NTKERNELAPI NTSTATUS IoWMIQueryAllDataMultiple(
     __in_ecount(ObjectCount) PVOID *DataBlockObjectList,
     __in ULONG ObjectCount,
@@ -3375,11 +3372,17 @@ NTKERNELAPI BOOLEAN IoIs32bitProcess(IN PIRP Irp);
 
 // begin_ntosp
 
-NTKERNELAPI VOID FASTCALL IoAssignDriveLetters(PLOADER_PARAMETER_BLOCK LoaderBlock, PSTRING NtDeviceName, OUT PUCHAR NtSystemPath, OUT PSTRING NtSystemPathString);
+NTKERNELAPI VOID FASTCALL IoAssignDriveLetters(PLOADER_PARAMETER_BLOCK LoaderBlock,
+											   PSTRING NtDeviceName,
+											   OUT PUCHAR NtSystemPath,
+											   OUT PSTRING NtSystemPathString);
 // end_ntosp
 
 // begin_ntddk
-NTKERNELAPI VOID FASTCALL HalExamineMBR(IN PDEVICE_OBJECT DeviceObject, IN ULONG SectorSize, IN ULONG MBRTypeIdentifier, OUT PVOID *Buffer);
+NTKERNELAPI VOID FASTCALL HalExamineMBR(IN PDEVICE_OBJECT DeviceObject,
+										IN ULONG SectorSize, 
+										IN ULONG MBRTypeIdentifier,
+										OUT PVOID *Buffer);
 
 DECLSPEC_DEPRECATED_DDK                 // Use IoReadPartitionTableEx
 NTKERNELAPI
