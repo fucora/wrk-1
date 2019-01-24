@@ -72,7 +72,6 @@ typedef struct _IOV_REQUEST_PACKET {
     UCHAR                       LastLocation;   // Last location from IofCallDriver
     ULONG                       RefTrackingCount;
 
-
     // This field is only set on surrogate IRPs, and contains the locked system
     // VA for the destination of a direct I/O IRP that's being buffered.
     PUCHAR                      SystemDestVA;
@@ -98,5 +97,4 @@ VOID FASTCALL VfPacketLogEntry(
     IN PIOV_REQUEST_PACKET  IovPacket,
     IN IOV_LOG_EVENT        IovLogEvent,
     IN PVOID                Address,
-    IN ULONG_PTR            Data
-    );
+    IN ULONG_PTR            Data);

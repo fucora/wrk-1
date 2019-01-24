@@ -2018,7 +2018,6 @@ Arguments:
     Irp - Pointer to the I/O Request Packet to complete.
     PriorityBoost - Supplies the amount of priority boost that is to be given to the target thread when the special kernel APC is queued.
 */
-
 #define ZeroIrpStackLocation( IrpSp ) {         \
     (IrpSp)->MinorFunction = 0;                 \
     (IrpSp)->Flags = 0;                         \
@@ -2027,7 +2026,6 @@ Arguments:
     (IrpSp)->Parameters.Others.Argument2 = 0;   \
     (IrpSp)->Parameters.Others.Argument3 = 0;   \
     (IrpSp)->FileObject = (PFILE_OBJECT) NULL; }
-
 {
     PIRP masterIrp;
     NTSTATUS status;
@@ -2116,7 +2114,8 @@ Arguments:
     }
 
     // Check to see whether this is an associated IRP.
-    // If so, then decrement the count in the master IRP.  If the count is decremented to zero, then complete the master packet as well.
+    // If so, then decrement the count in the master IRP. 
+	// If the count is decremented to zero, then complete the master packet as well.
     if (Irp->Flags & IRP_ASSOCIATED_IRP) {
         ULONG count;
 
