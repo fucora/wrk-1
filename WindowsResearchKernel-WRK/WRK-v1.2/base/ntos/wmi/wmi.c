@@ -30,7 +30,10 @@ BOOLEAN WmipFastIoDeviceControl(
     IN struct _DEVICE_OBJECT *DeviceObject);
 NTSTATUS DriverEntry(IN PDRIVER_OBJECT DriverObject, IN PUNICODE_STRING RegistryPath);
 NTSTATUS WmipProbeWnodeAllData(PWNODE_ALL_DATA Wnode, ULONG InBufferLen, ULONG OutBufferLen);
-NTSTATUS WmipProbeWnodeSingleInstance(PWNODE_SINGLE_INSTANCE Wnode, ULONG InBufferLen, ULONG OutBufferLen, BOOLEAN OutBound);
+NTSTATUS WmipProbeWnodeSingleInstance(PWNODE_SINGLE_INSTANCE Wnode,
+									  ULONG InBufferLen,
+									  ULONG OutBufferLen,
+									  BOOLEAN OutBound);
 NTSTATUS WmipProbeWnodeSingleItem(PWNODE_SINGLE_ITEM Wnode, ULONG InBufferLen);
 NTSTATUS WmipProbeWnodeMethodItem(PWNODE_METHOD_ITEM Wnode, ULONG InBufferLen, ULONG OutBufferLen);
 NTSTATUS WmipProbeWnodeWorker(
@@ -42,17 +45,24 @@ NTSTATUS WmipProbeWnodeWorker(
     ULONG InBufferLen,
     ULONG OutBufferLen,
     BOOLEAN CheckOutBound,
-    BOOLEAN CheckInBound
-);
+    BOOLEAN CheckInBound);
 NTSTATUS WmipSystemControl(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp);
-NTSTATUS WmipSendWmiIrp(UCHAR MinorFunction, ULONG ProviderId, PVOID DataPath, ULONG BufferLength, PVOID Buffer, PIO_STATUS_BLOCK Iosb);
-NTSTATUS WmipProbeWmiRegRequest(IN PDEVICE_OBJECT DeviceObject, IN PWMIREGREQUEST Buffer, IN ULONG InBufferLen, IN ULONG OutBufferLen, OUT PBOOLEAN MofIgnored);
+NTSTATUS WmipSendWmiIrp(UCHAR MinorFunction,
+						ULONG ProviderId,
+						PVOID DataPath,
+						ULONG BufferLength,
+						PVOID Buffer,
+						PIO_STATUS_BLOCK Iosb);
+NTSTATUS WmipProbeWmiRegRequest(IN PDEVICE_OBJECT DeviceObject,
+								IN PWMIREGREQUEST Buffer,
+								IN ULONG InBufferLen,
+								IN ULONG OutBufferLen,
+								OUT PBOOLEAN MofIgnored);
 
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(INIT,WmipDriverEntry)
 #pragma alloc_text(INIT,DriverEntry)
-
 #pragma alloc_text(PAGE,WmipOpenCloseCleanup)
 #pragma alloc_text(PAGE,WmipIoControl)
 #pragma alloc_text(PAGE,WmipForwardWmiIrp)
@@ -171,8 +181,7 @@ Return Value:
         FILE_DEVICE_UNKNOWN,
         FILE_DEVICE_SECURE_OPEN, // No standard device characteristics
         FALSE,                   // This isn't an exclusive device
-        &WmipServiceDeviceObject
-    );
+        &WmipServiceDeviceObject);
     if (!NT_SUCCESS(Status)) {
         ExFreePool(AdminDeviceSd);
         return(Status);
@@ -195,8 +204,7 @@ Return Value:
         FILE_DEVICE_UNKNOWN,
         FILE_DEVICE_SECURE_OPEN, // No standard device characteristics
         FALSE,                   // This isn't an exclusive device
-        &WmipAdminDeviceObject
-    );
+        &WmipAdminDeviceObject);
     if (!NT_SUCCESS(Status)) {
         IoDeleteDevice(WmipServiceDeviceObject);
         IoDeleteSymbolicLink(&ServiceSymbolicLinkName);
@@ -204,10 +212,11 @@ Return Value:
         return(Status);
     }
 
-    Status = ObSetSecurityObjectByPointer(WmipAdminDeviceObject, DACL_SECURITY_INFORMATION | OWNER_SECURITY_INFORMATION, AdminDeviceSd);
+    Status = ObSetSecurityObjectByPointer(WmipAdminDeviceObject,
+										  DACL_SECURITY_INFORMATION | OWNER_SECURITY_INFORMATION,
+										  AdminDeviceSd);
     ExFreePool(AdminDeviceSd);
     AdminDeviceSd = NULL;
-
     if (!NT_SUCCESS(Status)) {
         IoDeleteDevice(WmipServiceDeviceObject);
         IoDeleteDevice(WmipAdminDeviceObject);
@@ -238,7 +247,13 @@ Return Value:
 
     // Register for notification of docking events
 #if  defined(_AMD64_) || defined(i386)
-    IoRegisterPlugPlayNotification(EventCategoryHardwareProfileChange, 0, NULL, DriverObject, WmipDockUndockEventCallback, NULL, &WmipDockUndockNotificationEntry);
+    IoRegisterPlugPlayNotification(EventCategoryHardwareProfileChange,
+								   0,
+								   NULL,
+								   DriverObject,
+								   WmipDockUndockEventCallback,
+								   NULL,
+								   &WmipDockUndockNotificationEntry);
 #endif
 
     // We reset this flag to let the IO manager know that the device is ready to receive requests.
@@ -326,7 +341,13 @@ NTSTATUS WmipIoControl(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 
         InGuidBlock = (PWMIOPENGUIDBLOCK)Buffer;
 
-        Status = WmipProbeWmiOpenGuidBlock(&CapturedObjectAttributes, &CapturedGuidString, CapturedGuidBuffer, &DesiredAccess, InGuidBlock, InBufferLen, OutBufferLen);
+        Status = WmipProbeWmiOpenGuidBlock(&CapturedObjectAttributes,
+										   &CapturedGuidString,
+										   CapturedGuidBuffer,
+										   &DesiredAccess,
+										   InGuidBlock,
+										   InBufferLen,
+										   OutBufferLen);
         if (NT_SUCCESS(Status)) {
             Status = WmipOpenBlock(Ioctl, UserMode, &CapturedObjectAttributes, DesiredAccess, &Handle);
             if (NT_SUCCESS(Status)) {
@@ -409,7 +430,15 @@ NTSTATUS WmipIoControl(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
             (QsiMultiple->QueryCount > 0) &&
             (QsiMultiple->QueryCount < QUERYMULIPLEHANDLELIMIT) &&
             RTL_CONTAINS_FIELD(QsiMultiple, InBufferLen, QsiInfo[QsiMultiple->QueryCount - 1])) {
-            Status = WmipQuerySingleMultiple(Irp, UserMode, Buffer, OutBufferLen, QsiMultiple, QsiMultiple->QueryCount, NULL, NULL, &OutBufferLen);
+            Status = WmipQuerySingleMultiple(Irp, 
+											 UserMode,
+											 Buffer,
+											 OutBufferLen,
+											 QsiMultiple,
+											 QsiMultiple->QueryCount,
+											 NULL,
+											 NULL, 
+											 &OutBufferLen);
         } else {
             Status = STATUS_INVALID_PARAMETER;
         }
@@ -554,7 +583,10 @@ NTSTATUS WmipIoControl(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 
                 // Ensure that language is nul terminated
                 LanguageChange->Language[MAX_LANGUAGE_SIZE - 1] = 0;
-                WmipGenerateMofResourceNotification(LanguageChange->Language, L"", LanguageGuid, MOFEVENT_ACTION_LANGUAGE_CHANGE);
+                WmipGenerateMofResourceNotification(LanguageChange->Language,
+													L"",
+													LanguageGuid,
+													MOFEVENT_ACTION_LANGUAGE_CHANGE);
                 OutBufferLen = 0;
                 Status = STATUS_SUCCESS;
             } else {
@@ -672,7 +704,12 @@ NTSTATUS WmipIoControl(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
             }
 #endif
 
-            Status = WmipRegisterUMGuids(WmiRegRequest->ObjectAttributes, WmiRegRequest->Cookie, WmiRegInfo, WmiRegInfoSize, &RequestHandle, &WmiRegResults->LoggerContext);
+            Status = WmipRegisterUMGuids(WmiRegRequest->ObjectAttributes,
+										 WmiRegRequest->Cookie,
+										 WmiRegInfo,
+										 WmiRegInfoSize,
+										 &RequestHandle,
+										 &WmiRegResults->LoggerContext);
             if (NT_SUCCESS(Status)) {
 #if defined(_WIN64)
                 if (IoIs32bitProcess(NULL)) {
@@ -1058,7 +1095,10 @@ NTSTATUS WmipIoControl(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
     }
     default:
     {
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_INFO_LEVEL, "WMI: Unsupported IOCTL %x\n", irpStack->Parameters.DeviceIoControl.IoControlCode));
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+						  DPFLTR_INFO_LEVEL, 
+						  "WMI: Unsupported IOCTL %x\n",
+						  irpStack->Parameters.DeviceIoControl.IoControlCode));
         Status = STATUS_INVALID_DEVICE_REQUEST;
     }
     }
@@ -1256,8 +1296,8 @@ Return Value:
     }
 
     // Determine if this is a query for the device pnp id guid
-    IsPnPIdRequest = ((MinorFunction != IRP_MN_REGINFO) && (MinorFunction != IRP_MN_REGINFO_EX)) && ((IsEqualGUID(&Wnode->Guid, &WmipDataProviderPnpidGuid)) ||
-        (IsEqualGUID(&Wnode->Guid, &WmipDataProviderPnPIdInstanceNamesGuid)));
+    IsPnPIdRequest = ((MinorFunction != IRP_MN_REGINFO) && (MinorFunction != IRP_MN_REGINFO_EX)) && 
+		((IsEqualGUID(&Wnode->Guid, &WmipDataProviderPnpidGuid)) || (IsEqualGUID(&Wnode->Guid, &WmipDataProviderPnPIdInstanceNamesGuid)));
     if (IsPnPIdRequest && (RegEntry->PDO != NULL)) {
         // Its the PnPId request and WMI is handling it on behalf of the device then switch the device object to our own
         DeviceObject = WmipServiceDeviceObject;
@@ -1304,8 +1344,15 @@ Return Value:
         }
 
 #if DBG
-        if (((MinorFunction == IRP_MN_REGINFO) || (MinorFunction == IRP_MN_REGINFO_EX)) && (NT_SUCCESS(Status)) && (Irp->IoStatus.Information == 0)) {
-            WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_INFO_LEVEL, "WMI: %p completed IRP_MN_REGINFO with size 0 (%p, %x)\n", DeviceObject, Buffer, BufferLength));
+        if (((MinorFunction == IRP_MN_REGINFO) || (MinorFunction == IRP_MN_REGINFO_EX)) && 
+			(NT_SUCCESS(Status)) && 
+			(Irp->IoStatus.Information == 0)) {
+            WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+							  DPFLTR_INFO_LEVEL,
+							  "WMI: %p completed IRP_MN_REGINFO with size 0 (%p, %x)\n",
+							  DeviceObject,
+							  Buffer,
+							  BufferLength));
         }
 #endif
 
@@ -1335,7 +1382,13 @@ Return Value:
 }
 
 
-NTSTATUS WmipSendWmiIrp(UCHAR MinorFunction, ULONG ProviderId, PVOID DataPath, ULONG BufferLength, PVOID Buffer, PIO_STATUS_BLOCK Iosb)
+NTSTATUS WmipSendWmiIrp(UCHAR MinorFunction,
+						ULONG ProviderId,
+						PVOID DataPath,
+						ULONG BufferLength,
+						PVOID Buffer,
+						PIO_STATUS_BLOCK Iosb
+)
 /*
 Routine Description:
     This routine will allocate a new irp and then forward it on as a WMI irp appropriately.
@@ -1437,7 +1490,12 @@ Return Value:
                 HandleName = DeviceInstanceName.Buffer;
                 HandleNameLen = DeviceInstanceName.Length / sizeof(WCHAR);
                 if (FhToInstanceName != NULL) {
-                    Status = ObReferenceObjectByHandle(FhToInstanceName->KernelHandle.Handle, WMIGUID_QUERY, WmipGuidObjectType, UserMode, &GuidObject, NULL);
+                    Status = ObReferenceObjectByHandle(FhToInstanceName->KernelHandle.Handle,
+													   WMIGUID_QUERY,
+													   WmipGuidObjectType,
+													   UserMode,
+													   &GuidObject,
+													   NULL);
                 } else {
                     Status = ObReferenceObjectByPointer(GuidObject, WMIGUID_QUERY, WmipGuidObjectType, KernelMode);
                 }
@@ -1456,8 +1514,11 @@ Return Value:
                                 BaseName = InstanceSet->IsBaseName->BaseName;
                                 BaseNameLen = wcslen(BaseName);
 
-                                // If the instance set has a base name and the beginning of it matches the PnPId and it has only an _ after it then we have got a match
-                                if ((_wcsnicmp(BaseName, HandleName, HandleNameLen) == 0) && (BaseNameLen == (HandleNameLen + 1)) && (BaseName[BaseNameLen - 1] == L'_')) {
+                                // If the instance set has a base name and the beginning of it matches the PnPId and 
+								// it has only an _ after it then we have got a match
+                                if ((_wcsnicmp(BaseName, HandleName, HandleNameLen) == 0) && 
+									(BaseNameLen == (HandleNameLen + 1)) && 
+									(BaseName[BaseNameLen - 1] == L'_')) {
                                     BaseIndex = InstanceSet->IsBaseName->BaseIndex;
                                     Status = STATUS_SUCCESS;
                                 }
@@ -1576,7 +1637,8 @@ Routine Description:
     Probe the incoming Wnode to ensure that any offsets in the header point to memory that is valid within the buffer.
     Also validate that the Wnode is properly formed.
 
-    This routine assumes that the input and output buffers has been probed enough to determine that it is at least as large as MinWnodeSize and MinWnodeSize must be at least as large as sizeof(WNODE_HEADER)
+    This routine assumes that the input and output buffers has been probed enough to determine that it is at least as large as MinWnodeSize and 
+	MinWnodeSize must be at least as large as sizeof(WNODE_HEADER)
 
     WNODE Rules:
     9. For outbound data WnodeDataBlockOffset != 0
@@ -1652,7 +1714,9 @@ Return Value:
     }
 
     // For incoming WNODE, make sure the data block does not extend beyond the input buffer.
-    if ((CheckInBound) && (DataBlockOffset != 0) && ((DataBlockSize > InBufferLen) || (DataBlockOffset > InBufferLen - DataBlockSize))) {
+    if ((CheckInBound) && 
+		(DataBlockOffset != 0) && 
+		((DataBlockSize > InBufferLen) || (DataBlockOffset > InBufferLen - DataBlockSize))) {
         return(STATUS_UNSUCCESSFUL);
     }
 
@@ -1680,7 +1744,7 @@ Routine Description:
     Probe the incoming WNODE_ALL_DATA to ensure that any offsets in the header point to memory that is valid within the buffer.
     Also validate that the WNODE_ALL_DATA is properly formed.
 
-    This routine MUST succeed before any fields in the WNODE_ALL_DATA can be used by any  kernel components when passed in from user mode.
+    This routine MUST succeed before any fields in the WNODE_ALL_DATA can be used by any kernel components when passed in from user mode.
     Note that we can trust that the input and output buffer are properly sized since the WMI IOCTLs are METHOD_BUFFERED and the IO manager does that for us.
 
     WNODE_ALL_DATA_RULES:
@@ -1762,7 +1826,8 @@ Return Value:
     WmipAssert(WmipIsAligned((PUCHAR)Wnode, 8));
 
     // Make sure that enough of the WNODE_SINGLE_INSTANCE was passed so that we can look at it
-    if ((InBufferLen < FIELD_OFFSET(WNODE_SINGLE_INSTANCE, VariableData)) || ((OutBound) && (OutBufferLen < FIELD_OFFSET(WNODE_SINGLE_INSTANCE, VariableData)))) {
+    if ((InBufferLen < FIELD_OFFSET(WNODE_SINGLE_INSTANCE, VariableData)) || 
+		((OutBound) && (OutBufferLen < FIELD_OFFSET(WNODE_SINGLE_INSTANCE, VariableData)))) {
         return(STATUS_UNSUCCESSFUL);
     }
 
@@ -1776,7 +1841,11 @@ Return Value:
                                   OutBound,
                                   (BOOLEAN)(!OutBound));
     if (NT_SUCCESS(Status)) {
-        Status = WmipValidateWnodeHeader(WnodeHeader, InBufferLen, FIELD_OFFSET(WNODE_SINGLE_INSTANCE, VariableData), WNODE_FLAG_SINGLE_INSTANCE, 0xffffff7d);
+        Status = WmipValidateWnodeHeader(WnodeHeader,
+										 InBufferLen,
+										 FIELD_OFFSET(WNODE_SINGLE_INSTANCE, VariableData),
+										 WNODE_FLAG_SINGLE_INSTANCE,
+										 0xffffff7d);
     }
 
     return(Status);
@@ -1838,7 +1907,11 @@ Return Value:
                                   FALSE,
                                   TRUE);
     if (NT_SUCCESS(Status)) {
-        Status = WmipValidateWnodeHeader(WnodeHeader, InBufferLen, FIELD_OFFSET(WNODE_SINGLE_ITEM, VariableData), WNODE_FLAG_SINGLE_ITEM, 0xffffff7b);
+        Status = WmipValidateWnodeHeader(WnodeHeader,
+										 InBufferLen, 
+										 FIELD_OFFSET(WNODE_SINGLE_ITEM, VariableData), 
+										 WNODE_FLAG_SINGLE_ITEM,
+										 0xffffff7b);
     }
 
     return(Status);
@@ -1904,7 +1977,11 @@ Return Value:
                                   TRUE,
                                   TRUE);
     if (NT_SUCCESS(Status)) {
-        Status = WmipValidateWnodeHeader(WnodeHeader, InBufferLen, FIELD_OFFSET(WNODE_METHOD_ITEM, VariableData), WNODE_FLAG_METHOD_ITEM, 0xffff7f7f);
+        Status = WmipValidateWnodeHeader(WnodeHeader,
+										 InBufferLen,
+										 FIELD_OFFSET(WNODE_METHOD_ITEM, VariableData),
+										 WNODE_FLAG_METHOD_ITEM, 
+										 0xffff7f7f);
     }
 
     return(Status);
@@ -1993,8 +2070,7 @@ NTSTATUS WmipProbeWmiOpenGuidBlock(
     PULONG DesiredAccess,
     PWMIOPENGUIDBLOCK InGuidBlock,
     ULONG InBufferLen,
-    ULONG OutBufferLen
-)
+    ULONG OutBufferLen)
 {
     NTSTATUS Status;
     POBJECT_ATTRIBUTES ObjectAttributes;

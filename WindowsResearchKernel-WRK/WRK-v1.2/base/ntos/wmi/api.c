@@ -22,7 +22,6 @@ BOOLEAN WMIInitialize(ULONG Phase, PVOID LoaderBlock);
 #pragma alloc_text(PAGE,IoWMIRegistrationControl)
 #pragma alloc_text(PAGE,IoWMIAllocateInstanceIds)
 #pragma alloc_text(PAGE,IoWMISuggestInstanceName)
-
 #pragma alloc_text(PAGE,IoWMIOpenBlock)
 #pragma alloc_text(PAGE,IoWMIQueryAllData)
 #pragma alloc_text(PAGE,IoWMIQueryAllDataMultiple)
@@ -93,7 +92,8 @@ Arguments:
     Action - Registration action code
         WMIREG_ACTION_REGISTER - If set action is to inform WMI that the device object supports and is ready to receive WMI IRPS.
         WMIREG_ACTION_DEREGISTER - If set action is to inform WMI that the device object no longer supports and is not ready to receive WMI IRPS.
-        WMIREG_ACTION_REREGISTER - If set action is to requery the device object for the guids that it supports. This has the effect of deregistering followed by registering.
+        WMIREG_ACTION_REREGISTER - If set action is to requery the device object for the guids that it supports.
+								   This has the effect of deregistering followed by registering.
         WMIREG_ACTION_UPDATE_GUIDS - If set action is to query for information that is used to update already registered guids.
         WMIREG_ACTION_BLOCK_IRPS - If set action is to block any further irps from being sent to the device. The irps are failed by WMI.
         If the  WMIREG_FLAG_CALLBACK is set then DeviceObject actually specifies a callback address and not a DeviceObject
@@ -243,10 +243,11 @@ FillInstId:
 }
 
 
-NTSTATUS IoWMISuggestInstanceName(__in_opt PDEVICE_OBJECT PhysicalDeviceObject, 
-__in_opt PUNICODE_STRING SymbolicLinkName, 
-__in BOOLEAN CombineNames, 
-__out PUNICODE_STRING SuggestedInstanceName)
+NTSTATUS IoWMISuggestInstanceName(__in_opt PDEVICE_OBJECT PhysicalDeviceObject,
+								  __in_opt PUNICODE_STRING SymbolicLinkName,
+								  __in BOOLEAN CombineNames,
+								  __out PUNICODE_STRING SuggestedInstanceName
+)
 /*
     Routine Description:
     This routine is used by a device driver to suggest a base name with which to build WMI instance names for the device.
@@ -288,7 +289,11 @@ __out PUNICODE_STRING SuggestedInstanceName)
     DeviceDescSize = 0;
 
     if (PhysicalDeviceObject != NULL) {
-        Status = IoGetDeviceProperty(PhysicalDeviceObject, DevicePropertyDeviceDescription, DeviceDescSize, DeviceDescBuffer, &DeviceDescSizeRequired);
+        Status = IoGetDeviceProperty(PhysicalDeviceObject, 
+									 DevicePropertyDeviceDescription,
+									 DeviceDescSize,
+									 DeviceDescBuffer,
+									 &DeviceDescSizeRequired);
         if (Status == STATUS_BUFFER_TOO_SMALL) {
             DeviceDescBuffer = ExAllocatePoolWithTag(PagedPool, DeviceDescSizeRequired, WMIPOOLTAG);
             if (DeviceDescBuffer == NULL) {
@@ -296,7 +301,11 @@ __out PUNICODE_STRING SuggestedInstanceName)
             }
 
             DeviceDescSize = DeviceDescSizeRequired;
-            Status = IoGetDeviceProperty(PhysicalDeviceObject, DevicePropertyDeviceDescription, DeviceDescSize, DeviceDescBuffer, &DeviceDescSizeRequired);
+            Status = IoGetDeviceProperty(PhysicalDeviceObject, 
+										 DevicePropertyDeviceDescription, 
+										 DeviceDescSize,
+										 DeviceDescBuffer,
+										 &DeviceDescSizeRequired);
             if (!NT_SUCCESS(Status)) {
                 ExFreePool(DeviceDescBuffer);
                 return(Status);
@@ -317,7 +326,12 @@ __out PUNICODE_STRING SuggestedInstanceName)
             if (Status == STATUS_BUFFER_OVERFLOW || Status == STATUS_BUFFER_TOO_SMALL) {
                 InfoBuffer = ExAllocatePoolWithTag(PagedPool, InfoSizeRequired, WMIPOOLTAG);
                 if (InfoBuffer != NULL) {
-                    Status = ZwQueryValueKey(DeviceInstanceKey, &DefaultValue, KeyValueFullInformation, InfoBuffer, InfoSizeRequired, &InfoSizeRequired);
+                    Status = ZwQueryValueKey(DeviceInstanceKey, 
+											 &DefaultValue,
+											 KeyValueFullInformation,
+											 InfoBuffer,
+											 InfoSizeRequired,
+											 &InfoSizeRequired);
                     if (NT_SUCCESS(Status)) {
                         SymLinkDescBuffer = (PWCHAR)((PCHAR)InfoBuffer + InfoBuffer->DataOffset);
                         if (CombineNames) {
@@ -389,7 +403,8 @@ __out PUNICODE_STRING SuggestedInstanceName)
 NTSTATUS IoWMIWriteEvent(__inout PVOID WnodeEventItem)
 /*
 Routine Description:
-    This routine will queue the passed WNODE_EVENT_ITEM for delivery to the WMI user mode agent. Once the event is delivered the WNODE_EVENT_ITEM buffer will be returned to the pool.
+    This routine will queue the passed WNODE_EVENT_ITEM for delivery to the WMI user mode agent.
+	Once the event is delivered the WNODE_EVENT_ITEM buffer will be returned to the pool.
     This routine may be called at DPC level
 Arguments:
     WnodeEventItem - Pointer to WNODE_EVENT_ITEM that has event information.
@@ -452,7 +467,11 @@ Return Value:
     // Memory for event buffers is limited so the size of any event is also limited.
 #if DBG
     if (WnodeHeader->BufferSize > LARGEKMWNODEEVENTSIZE) {
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_EVENT_INFO_LEVEL, "WMI: Large event %p fired by %x via WMI\n", WnodeEventItem, ((PWNODE_HEADER)WnodeEventItem)->ProviderId));
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+						  DPFLTR_EVENT_INFO_LEVEL,
+						  "WMI: Large event %p fired by %x via WMI\n",
+						  WnodeEventItem, 
+						  ((PWNODE_HEADER)WnodeEventItem)->ProviderId));
     }
 #endif
 
@@ -509,7 +528,9 @@ NTSTATUS IoWMIOpenBlock(__in GUID *Guid, __in ULONG DesiredAccess, __out PVOID *
 
     // Establish the OBJECT_ATTRIBUTES for the guid object
     StringCchCopyW(ObjectName, WmiGuidObjectNameLength + 1, WmiGuidObjectDirectory);
-    StringCchPrintfW(&ObjectName[WmiGuidObjectDirectoryLength - 1], WmiGuidObjectNameLength - 8, L"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+    StringCchPrintfW(&ObjectName[WmiGuidObjectDirectoryLength - 1],
+					 WmiGuidObjectNameLength - 8,
+					 L"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                      Guid->Data1,
                      Guid->Data2,
                      Guid->Data3,
@@ -555,7 +576,9 @@ NTSTATUS IoWMIOpenBlock(__in GUID *Guid, __in ULONG DesiredAccess, __out PVOID *
     ((PWNODE_HEADER)(Wnode))->Linkage = 0;                           \
 }
 
-NTSTATUS IoWMIQueryAllData(__in PVOID DataBlockObject, __inout ULONG *InOutBufferSize, __out_bcount_opt(*InOutBufferSize) /* non paged */ PVOID OutBuffer)
+NTSTATUS IoWMIQueryAllData(__in PVOID DataBlockObject,
+						   __inout ULONG *InOutBufferSize,
+						   __out_bcount_opt(*InOutBufferSize) /* non paged */ PVOID OutBuffer)
 {
     NTSTATUS Status;
     WNODE_ALL_DATA WnodeAD;
@@ -590,7 +613,8 @@ NTSTATUS IoWMIQueryAllData(__in PVOID DataBlockObject, __inout ULONG *InOutBuffe
             // Buffer was large enough for provider
             *InOutBufferSize = RetSize;
             if (Wnode == &WnodeAD) {
-                // Although there was enough room for the provider, the caller didn't pass a large enough buffer so we need to return a buffer too small error
+                // Although there was enough room for the provider,
+				// the caller didn't pass a large enough buffer so we need to return a buffer too small error
                 Status = STATUS_BUFFER_TOO_SMALL;
             }
         }
@@ -600,7 +624,10 @@ NTSTATUS IoWMIQueryAllData(__in PVOID DataBlockObject, __inout ULONG *InOutBuffe
 }
 
 
-NTSTATUS IoWMIQueryAllDataMultiple(__in_ecount(ObjectCount) PVOID *DataBlockObjectList, __in ULONG ObjectCount, __inout ULONG *InOutBufferSize, __out_bcount_opt(*InOutBufferSize) PVOID OutBuffer)
+NTSTATUS IoWMIQueryAllDataMultiple(__in_ecount(ObjectCount) PVOID *DataBlockObjectList,
+								   __in ULONG ObjectCount,
+								   __inout ULONG *InOutBufferSize,
+								   __out_bcount_opt(*InOutBufferSize) PVOID OutBuffer)
 {
     NTSTATUS Status;
     WNODE_ALL_DATA WnodeAD;
@@ -623,7 +650,14 @@ NTSTATUS IoWMIQueryAllDataMultiple(__in_ecount(ObjectCount) PVOID *DataBlockObje
         WnodeSize = sizeof(WnodeAD);
     }
 
-    Status = WmipQueryAllDataMultiple(ObjectCount, (PWMIGUIDOBJECT *)DataBlockObjectList, NULL, KernelMode, (PUCHAR)Wnode, WnodeSize, NULL, &RetSize);
+    Status = WmipQueryAllDataMultiple(ObjectCount,
+		(PWMIGUIDOBJECT *)DataBlockObjectList,
+									  NULL,
+									  KernelMode,
+									  (PUCHAR)Wnode,
+									  WnodeSize,
+									  NULL,
+									  &RetSize);
     // if this was a successful query then extract the results
     if (NT_SUCCESS(Status)) {
         if (Wnode->Flags & WNODE_FLAG_TOO_SMALL) {
@@ -634,7 +668,8 @@ NTSTATUS IoWMIQueryAllDataMultiple(__in_ecount(ObjectCount) PVOID *DataBlockObje
             // Buffer was large enough for provider
             *InOutBufferSize = RetSize;
             if (Wnode == (PWNODE_HEADER)&WnodeAD) {
-                // Although there was enough room for the provider, the caller didn't pass a large enough buffer so we need to return a buffer too small error
+                // Although there was enough room for the provider, 
+				// the caller didn't pass a large enough buffer so we need to return a buffer too small error
                 Status = STATUS_BUFFER_TOO_SMALL;
             }
         }
@@ -645,7 +680,10 @@ Exit:
 }
 
 
-NTSTATUS IoWMIQuerySingleInstance(__in PVOID DataBlockObject, __in PUNICODE_STRING InstanceName, __inout ULONG *InOutBufferSize, __out_bcount_opt(*InOutBufferSize) PVOID OutBuffer)
+NTSTATUS IoWMIQuerySingleInstance(__in PVOID DataBlockObject,
+								  __in PUNICODE_STRING InstanceName,
+								  __inout ULONG *InOutBufferSize,
+								  __out_bcount_opt(*InOutBufferSize) PVOID OutBuffer)
 {
     NTSTATUS Status;
     PWNODE_SINGLE_INSTANCE WnodeSI;
@@ -679,7 +717,13 @@ NTSTATUS IoWMIQuerySingleInstance(__in PVOID DataBlockObject, __in PUNICODE_STRI
         *WPtr++ = InstanceName->Length;
         RtlCopyMemory(WPtr, InstanceName->Buffer, InstanceName->Length);
 
-        Status = WmipQuerySetExecuteSI((PWMIGUIDOBJECT)DataBlockObject, NULL, KernelMode, IRP_MN_QUERY_SINGLE_INSTANCE, (PWNODE_HEADER)WnodeSI, WnodeSize, &RetSize);
+        Status = WmipQuerySetExecuteSI((PWMIGUIDOBJECT)DataBlockObject,
+									   NULL,
+									   KernelMode,
+									   IRP_MN_QUERY_SINGLE_INSTANCE,
+									   (PWNODE_HEADER)WnodeSI, 
+									   WnodeSize, 
+									   &RetSize);
 
         // if this was a successful query then extract the results
         if (NT_SUCCESS(Status)) {
@@ -694,7 +738,8 @@ NTSTATUS IoWMIQuerySingleInstance(__in PVOID DataBlockObject, __in PUNICODE_STRI
                 // Buffer not too small, remember output size
                 *InOutBufferSize = RetSize;
                 if (WnodeSI != OutBuffer) {
-                    // Although there was enough room for the provider, the caller didn't pass a large enough buffer so we need to return a buffer too small error
+                    // Although there was enough room for the provider,
+					// the caller didn't pass a large enough buffer so we need to return a buffer too small error
                     Status = STATUS_BUFFER_TOO_SMALL;
                 }
             }
@@ -716,8 +761,7 @@ NTSTATUS IoWMIQuerySingleInstanceMultiple(
     __in_ecount(ObjectCount) PUNICODE_STRING InstanceNames,
     __in ULONG ObjectCount,
     __inout ULONG *InOutBufferSize,
-    __out_bcount_opt(*InOutBufferSize) PVOID OutBuffer
-)
+    __out_bcount_opt(*InOutBufferSize) PVOID OutBuffer)
 {
     NTSTATUS Status;
     ULONG RetSize;
@@ -727,7 +771,10 @@ NTSTATUS IoWMIQuerySingleInstanceMultiple(
 
     PAGED_CODE();
 
-    if (!ARGUMENT_PRESENT(DataBlockObjectList) || !ARGUMENT_PRESENT(InstanceNames) || (ObjectCount == 0) || !ARGUMENT_PRESENT(InOutBufferSize)) {
+    if (!ARGUMENT_PRESENT(DataBlockObjectList) ||
+		!ARGUMENT_PRESENT(InstanceNames) || 
+		(ObjectCount == 0) || 
+		!ARGUMENT_PRESENT(InOutBufferSize)) {
         Status = STATUS_INVALID_PARAMETER;
         goto Exit;
     }
@@ -739,7 +786,15 @@ NTSTATUS IoWMIQuerySingleInstanceMultiple(
         WnodeSize = sizeof(WNODE_TOO_SMALL);
     }
 
-    Status = WmipQuerySingleMultiple(NULL, KernelMode, (PUCHAR)Wnode, WnodeSize, NULL, ObjectCount, (PWMIGUIDOBJECT *)DataBlockObjectList, InstanceNames, &RetSize);
+    Status = WmipQuerySingleMultiple(NULL,
+									 KernelMode,
+									 (PUCHAR)Wnode,
+									 WnodeSize,
+									 NULL,
+									 ObjectCount, 
+									 (PWMIGUIDOBJECT *)DataBlockObjectList,
+									 InstanceNames,
+									 &RetSize);
 
     // if this was a successful query then extract the results
     if (NT_SUCCESS(Status)) {
@@ -751,7 +806,8 @@ NTSTATUS IoWMIQuerySingleInstanceMultiple(
             // Buffer was large enough for provider
             *InOutBufferSize = RetSize;
             if (Wnode == (PWNODE_HEADER)&WnodeTooSmall) {
-                // Although there was enough room for the provider, the caller didn't pass a large enough buffer so we need to return a buffer too small error
+                // Although there was enough room for the provider,
+				// the caller didn't pass a large enough buffer so we need to return a buffer too small error
                 Status = STATUS_BUFFER_TOO_SMALL;
             }
         }
@@ -767,8 +823,7 @@ NTSTATUS IoWMISetSingleInstance(
     __in PUNICODE_STRING InstanceName,
     __in ULONG Version,
     __in ULONG ValueBufferSize,
-    __in_bcount(ValueBufferSize) PVOID ValueBuffer
-)
+    __in_bcount(ValueBufferSize) PVOID ValueBuffer)
 {
     NTSTATUS Status;
     PWNODE_SINGLE_INSTANCE WnodeSI;
@@ -803,7 +858,13 @@ NTSTATUS IoWMISetSingleInstance(
         DPtr = OffsetToPtr(WnodeSI, WnodeSI->DataBlockOffset);
         RtlCopyMemory(DPtr, ValueBuffer, ValueBufferSize);
 
-        Status = WmipQuerySetExecuteSI(DataBlockObject, NULL, KernelMode, IRP_MN_CHANGE_SINGLE_INSTANCE, (PWNODE_HEADER)WnodeSI, SizeNeeded, &RetSize);
+        Status = WmipQuerySetExecuteSI(DataBlockObject,
+									   NULL,
+									   KernelMode,
+									   IRP_MN_CHANGE_SINGLE_INSTANCE,
+									   (PWNODE_HEADER)WnodeSI,
+									   SizeNeeded,
+									   &RetSize);
         WmipFree(WnodeSI);
     } else {
         Status = STATUS_INSUFFICIENT_RESOURCES;
@@ -813,7 +874,12 @@ NTSTATUS IoWMISetSingleInstance(
 }
 
 
-NTSTATUS IoWMISetSingleItem(__in PVOID DataBlockObject, __in PUNICODE_STRING InstanceName, __in ULONG DataItemId, __in ULONG Version, __in ULONG ValueBufferSize, __in_bcount(ValueBufferSize) PVOID ValueBuffer)
+NTSTATUS IoWMISetSingleItem(__in PVOID DataBlockObject,
+							__in PUNICODE_STRING InstanceName,
+							__in ULONG DataItemId,
+							__in ULONG Version,
+							__in ULONG ValueBufferSize,
+							__in_bcount(ValueBufferSize) PVOID ValueBuffer)
 {
     NTSTATUS Status;
     PWNODE_SINGLE_ITEM WnodeSI;
@@ -848,7 +914,13 @@ NTSTATUS IoWMISetSingleItem(__in PVOID DataBlockObject, __in PUNICODE_STRING Ins
         WnodeSI->DataBlockOffset = DataOffset;
         DPtr = OffsetToPtr(WnodeSI, WnodeSI->DataBlockOffset);
         RtlCopyMemory(DPtr, ValueBuffer, ValueBufferSize);
-        Status = WmipQuerySetExecuteSI(DataBlockObject, NULL, KernelMode, IRP_MN_CHANGE_SINGLE_ITEM, (PWNODE_HEADER)WnodeSI, SizeNeeded, &RetSize);
+        Status = WmipQuerySetExecuteSI(DataBlockObject,
+									   NULL,
+									   KernelMode,
+									   IRP_MN_CHANGE_SINGLE_ITEM,
+									   (PWNODE_HEADER)WnodeSI,
+									   SizeNeeded,
+									   &RetSize);
         WmipFree(WnodeSI);
     } else {
         Status = STATUS_INSUFFICIENT_RESOURCES;
@@ -864,8 +936,7 @@ NTSTATUS IoWMIExecuteMethod(
     __in ULONG MethodId,
     __in ULONG InBufferSize,
     __inout PULONG OutBufferSize,
-    __inout_bcount_part_opt(*OutBufferSize, InBufferSize) PUCHAR InOutBuffer
-)
+    __inout_bcount_part_opt(*OutBufferSize, InBufferSize) PUCHAR InOutBuffer)
 {
     NTSTATUS Status;
     PWNODE_METHOD_ITEM WnodeMI;
@@ -898,7 +969,13 @@ NTSTATUS IoWMIExecuteMethod(
         // Copy the input data into the WnodeMethodItem
         DPtr = (PUCHAR)OffsetToPtr(WnodeMI, WnodeMI->DataBlockOffset);
         RtlCopyMemory(DPtr, InOutBuffer, InBufferSize);
-        Status = WmipQuerySetExecuteSI(DataBlockObject, NULL, KernelMode, IRP_MN_EXECUTE_METHOD, (PWNODE_HEADER)WnodeMI, SizeNeeded, &RetSize);
+        Status = WmipQuerySetExecuteSI(DataBlockObject,
+									   NULL,
+									   KernelMode,
+									   IRP_MN_EXECUTE_METHOD,
+									   (PWNODE_HEADER)WnodeMI,
+									   SizeNeeded,
+									   &RetSize);
 
         // if this was a successful query then extract the results
         if (NT_SUCCESS(Status)) {
@@ -928,7 +1005,9 @@ NTSTATUS IoWMIExecuteMethod(
 }
 
 
-NTSTATUS IoWMISetNotificationCallback(__inout PVOID Object, __in WMI_NOTIFICATION_CALLBACK Callback, __in_opt PVOID Context)
+NTSTATUS IoWMISetNotificationCallback(__inout PVOID Object,
+									  __in WMI_NOTIFICATION_CALLBACK Callback,
+									  __in_opt PVOID Context)
 {
     PWMIGUIDOBJECT GuidObject;
 
@@ -946,7 +1025,9 @@ NTSTATUS IoWMISetNotificationCallback(__inout PVOID Object, __in WMI_NOTIFICATIO
 }
 
 
-NTSTATUS IoWMIHandleToInstanceName(__in PVOID DataBlockObject, __in HANDLE FileHandle, __out PUNICODE_STRING InstanceName)
+NTSTATUS IoWMIHandleToInstanceName(__in PVOID DataBlockObject,
+								   __in HANDLE FileHandle, 
+								   __out PUNICODE_STRING InstanceName)
 {
     NTSTATUS Status;
 
@@ -957,7 +1038,9 @@ NTSTATUS IoWMIHandleToInstanceName(__in PVOID DataBlockObject, __in HANDLE FileH
 }
 
 
-NTSTATUS IoWMIDeviceObjectToInstanceName(__in PVOID DataBlockObject, __in PDEVICE_OBJECT DeviceObject, __out PUNICODE_STRING InstanceName)
+NTSTATUS IoWMIDeviceObjectToInstanceName(__in PVOID DataBlockObject,
+										 __in PDEVICE_OBJECT DeviceObject,
+										 __out PUNICODE_STRING InstanceName)
 {
     NTSTATUS Status;
 

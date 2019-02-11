@@ -3185,8 +3185,7 @@ typedef NTSTATUS(*WMIENTRY)(
     IN ULONG BufferSize,
     IN OUT PVOID Buffer,
     IN PVOID Context,
-    OUT PULONG Size
-    );
+    OUT PULONG Size);
 
 #define WMIREG_FLAG_CALLBACK        0x80000000
 // begin_wmikm
@@ -3211,7 +3210,10 @@ typedef struct _IO_WORKITEM *PIO_WORKITEM;
 typedef VOID(*PIO_WORKITEM_ROUTINE) (IN PDEVICE_OBJECT DeviceObject, IN PVOID Context);
 NTKERNELAPI PIO_WORKITEM IoAllocateWorkItem(PDEVICE_OBJECT DeviceObject);
 NTKERNELAPI VOID IoFreeWorkItem(PIO_WORKITEM IoWorkItem);
-NTKERNELAPI VOID IoQueueWorkItem(IN PIO_WORKITEM IoWorkItem, IN PIO_WORKITEM_ROUTINE WorkerRoutine, IN WORK_QUEUE_TYPE QueueType, IN PVOID Context);
+NTKERNELAPI VOID IoQueueWorkItem(IN PIO_WORKITEM IoWorkItem,
+								 IN PIO_WORKITEM_ROUTINE WorkerRoutine,
+								 IN WORK_QUEUE_TYPE QueueType,
+								 IN PVOID Context);
 NTKERNELAPI NTSTATUS IoWMIRegistrationControl(__in PDEVICE_OBJECT DeviceObject, __in ULONG Action);
 
 // Action code for IoWMIRegistrationControl api
@@ -3220,7 +3222,6 @@ NTKERNELAPI NTSTATUS IoWMIRegistrationControl(__in PDEVICE_OBJECT DeviceObject, 
 #define WMIREG_ACTION_REREGISTER    3
 #define WMIREG_ACTION_UPDATE_GUIDS  4
 #define WMIREG_ACTION_BLOCK_IRPS    5
-
 
 // Code passed in IRP_MN_REGINFO WMI irp
 #define WMIREGISTER                 0
@@ -3283,7 +3284,9 @@ NTKERNELAPI NTSTATUS IoWMIExecuteMethod(
 typedef VOID(*WMI_NOTIFICATION_CALLBACK)(PVOID Wnode, PVOID Context);
 NTKERNELAPI NTSTATUS IoWMISetNotificationCallback(__in PVOID Object, __in WMI_NOTIFICATION_CALLBACK Callback, __in_opt PVOID Context);
 NTKERNELAPI NTSTATUS IoWMIHandleToInstanceName(__in PVOID DataBlockObject, __in HANDLE FileHandle, __out PUNICODE_STRING InstanceName);
-NTKERNELAPI NTSTATUS IoWMIDeviceObjectToInstanceName(__in PVOID DataBlockObject, __in PDEVICE_OBJECT DeviceObject, __out PUNICODE_STRING InstanceName);
+NTKERNELAPI NTSTATUS IoWMIDeviceObjectToInstanceName(__in PVOID DataBlockObject,
+													 __in PDEVICE_OBJECT DeviceObject,
+													 __out PUNICODE_STRING InstanceName);
 
 // end_ntddk end_wdm end_ntifs end_ntosp
 

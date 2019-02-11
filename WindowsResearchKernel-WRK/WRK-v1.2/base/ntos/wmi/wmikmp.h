@@ -311,7 +311,6 @@ typedef struct{
 } SMBIOSVERSIONINFO, *PSMBIOSVERSIONINFO;
 
 
-
 // See smbios spec for System Event Log (Type 15) for detailed information
 // on the contents of this structure. The layout from element LogAreaLength
 // to VariableData must match the layout of the SMBIOS System Eventlog
@@ -328,7 +327,6 @@ typedef struct{
     ULONG LogChangeToken;
     ULONG AccessMethodAddress;
 
-
     // LogHeaderFormat, NumberLogTypeDesc, LengthEachLogTypeDesc and
     // ListLogTypeDesc are only valid if LogHeaderDescExists is TRUE.
     // This means that SMBIOS is revision 2.1
@@ -337,8 +335,8 @@ typedef struct{
     UCHAR LengthEachLogTypeDesc;
 
 
-    // Within the variable data is the Log Type descriptors immediately
-    // followed by the Eventlog area. The size of the Log Type Descriptors is LogTypeDescLength bytes and the size of the Eventlog area is LogAreaLength
+    // Within the variable data is the Log Type descriptors immediately followed by the Eventlog area.
+    // The size of the Log Type Descriptors is LogTypeDescLength bytes and the size of the Eventlog area is LogAreaLength
     UCHAR VariableData[1];
 } SMBIOS_EVENTLOG_INFO, *PSMBIOS_EVENTLOG_INFO;
 
@@ -432,9 +430,7 @@ typedef struct _WMIGUIDOBJECT
 
     union
     {
-        // Kernel mode event receiver - all we need is a callback &
-        // context
-
+        // Kernel mode event receiver - all we need is a callback & context
         struct
         {
             WMI_NOTIFICATION_CALLBACK Callback;
@@ -480,7 +476,6 @@ typedef struct _WMIGUIDOBJECT
     ULONG Cookie;
 
     ULONG Flags;
-
 } WMIGUIDOBJECT, *PWMIGUIDOBJECT;
 
 // Set if the guid is a request object, that is receives requests
@@ -793,18 +788,20 @@ typedef struct _WMILIB_INFO
     PWMI_FUNCTION_CONTROL    WmiFunctionControl;
 } WMILIB_INFO, *PWMILIB_INFO;
 
-NTSTATUS
-IoWMICompleteRequest(
+NTSTATUS IoWMICompleteRequest(
     IN PWMILIB_INFO WmiLibInfo,
     IN PDEVICE_OBJECT DeviceObject,
     IN PIRP Irp,
     IN NTSTATUS Status,
     IN ULONG BufferUsed,
-    IN CCHAR PriorityBoost
-    );
+    IN CCHAR PriorityBoost);
 
 NTSTATUS IoWMISystemControl(IN PWMILIB_INFO WmiLibInfo, IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp);
-NTSTATUS IoWMIFireEvent(IN PWMILIB_INFO WmiLibInfo, IN PDEVICE_OBJECT DeviceObject, IN ULONG GuidIndex, IN ULONG EventDataSize, IN PVOID EventData);
+NTSTATUS IoWMIFireEvent(IN PWMILIB_INFO WmiLibInfo,
+						IN PDEVICE_OBJECT DeviceObject,
+						IN ULONG GuidIndex, 
+						IN ULONG EventDataSize,
+						IN PVOID EventData);
 NTSTATUS IoWMIRegistrationControl(IN PDEVICE_OBJECT DeviceObject, IN ULONG Action);
 NTSTATUS IoWMIWriteEvent(__inout PVOID WnodeEventItem);
 
@@ -818,15 +815,13 @@ NTSTATUS WmipEnumerateMofResources(PWMIMOFLIST MofList, ULONG BufferSize, ULONG 
 NTSTATUS WmipInitializeDataStructs(void);
 NTSTATUS WmipRemoveDataSource(PREGENTRY RegEntry);
 NTSTATUS WmipUpdateDataSource(PREGENTRY RegEntry, PWMIREGINFOW RegistrationInfo, ULONG RetSize);
-NTSTATUS WmipAddDataSource(
-    IN PREGENTRY RegEntry,
+NTSTATUS WmipAddDataSource(IN PREGENTRY RegEntry,
     IN PWMIREGINFOW WmiRegInfo,
     IN ULONG BufferSize,
     IN PWCHAR RegPath,
     IN PWCHAR ResourceName,
     IN PWMIGUIDOBJECT RequestObject,
-    IN BOOLEAN IsUserMode
-    );
+    IN BOOLEAN IsUserMode);
 
 #define WmiInsertTimestamp(WnodeHeader) KeQuerySystemTime(&(WnodeHeader)->TimeStamp)
 
@@ -834,22 +829,28 @@ NTSTATUS WmipAddDataSource(
 // consumer.c
 NTSTATUS WmipMarkHandleAsClosed(HANDLE Handle);
 NTSTATUS WmipUMProviderCallback(IN WMIACTIONCODE ActionCode, IN PVOID DataPath, IN ULONG BufferSize, IN OUT PVOID Buffer);
-NTSTATUS WmipOpenBlock(IN ULONG Ioctl, IN KPROCESSOR_MODE AccessMode, IN POBJECT_ATTRIBUTES ObjectAttributes, IN ULONG DesiredAccess, OUT PHANDLE Handle);
-NTSTATUS WmipQueryAllData(IN PWMIGUIDOBJECT GuidObject, IN PIRP Irp, IN KPROCESSOR_MODE AccessMode, IN PWNODE_ALL_DATA Wnode, IN ULONG OutBufferLen, OUT PULONG RetSize);
+NTSTATUS WmipOpenBlock(IN ULONG Ioctl,
+					   IN KPROCESSOR_MODE AccessMode,
+					   IN POBJECT_ATTRIBUTES ObjectAttributes,
+					   IN ULONG DesiredAccess,
+					   OUT PHANDLE Handle);
+NTSTATUS WmipQueryAllData(IN PWMIGUIDOBJECT GuidObject,
+						  IN PIRP Irp,
+						  IN KPROCESSOR_MODE AccessMode,
+						  IN PWNODE_ALL_DATA Wnode,
+						  IN ULONG OutBufferLen,
+						  OUT PULONG RetSize);
 
-NTSTATUS WmipQueryAllDataMultiple(
-    IN ULONG ObjectCount,
+NTSTATUS WmipQueryAllDataMultiple(IN ULONG ObjectCount,
     IN PWMIGUIDOBJECT *ObjectList,
     IN PIRP Irp,
     IN KPROCESSOR_MODE AccessMode,
     IN OUT PUCHAR BufferPtr,
     IN ULONG BufferSize,
     IN PWMIQADMULTIPLE QadMultiple,
-    OUT ULONG *ReturnSize
-    );
+    OUT ULONG *ReturnSize);
 
-NTSTATUS WmipQuerySingleMultiple(
-    IN PIRP Irp,
+NTSTATUS WmipQuerySingleMultiple(IN PIRP Irp,
     IN KPROCESSOR_MODE AccessMode,
     IN OUT PUCHAR BufferPtr,
     IN ULONG BufferSize,
@@ -857,18 +858,15 @@ NTSTATUS WmipQuerySingleMultiple(
     IN ULONG QueryCount,
     IN PWMIGUIDOBJECT *ObjectList,
     IN PUNICODE_STRING InstanceNames,
-    OUT ULONG *ReturnSize
-    );
+    OUT ULONG *ReturnSize);
 
-NTSTATUS WmipQuerySetExecuteSI(
-    IN PWMIGUIDOBJECT GuidObject,
+NTSTATUS WmipQuerySetExecuteSI(IN PWMIGUIDOBJECT GuidObject,
     IN PIRP Irp,
     IN KPROCESSOR_MODE AccessMode,
     IN UCHAR MinorFunction,
     IN OUT PWNODE_HEADER Wnode,
     IN ULONG OutBufferSize,
-    OUT PULONG RetSize
-    );
+    OUT PULONG RetSize);
 
 NTSTATUS WmipEnumerateGuids(ULONG Ioctl, PWMIGUIDLISTINFO GuidList, ULONG MaxBufferSize, ULONG *OutBufferSize);
 NTSTATUS WmipProcessEvent(PWNODE_HEADER Wnode, BOOLEAN IsHiPriority, BOOLEAN FreeBuffer);
@@ -876,14 +874,12 @@ NTSTATUS WmipQueryGuidInfo(IN OUT PWMIQUERYGUIDINFO QueryGuidInfo);
 NTSTATUS WmipReceiveNotifications(PWMIRECEIVENOTIFICATION ReceiveNotification, PULONG OutBufferSize, PIRP Irp);
 void WmipClearIrpObjectList(PIRP Irp);
 NTSTATUS WmipWriteWnodeToObject(PWMIGUIDOBJECT Object, PWNODE_HEADER Wnode, BOOLEAN IsHighPriority);
-NTSTATUS WmipRegisterUMGuids(
-    IN POBJECT_ATTRIBUTES ObjectAttributes,
+NTSTATUS WmipRegisterUMGuids(IN POBJECT_ATTRIBUTES ObjectAttributes,
     IN ULONG Cookie,
     IN PWMIREGINFO RegInfo,
     IN ULONG RegInfoSize,
     OUT HANDLE *RequestHandle,
-    OUT ULONG64 *LoggerContext
-    );
+    OUT ULONG64 *LoggerContext);
 
 NTSTATUS WmipUnregisterGuids(PWMIUNREGGUIDS UnregGuids);
 NTSTATUS WmipCreateUMLogger(IN OUT PWMICREATEUMLOGGER CreateInfo);
@@ -966,7 +962,12 @@ void WmipDecrementIrpCount(IN PREGENTRY RegEntry);
 
 NTSTATUS WmipPDOToDeviceInstanceName(IN PDEVICE_OBJECT PDO, OUT PUNICODE_STRING DeviceInstanceName);
 NTSTATUS WmipValidateWmiRegInfoString(PWMIREGINFO WmiRegInfo, ULONG BufferSize, ULONG Offset, PWCHAR *String);
-NTSTATUS WmipProcessWmiRegInfo(IN PREGENTRY RegEntry, IN PWMIREGINFO WmiRegInfo, IN ULONG BufferSize, IN PWMIGUIDOBJECT RequestObject, IN BOOLEAN Update, IN BOOLEAN IsUserMode);
+NTSTATUS WmipProcessWmiRegInfo(IN PREGENTRY RegEntry, 
+							   IN PWMIREGINFO WmiRegInfo,
+							   IN ULONG BufferSize,
+							   IN PWMIGUIDOBJECT RequestObject,
+							   IN BOOLEAN Update,
+							   IN BOOLEAN IsUserMode);
 
 // from notify.c
 
@@ -1004,20 +1005,24 @@ NTSTATUS WmipProbeWmiOpenGuidBlock(
     ULONG OutBufferLen
     );
 
-NTSTATUS WmipProbeAndCaptureGuidObjectAttributes(POBJECT_ATTRIBUTES CapturedObjectAttributes, PUNICODE_STRING CapturedGuidString, PWCHAR CapturedGuidBuffer, POBJECT_ATTRIBUTES ObjectAttributes);
+NTSTATUS WmipProbeAndCaptureGuidObjectAttributes(POBJECT_ATTRIBUTES CapturedObjectAttributes,
+												 PUNICODE_STRING CapturedGuidString, 
+												 PWCHAR CapturedGuidBuffer,
+												 POBJECT_ATTRIBUTES ObjectAttributes);
 
-NTSTATUS WmipTranslateFileHandle(
-    IN OUT PWMIFHTOINSTANCENAME FhToInstanceName,
+NTSTATUS WmipTranslateFileHandle(IN OUT PWMIFHTOINSTANCENAME FhToInstanceName,
     IN OUT PULONG OutBufferLen,
     IN HANDLE FileHandle,
     IN PDEVICE_OBJECT DeviceObject,
     IN PWMIGUIDOBJECT GuidObject,
-    OUT PUNICODE_STRING InstanceNameString
-    );
+    OUT PUNICODE_STRING InstanceNameString);
 
 
 // from smbios.c
-BOOLEAN WmipFindSMBiosTable(PPHYSICAL_ADDRESS SMBiosTablePhysicalAddress, PUCHAR *SMBiosTableVirtualAddress, PULONG SMBiosTableLength, PSMBIOSVERSIONINFO SMBiosVersionInfo);
+BOOLEAN WmipFindSMBiosTable(PPHYSICAL_ADDRESS SMBiosTablePhysicalAddress,
+							PUCHAR *SMBiosTableVirtualAddress,
+							PULONG SMBiosTableLength,
+							PSMBIOSVERSIONINFO SMBiosVersionInfo);
 
 NTSTATUS WmipGetSMBiosTableData(PUCHAR Buffer, PULONG BufferSize, OUT PSMBIOSVERSIONINFO SMBiosVersionInfo);
 NTSTATUS WmipDockUndockEventCallback(IN PVOID NoificationStructure, IN PVOID Context);
@@ -1042,9 +1047,15 @@ extern POBJECT_TYPE WmipGuidObjectType;
 
 NTSTATUS WmipCreateAdminSD(PSECURITY_DESCRIPTOR *Sd);
 NTSTATUS WmipInitializeSecurity(void);
-NTSTATUS WmipOpenGuidObject(IN POBJECT_ATTRIBUTES ObjectAttributes, IN ACCESS_MASK DesiredAccess, IN KPROCESSOR_MODE AccessMode, OUT PHANDLE Handle, OUT PWMIGUIDOBJECT *ObjectPtr);
+NTSTATUS WmipOpenGuidObject(IN POBJECT_ATTRIBUTES ObjectAttributes,
+							IN ACCESS_MASK DesiredAccess,
+							IN KPROCESSOR_MODE AccessMode,
+							OUT PHANDLE Handle,
+							OUT PWMIGUIDOBJECT *ObjectPtr);
 NTSTATUS WmipCheckGuidAccess(IN LPGUID Guid, IN ACCESS_MASK DesiredAccess, IN PSECURITY_DESCRIPTOR SecurityDescriptor);
-NTSTATUS WmipGetGuidSecurityDescriptor(IN PUNICODE_STRING GuidName, IN PSECURITY_DESCRIPTOR *SecurityDescriptor, IN PSECURITY_DESCRIPTOR UserDefaultSecurity);
+NTSTATUS WmipGetGuidSecurityDescriptor(IN PUNICODE_STRING GuidName,
+									   IN PSECURITY_DESCRIPTOR *SecurityDescriptor, 
+									   IN PSECURITY_DESCRIPTOR UserDefaultSecurity);
 
 // from mca.c
 extern ULONG WmipCpePollInterval;
