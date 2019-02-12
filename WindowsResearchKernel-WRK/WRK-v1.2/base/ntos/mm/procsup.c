@@ -83,8 +83,7 @@ PFN_NUMBER MiMakeOutswappedPageResident(
     IN PMMPTE PointerTempPte,
     IN ULONG Global,
     IN PFN_NUMBER ContainingPage,
-    IN KIRQL OldIrql
-);
+    IN KIRQL OldIrql);
 NTSTATUS MiCreatePebOrTeb(IN PEPROCESS TargetProcess, IN ULONG Size, OUT PVOID *Base);
 VOID MiDeleteAddressesInWorkingSet(IN PEPROCESS Process);
 
@@ -3799,12 +3798,14 @@ Environment:
             }
         }
 
-        // Note NT4 examined the NtHeaders->FileHeader.Characteristics for the IMAGE_FILE_AGGRESIVE_WS_TRIM bit, but this is not needed or used for NT5 and above.
+        // Note NT4 examined the NtHeaders->FileHeader.Characteristics for the IMAGE_FILE_AGGRESIVE_WS_TRIM bit, 
+		// but this is not needed or used for NT5 and above.
 
         // See if image wants to override the default processor affinity mask.
         try {
             if (Characteristics & IMAGE_FILE_UP_SYSTEM_ONLY) {
-                // Image is NOT MP safe.  Assign it a processor on a rotating basis to spread these processes around on MP systems.
+                // Image is NOT MP safe.
+				// Assign it a processor on a rotating basis to spread these processes around on MP systems.
                 do {
                     PebBase->ImageProcessAffinityMask = ((KAFFINITY)0x1 << MmRotatingUniprocessorNumber);
                     if (++MmRotatingUniprocessorNumber >= KeNumberProcessors) {

@@ -9,7 +9,6 @@ Module Name:
     pebteb.w
 
 Abstract:
-
     Declarations of PEB and TEB, and some types contained in them.
 
     Address the maintenance problem that resulted from PEB and TEB being
