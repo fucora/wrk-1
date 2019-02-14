@@ -448,7 +448,8 @@ Arguments:
     ASSERT(KeGetCurrentIrql() <= DISPATCH_LEVEL);
 
     // Raise IRQL to SYNCH level and acquire the process lock.
-    // Sum the process current kernel time, user time, and I/O statistics with the kernel time, user time, and I/O statistics for all of the process threads.
+    // Sum the process current kernel time, user time, and I/O statistics with the kernel time, user time,
+	// and I/O statistics for all of the process threads.
     KeAcquireInStackQueuedSpinLockRaiseToSynch(&Process->ProcessLock, &LockHandle);
     KernelTime = Process->KernelTime;
     UserTime = Process->UserTime;
@@ -835,7 +836,11 @@ Return Value:
 }
 
 
-VOID KiAttachProcess(__inout PRKTHREAD Thread, __in PKPROCESS Process, __in PKLOCK_QUEUE_HANDLE LockHandle, __out PRKAPC_STATE SavedApcState)
+VOID KiAttachProcess(__inout PRKTHREAD Thread,
+					 __in PKPROCESS Process,
+					 __in PKLOCK_QUEUE_HANDLE LockHandle,
+					 __out PRKAPC_STATE SavedApcState
+)
 /*
 Routine Description:
     This function attaches a thread to a target process' address space.

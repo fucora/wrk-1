@@ -593,7 +593,9 @@ NTSTATUS NtQueryInformationProcess(__in HANDLE ProcessHandle,
         IoCounters.OtherTransferCount = Values.OtherTransferCount;
         ObDereferenceObject(Process);
 
-        // Either of these may cause an access violation. The exception handler will return access violation as status code. No further cleanup needs to be done.
+        // Either of these may cause an access violation. 
+		// The exception handler will return access violation as status code.
+		// No further cleanup needs to be done.
         try {
             *(PIO_COUNTERS)ProcessInformation = IoCounters;
             if (ARGUMENT_PRESENT(ReturnLength)) {
