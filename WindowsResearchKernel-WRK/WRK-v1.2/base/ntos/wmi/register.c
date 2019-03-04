@@ -1,5 +1,4 @@
 /*
-
 Copyright (c) Microsoft Corporation. All rights reserved.
 
 You may only use this code if you agree to the terms of the Windows Research Kernel Source Code License agreement (see License.txt).
