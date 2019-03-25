@@ -4,20 +4,38 @@
 // If you do not agree to the terms, do not use the code.
 
 NTSYSAPI NTSTATUS NTAPI ZwDelayExecution (__in BOOLEAN Alertable, __in PLARGE_INTEGER DelayInterval);
-NTSYSAPI NTSTATUS NTAPI ZwQuerySystemEnvironmentValue (__in PUNICODE_STRING VariableName, __out_bcount(ValueLength) PWSTR VariableValue, __in USHORT ValueLength, __out_opt PUSHORT ReturnLength);
-NTSYSAPI NTSTATUS NTAPI ZwSetSystemEnvironmentValue (__in PUNICODE_STRING VariableName, __in PUNICODE_STRING VariableValue);
-NTSYSAPI NTSTATUS NTAPI ZwQuerySystemEnvironmentValueEx (__in PUNICODE_STRING VariableName, __in LPGUID VendorGuid, __out_bcount_opt(*ValueLength) PVOID Value, __inout PULONG ValueLength, __out_opt PULONG Attributes);
-NTSYSAPI NTSTATUS NTAPI ZwSetSystemEnvironmentValueEx (__in PUNICODE_STRING VariableName, __in LPGUID VendorGuid, __in_bcount_opt(ValueLength) PVOID Value, __in ULONG ValueLength, __in ULONG Attributes);
-NTSYSAPI NTSTATUS NTAPI ZwEnumerateSystemEnvironmentValuesEx (__in ULONG InformationClass, __out PVOID Buffer, __inout PULONG BufferLength);
+NTSYSAPI NTSTATUS NTAPI ZwQuerySystemEnvironmentValue (__in PUNICODE_STRING VariableName, 
+													   __out_bcount(ValueLength) PWSTR VariableValue, 
+													   __in USHORT ValueLength, 
+													   __out_opt PUSHORT ReturnLength);
+NTSYSAPI NTSTATUS NTAPI ZwSetSystemEnvironmentValue (__in PUNICODE_STRING VariableName,
+													 __in PUNICODE_STRING VariableValue);
+NTSYSAPI NTSTATUS NTAPI ZwQuerySystemEnvironmentValueEx (__in PUNICODE_STRING VariableName, 
+														 __in LPGUID VendorGuid, 
+														 __out_bcount_opt(*ValueLength) PVOID Value,
+														 __inout PULONG ValueLength, 
+														 __out_opt PULONG Attributes);
+NTSYSAPI NTSTATUS NTAPI ZwSetSystemEnvironmentValueEx (__in PUNICODE_STRING VariableName, 
+													   __in LPGUID VendorGuid, 
+													   __in_bcount_opt(ValueLength) PVOID Value,
+													   __in ULONG ValueLength, 
+													   __in ULONG Attributes);
+NTSYSAPI NTSTATUS NTAPI ZwEnumerateSystemEnvironmentValuesEx (__in ULONG InformationClass,
+															  __out PVOID Buffer,
+															  __inout PULONG BufferLength);
 NTSYSAPI NTSTATUS NTAPI ZwAddBootEntry (__in PBOOT_ENTRY BootEntry, __out_opt PULONG Id);
 NTSYSAPI NTSTATUS NTAPI ZwDeleteBootEntry (__in ULONG Id);
 NTSYSAPI NTSTATUS NTAPI ZwModifyBootEntry (__in PBOOT_ENTRY BootEntry);
 NTSYSAPI NTSTATUS NTAPI ZwEnumerateBootEntries (__out_bcount_opt(*BufferLength) PVOID Buffer, __inout PULONG BufferLength);
 NTSYSAPI NTSTATUS NTAPI ZwQueryBootEntryOrder (__out_ecount_opt(*Count) PULONG Ids, __inout PULONG Count);
 NTSYSAPI NTSTATUS NTAPI ZwSetBootEntryOrder (__in_ecount(Count) PULONG Ids, __in ULONG Count);
-NTSYSAPI NTSTATUS NTAPI ZwQueryBootOptions (__out_bcount_opt(*BootOptionsLength) PBOOT_OPTIONS BootOptions, __inout PULONG BootOptionsLength);
+NTSYSAPI NTSTATUS NTAPI ZwQueryBootOptions (__out_bcount_opt(*BootOptionsLength) PBOOT_OPTIONS BootOptions, 
+											__inout PULONG BootOptionsLength);
 NTSYSAPI NTSTATUS NTAPI ZwSetBootOptions (__in PBOOT_OPTIONS BootOptions, __in ULONG FieldsToChange);
-NTSYSAPI NTSTATUS NTAPI ZwTranslateFilePath (__in PFILE_PATH InputFilePath, __in ULONG OutputType, __out_bcount_opt(*OutputFilePathLength) PFILE_PATH OutputFilePath, __inout_opt PULONG OutputFilePathLength);
+NTSYSAPI NTSTATUS NTAPI ZwTranslateFilePath (__in PFILE_PATH InputFilePath, 
+											 __in ULONG OutputType,
+											 __out_bcount_opt(*OutputFilePathLength) PFILE_PATH OutputFilePath,
+											 __inout_opt PULONG OutputFilePathLength);
 NTSYSAPI NTSTATUS NTAPI ZwAddDriverEntry (__in PEFI_DRIVER_ENTRY DriverEntry, __out_opt PULONG Id);
 NTSYSAPI NTSTATUS NTAPI ZwDeleteDriverEntry (__in ULONG Id);
 NTSYSAPI NTSTATUS NTAPI ZwModifyDriverEntry (__in PEFI_DRIVER_ENTRY DriverEntry);
@@ -32,7 +50,9 @@ NTSYSAPI NTSTATUS NTAPI ZwCreateEvent (
     __in EVENT_TYPE EventType,
     __in BOOLEAN InitialState
     );
-NTSYSAPI NTSTATUS NTAPI ZwOpenEvent (__out PHANDLE EventHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes);
+NTSYSAPI NTSTATUS NTAPI ZwOpenEvent (__out PHANDLE EventHandle,
+									 __in ACCESS_MASK DesiredAccess,
+									 __in POBJECT_ATTRIBUTES ObjectAttributes);
 NTSYSAPI NTSTATUS NTAPI ZwPulseEvent (__in HANDLE EventHandle, __out_opt PLONG PreviousState);
 NTSYSAPI NTSTATUS NTAPI ZwQueryEvent (
     __in HANDLE EventHandle,
@@ -44,16 +64,25 @@ NTSYSAPI NTSTATUS NTAPI ZwQueryEvent (
 NTSYSAPI NTSTATUS NTAPI ZwResetEvent (__in HANDLE EventHandle, __out_opt PLONG PreviousState);
 NTSYSAPI NTSTATUS NTAPI ZwSetEvent (__in HANDLE EventHandle, __out_opt PLONG PreviousState);
 NTSYSAPI NTSTATUS NTAPI ZwSetEventBoostPriority (__in HANDLE EventHandle);
-NTSYSAPI NTSTATUS NTAPI ZwCreateEventPair (__out PHANDLE EventPairHandle, __in ACCESS_MASK DesiredAccess, __in_opt POBJECT_ATTRIBUTES ObjectAttributes);
-NTSYSAPI NTSTATUS NTAPI ZwOpenEventPair (__out PHANDLE EventPairHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes);
+NTSYSAPI NTSTATUS NTAPI ZwCreateEventPair (__out PHANDLE EventPairHandle,
+										   __in ACCESS_MASK DesiredAccess,
+										   __in_opt POBJECT_ATTRIBUTES ObjectAttributes);
+NTSYSAPI NTSTATUS NTAPI ZwOpenEventPair (__out PHANDLE EventPairHandle,
+										 __in ACCESS_MASK DesiredAccess,
+										 __in POBJECT_ATTRIBUTES ObjectAttributes);
 NTSYSAPI NTSTATUS NTAPI ZwWaitLowEventPair ( __in HANDLE EventPairHandle);
 NTSYSAPI NTSTATUS NTAPI ZwWaitHighEventPair (__in HANDLE EventPairHandle);
 NTSYSAPI NTSTATUS NTAPI ZwSetLowWaitHighEventPair (__in HANDLE EventPairHandle);
 NTSYSAPI NTSTATUS NTAPI ZwSetHighWaitLowEventPair (__in HANDLE EventPairHandle);
 NTSYSAPI NTSTATUS NTAPI ZwSetLowEventPair (__in HANDLE EventPairHandle);
 NTSYSAPI NTSTATUS NTAPI ZwSetHighEventPair (__in HANDLE EventPairHandle);
-NTSYSAPI NTSTATUS NTAPI ZwCreateMutant (__out PHANDLE MutantHandle, __in ACCESS_MASK DesiredAccess, __in_opt POBJECT_ATTRIBUTES ObjectAttributes, __in BOOLEAN InitialOwner);
-NTSYSAPI NTSTATUS NTAPI ZwOpenMutant (__out PHANDLE MutantHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes);
+NTSYSAPI NTSTATUS NTAPI ZwCreateMutant (__out PHANDLE MutantHandle,
+										__in ACCESS_MASK DesiredAccess,
+										__in_opt POBJECT_ATTRIBUTES ObjectAttributes,
+										__in BOOLEAN InitialOwner);
+NTSYSAPI NTSTATUS NTAPI ZwOpenMutant (__out PHANDLE MutantHandle,
+									  __in ACCESS_MASK DesiredAccess, 
+									  __in POBJECT_ATTRIBUTES ObjectAttributes);
 NTSYSAPI NTSTATUS NTAPI ZwQueryMutant (
     __in HANDLE MutantHandle,
     __in MUTANT_INFORMATION_CLASS MutantInformationClass,
@@ -69,7 +98,9 @@ NTSYSAPI NTSTATUS NTAPI ZwCreateSemaphore (
     __in LONG InitialCount,
     __in LONG MaximumCount
     );
-NTSYSAPI NTSTATUS NTAPI ZwOpenSemaphore(__out PHANDLE SemaphoreHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes);
+NTSYSAPI NTSTATUS NTAPI ZwOpenSemaphore(__out PHANDLE SemaphoreHandle, 
+										__in ACCESS_MASK DesiredAccess, 
+										__in POBJECT_ATTRIBUTES ObjectAttributes);
 NTSYSAPI NTSTATUS NTAPI ZwQuerySemaphore (
     __in HANDLE SemaphoreHandle,
     __in SEMAPHORE_INFORMATION_CLASS SemaphoreInformationClass,
@@ -77,9 +108,16 @@ NTSYSAPI NTSTATUS NTAPI ZwQuerySemaphore (
     __in ULONG SemaphoreInformationLength,
     __out_opt PULONG ReturnLength
     );
-NTSYSAPI NTSTATUS NTAPI ZwReleaseSemaphore(__in HANDLE SemaphoreHandle, __in LONG ReleaseCount, __out_opt PLONG PreviousCount);
-NTSYSAPI NTSTATUS NTAPI ZwCreateTimer (__out PHANDLE TimerHandle, __in ACCESS_MASK DesiredAccess, __in_opt POBJECT_ATTRIBUTES ObjectAttributes, __in TIMER_TYPE TimerType);
-NTSYSAPI NTSTATUS NTAPI ZwOpenTimer (__out PHANDLE TimerHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes);
+NTSYSAPI NTSTATUS NTAPI ZwReleaseSemaphore(__in HANDLE SemaphoreHandle, 
+										   __in LONG ReleaseCount,
+										   __out_opt PLONG PreviousCount);
+NTSYSAPI NTSTATUS NTAPI ZwCreateTimer (__out PHANDLE TimerHandle, 
+									   __in ACCESS_MASK DesiredAccess,
+									   __in_opt POBJECT_ATTRIBUTES ObjectAttributes,
+									   __in TIMER_TYPE TimerType);
+NTSYSAPI NTSTATUS NTAPI ZwOpenTimer (__out PHANDLE TimerHandle,
+									 __in ACCESS_MASK DesiredAccess, 
+									 __in POBJECT_ATTRIBUTES ObjectAttributes);
 NTSYSAPI NTSTATUS NTAPI ZwCancelTimer (__in HANDLE TimerHandle, __out_opt PBOOLEAN CurrentState);
 NTSYSAPI NTSTATUS NTAPI ZwQueryTimer (
     __in HANDLE TimerHandle,
@@ -120,7 +158,10 @@ NTSYSAPI NTSTATUS NTAPI ZwStopProfile (__in HANDLE ProfileHandle);
 NTSYSAPI NTSTATUS NTAPI ZwSetIntervalProfile (__in ULONG Interval, __in KPROFILE_SOURCE Source);
 NTSYSAPI NTSTATUS NTAPI ZwQueryIntervalProfile (__in KPROFILE_SOURCE ProfileSource, __out PULONG Interval);
 NTSYSAPI NTSTATUS NTAPI ZwQueryPerformanceCounter (__out PLARGE_INTEGER PerformanceCounter, __out_opt PLARGE_INTEGER PerformanceFrequency);
-NTSYSAPI NTSTATUS NTAPI ZwCreateKeyedEvent (__out PHANDLE KeyedEventHandle, __in ACCESS_MASK DesiredAccess, __in_opt POBJECT_ATTRIBUTES ObjectAttributes, __in ULONG Flags);
+NTSYSAPI NTSTATUS NTAPI ZwCreateKeyedEvent (__out PHANDLE KeyedEventHandle,
+											__in ACCESS_MASK DesiredAccess,
+											__in_opt POBJECT_ATTRIBUTES ObjectAttributes,
+											__in ULONG Flags);
 NTSYSAPI NTSTATUS NTAPI ZwOpenKeyedEvent (__out PHANDLE KeyedEventHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes);
 NTSYSAPI NTSTATUS NTAPI ZwReleaseKeyedEvent (__in HANDLE KeyedEventHandle, __in PVOID KeyValue, __in BOOLEAN Alertable, __in_opt PLARGE_INTEGER Timeout);
 NTSYSAPI NTSTATUS NTAPI ZwWaitForKeyedEvent (__in HANDLE KeyedEventHandle, __in PVOID KeyValue, __in BOOLEAN Alertable, __in_opt PLARGE_INTEGER Timeout);
@@ -130,7 +171,9 @@ NTSYSAPI NTSTATUS NTAPI ZwQuerySystemInformation (
     __in ULONG SystemInformationLength,
     __out_opt PULONG ReturnLength
     );
-NTSYSAPI NTSTATUS NTAPI ZwSetSystemInformation (__in SYSTEM_INFORMATION_CLASS SystemInformationClass, __in_bcount_opt(SystemInformationLength) PVOID SystemInformation, __in ULONG SystemInformationLength);
+NTSYSAPI NTSTATUS NTAPI ZwSetSystemInformation (__in SYSTEM_INFORMATION_CLASS SystemInformationClass,
+												__in_bcount_opt(SystemInformationLength) PVOID SystemInformation,
+												__in ULONG SystemInformationLength);
 NTSYSAPI NTSTATUS NTAPI ZwSystemDebugControl (
     __in SYSDBG_COMMAND Command,
     __inout_bcount_opt(InputBufferLength) PVOID InputBuffer,
@@ -373,7 +416,10 @@ NTSYSAPI NTSTATUS NTAPI ZwReadFileScatter (
     __in_opt PLARGE_INTEGER ByteOffset,
     __in_opt PULONG Key
     );
-NTSYSAPI NTSTATUS NTAPI ZwSetEaFile (__in HANDLE FileHandle, __out PIO_STATUS_BLOCK IoStatusBlock, __in_bcount(Length) PVOID Buffer, __in ULONG Length);
+NTSYSAPI NTSTATUS NTAPI ZwSetEaFile (__in HANDLE FileHandle,
+									 __out PIO_STATUS_BLOCK IoStatusBlock,
+									 __in_bcount(Length) PVOID Buffer,
+									 __in ULONG Length);
 NTSYSAPI NTSTATUS NTAPI ZwWriteFileGather (
     __in HANDLE FileHandle,
     __in_opt HANDLE Event,
@@ -387,8 +433,13 @@ NTSYSAPI NTSTATUS NTAPI ZwWriteFileGather (
     );
 NTSYSAPI NTSTATUS NTAPI ZwLoadDriver (__in PUNICODE_STRING DriverServiceName);
 NTSYSAPI NTSTATUS NTAPI ZwUnloadDriver (__in PUNICODE_STRING DriverServiceName);
-NTSYSAPI NTSTATUS NTAPI ZwCreateIoCompletion (__out PHANDLE IoCompletionHandle, __in ACCESS_MASK DesiredAccess, __in_opt POBJECT_ATTRIBUTES ObjectAttributes, __in ULONG Count OPTIONAL);
-NTSYSAPI NTSTATUS NTAPI ZwOpenIoCompletion (__out PHANDLE IoCompletionHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes);
+NTSYSAPI NTSTATUS NTAPI ZwCreateIoCompletion (__out PHANDLE IoCompletionHandle,
+											  __in ACCESS_MASK DesiredAccess,
+											  __in_opt POBJECT_ATTRIBUTES ObjectAttributes,
+											  __in ULONG Count OPTIONAL);
+NTSYSAPI NTSTATUS NTAPI ZwOpenIoCompletion (__out PHANDLE IoCompletionHandle,
+											__in ACCESS_MASK DesiredAccess,
+											__in POBJECT_ATTRIBUTES ObjectAttributes);
 NTSYSAPI NTSTATUS NTAPI ZwQueryIoCompletion (
     __in HANDLE IoCompletionHandle,
     __in IO_COMPLETION_INFORMATION_CLASS IoCompletionInformationClass,
@@ -403,7 +454,11 @@ NTSYSAPI NTSTATUS NTAPI ZwSetIoCompletion (
     __in NTSTATUS IoStatus,
     __in ULONG_PTR IoStatusInformation
     );
-NTSYSAPI NTSTATUS NTAPI ZwRemoveIoCompletion (__in HANDLE IoCompletionHandle, __out PVOID *KeyContext, __out PVOID *ApcContext, __out PIO_STATUS_BLOCK IoStatusBlock, __in_opt PLARGE_INTEGER Timeout);
+NTSYSAPI NTSTATUS NTAPI ZwRemoveIoCompletion (__in HANDLE IoCompletionHandle,
+											  __out PVOID *KeyContext,
+											  __out PVOID *ApcContext, 
+											  __out PIO_STATUS_BLOCK IoStatusBlock,
+											  __in_opt PLARGE_INTEGER Timeout);
 NTSYSAPI NTSTATUS NTAPI ZwCallbackReturn (__in_bcount_opt(OutputLength) PVOID OutputBuffer, __in ULONG OutputLength, __in NTSTATUS Status);
 NTSYSAPI NTSTATUS NTAPI ZwQueryDebugFilterState (__in ULONG ComponentId, __in ULONG Level);
 NTSYSAPI NTSTATUS NTAPI ZwSetDebugFilterState (__in ULONG ComponentId, __in ULONG Level, __in BOOLEAN State);
@@ -454,10 +509,15 @@ NTSYSAPI NTSTATUS NTAPI ZwAcceptConnectPort(
     );
 NTSYSAPI NTSTATUS NTAPI ZwCompleteConnectPort(__in HANDLE PortHandle);
 NTSYSAPI NTSTATUS NTAPI ZwRequestPort(__in HANDLE PortHandle, __in PPORT_MESSAGE RequestMessage);
-NTSYSAPI NTSTATUS NTAPI ZwRequestWaitReplyPort(__in HANDLE PortHandle, __in PPORT_MESSAGE RequestMessage, __out PPORT_MESSAGE ReplyMessage);
+NTSYSAPI NTSTATUS NTAPI ZwRequestWaitReplyPort(__in HANDLE PortHandle,
+											   __in PPORT_MESSAGE RequestMessage,
+											   __out PPORT_MESSAGE ReplyMessage);
 NTSYSAPI NTSTATUS NTAPI ZwReplyPort(__in HANDLE PortHandle, __in PPORT_MESSAGE ReplyMessage);
 NTSYSAPI NTSTATUS NTAPI ZwReplyWaitReplyPort(__in HANDLE PortHandle, __inout PPORT_MESSAGE ReplyMessage);
-NTSYSAPI NTSTATUS NTAPI ZwReplyWaitReceivePort(__in HANDLE PortHandle, __out_opt PVOID *PortContext , __in_opt PPORT_MESSAGE ReplyMessage, __out PPORT_MESSAGE ReceiveMessage);
+NTSYSAPI NTSTATUS NTAPI ZwReplyWaitReceivePort(__in HANDLE PortHandle,
+											   __out_opt PVOID *PortContext ,
+											   __in_opt PPORT_MESSAGE ReplyMessage, 
+											   __out PPORT_MESSAGE ReceiveMessage);
 NTSYSAPI NTSTATUS NTAPI ZwReplyWaitReceivePortEx(
     __in HANDLE PortHandle,
     __out_opt PVOID *PortContext,
@@ -498,7 +558,9 @@ NTSYSAPI NTSTATUS NTAPI ZwCreateSection (
     __in ULONG AllocationAttributes,
     __in_opt HANDLE FileHandle
     );
-NTSYSAPI NTSTATUS NTAPI ZwOpenSection (__out PHANDLE SectionHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes);
+NTSYSAPI NTSTATUS NTAPI ZwOpenSection (__out PHANDLE SectionHandle, 
+									   __in ACCESS_MASK DesiredAccess, 
+									   __in POBJECT_ATTRIBUTES ObjectAttributes);
 NTSYSAPI NTSTATUS NTAPI ZwMapViewOfSection (
     __in HANDLE SectionHandle,
     __in HANDLE ProcessHandle,
@@ -535,11 +597,19 @@ NTSYSAPI NTSTATUS NTAPI ZwReadVirtualMemory (
     __in SIZE_T BufferSize,
     __out_opt PSIZE_T NumberOfBytesRead
     );
-NTSYSAPI NTSTATUS NTAPI ZwWriteVirtualMemory (__in HANDLE ProcessHandle, __in_opt PVOID BaseAddress, __in_bcount(BufferSize) CONST VOID *Buffer, __in SIZE_T BufferSize, __out_opt PSIZE_T NumberOfBytesWritten);
+NTSYSAPI NTSTATUS NTAPI ZwWriteVirtualMemory (__in HANDLE ProcessHandle, 
+											  __in_opt PVOID BaseAddress, 
+											  __in_bcount(BufferSize) CONST VOID *Buffer,
+											  __in SIZE_T BufferSize, 
+											  __out_opt PSIZE_T NumberOfBytesWritten);
 NTSYSAPI NTSTATUS NTAPI ZwFlushVirtualMemory (__in HANDLE ProcessHandle, __inout PVOID *BaseAddress, __inout PSIZE_T RegionSize, __out PIO_STATUS_BLOCK IoStatus);
 NTSYSAPI NTSTATUS NTAPI ZwLockVirtualMemory (__in HANDLE ProcessHandle, __inout PVOID *BaseAddress, __inout PSIZE_T RegionSize, __in ULONG MapType);
 NTSYSAPI NTSTATUS NTAPI ZwUnlockVirtualMemory ( __in HANDLE ProcessHandle, __inout PVOID *BaseAddress, __inout PSIZE_T RegionSize, __in ULONG MapType);
-NTSYSAPI NTSTATUS NTAPI ZwProtectVirtualMemory (__in HANDLE ProcessHandle, __inout PVOID *BaseAddress, __inout PSIZE_T RegionSize, __in ULONG NewProtect, __out PULONG OldProtect);
+NTSYSAPI NTSTATUS NTAPI ZwProtectVirtualMemory (__in HANDLE ProcessHandle,
+												__inout PVOID *BaseAddress,
+												__inout PSIZE_T RegionSize,
+												__in ULONG NewProtect, 
+												__out PULONG OldProtect);
 NTSYSAPI NTSTATUS NTAPI ZwQueryVirtualMemory (
     __in HANDLE ProcessHandle,
     __in PVOID BaseAddress,
@@ -555,10 +625,18 @@ NTSYSAPI NTSTATUS NTAPI ZwQuerySection (
     __in SIZE_T SectionInformationLength,
     __out_opt PSIZE_T ReturnLength
     );
-NTSYSAPI NTSTATUS NTAPI ZwMapUserPhysicalPages (__in PVOID VirtualAddress, __in ULONG_PTR NumberOfPages, __in_ecount_opt(NumberOfPages) PULONG_PTR UserPfnArray);
-NTSYSAPI NTSTATUS NTAPI ZwMapUserPhysicalPagesScatter (__in_ecount(NumberOfPages) PVOID *VirtualAddresses, __in ULONG_PTR NumberOfPages, __in_ecount_opt(NumberOfPages) PULONG_PTR UserPfnArray);
-NTSYSAPI NTSTATUS NTAPI ZwAllocateUserPhysicalPages (__in HANDLE ProcessHandle, __inout PULONG_PTR NumberOfPages, __out_ecount(*NumberOfPages) PULONG_PTR UserPfnArray);
-NTSYSAPI NTSTATUS NTAPI ZwFreeUserPhysicalPages (__in HANDLE ProcessHandle, __inout PULONG_PTR NumberOfPages, __in_ecount(*NumberOfPages) PULONG_PTR UserPfnArray);
+NTSYSAPI NTSTATUS NTAPI ZwMapUserPhysicalPages (__in PVOID VirtualAddress, 
+												__in ULONG_PTR NumberOfPages,
+												__in_ecount_opt(NumberOfPages) PULONG_PTR UserPfnArray);
+NTSYSAPI NTSTATUS NTAPI ZwMapUserPhysicalPagesScatter (__in_ecount(NumberOfPages) PVOID *VirtualAddresses,
+													   __in ULONG_PTR NumberOfPages, 
+													   __in_ecount_opt(NumberOfPages) PULONG_PTR UserPfnArray);
+NTSYSAPI NTSTATUS NTAPI ZwAllocateUserPhysicalPages (__in HANDLE ProcessHandle,
+													 __inout PULONG_PTR NumberOfPages,
+													 __out_ecount(*NumberOfPages) PULONG_PTR UserPfnArray);
+NTSYSAPI NTSTATUS NTAPI ZwFreeUserPhysicalPages (__in HANDLE ProcessHandle, 
+												 __inout PULONG_PTR NumberOfPages,
+												 __in_ecount(*NumberOfPages) PULONG_PTR UserPfnArray);
 NTSYSAPI NTSTATUS NTAPI ZwGetWriteWatch (
     __in HANDLE ProcessHandle,
     __in ULONG Flags,
@@ -569,7 +647,10 @@ NTSYSAPI NTSTATUS NTAPI ZwGetWriteWatch (
     __out PULONG Granularity
     );
 NTSYSAPI NTSTATUS NTAPI ZwResetWriteWatch (__in HANDLE ProcessHandle, __in PVOID BaseAddress, __in SIZE_T RegionSize);
-NTSYSAPI NTSTATUS NTAPI ZwCreatePagingFile (__in PUNICODE_STRING PageFileName, __in PLARGE_INTEGER MinimumSize, __in PLARGE_INTEGER MaximumSize, __in ULONG Priority);
+NTSYSAPI NTSTATUS NTAPI ZwCreatePagingFile (__in PUNICODE_STRING PageFileName,
+											__in PLARGE_INTEGER MinimumSize, 
+											__in PLARGE_INTEGER MaximumSize,
+											__in ULONG Priority);
 NTSYSAPI NTSTATUS NTAPI ZwFlushInstructionCache (__in HANDLE ProcessHandle, __in_opt PVOID BaseAddress, __in SIZE_T Length);
 NTSYSAPI NTSTATUS NTAPI ZwFlushWriteBuffer (VOID);
 NTSYSAPI NTSTATUS NTAPI ZwQueryObject (
@@ -596,7 +677,10 @@ NTSYSAPI NTSTATUS NTAPI ZwDuplicateObject (
     );
 NTSYSAPI NTSTATUS NTAPI ZwMakeTemporaryObject (__in HANDLE Handle);
 NTSYSAPI NTSTATUS NTAPI ZwMakePermanentObject (__in HANDLE Handle);
-NTSYSAPI NTSTATUS NTAPI ZwSignalAndWaitForSingleObject (__in HANDLE SignalHandle, __in HANDLE WaitHandle, __in BOOLEAN Alertable, __in_opt PLARGE_INTEGER Timeout);
+NTSYSAPI NTSTATUS NTAPI ZwSignalAndWaitForSingleObject (__in HANDLE SignalHandle,
+														__in HANDLE WaitHandle,
+														__in BOOLEAN Alertable,
+														__in_opt PLARGE_INTEGER Timeout);
 NTSYSAPI NTSTATUS NTAPI ZwWaitForSingleObject (__in HANDLE Handle, __in BOOLEAN Alertable, __in_opt PLARGE_INTEGER Timeout);
 NTSYSAPI NTSTATUS NTAPI ZwWaitForMultipleObjects (
     __in ULONG Count,
@@ -612,7 +696,9 @@ NTSYSAPI NTSTATUS NTAPI ZwWaitForMultipleObjects32 (
     __in BOOLEAN Alertable,
     __in_opt PLARGE_INTEGER Timeout
     );
-NTSYSAPI NTSTATUS NTAPI ZwSetSecurityObject (__in HANDLE Handle, __in SECURITY_INFORMATION SecurityInformation, __in PSECURITY_DESCRIPTOR SecurityDescriptor);
+NTSYSAPI NTSTATUS NTAPI ZwSetSecurityObject (__in HANDLE Handle,
+											 __in SECURITY_INFORMATION SecurityInformation,
+											 __in PSECURITY_DESCRIPTOR SecurityDescriptor);
 NTSYSAPI NTSTATUS NTAPI ZwQuerySecurityObject (
     __in HANDLE Handle,
     __in SECURITY_INFORMATION SecurityInformation,
@@ -626,7 +712,9 @@ NTSYSAPI NTSTATUS NTAPI ZwCreateDirectoryObject (
     __in ACCESS_MASK DesiredAccess,
     __in POBJECT_ATTRIBUTES ObjectAttributes
     );
-NTSYSAPI NTSTATUS NTAPI ZwOpenDirectoryObject (__out PHANDLE DirectoryHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes);
+NTSYSAPI NTSTATUS NTAPI ZwOpenDirectoryObject (__out PHANDLE DirectoryHandle,
+											   __in ACCESS_MASK DesiredAccess,
+											   __in POBJECT_ATTRIBUTES ObjectAttributes);
 NTSYSAPI NTSTATUS NTAPI ZwQueryDirectoryObject (
     __in HANDLE DirectoryHandle,
     __out_bcount_opt(Length) PVOID Buffer,
@@ -642,8 +730,12 @@ NTSYSAPI NTSTATUS NTAPI ZwCreateSymbolicLinkObject (
     __in POBJECT_ATTRIBUTES ObjectAttributes,
     __in PUNICODE_STRING LinkTarget
     );
-NTSYSAPI NTSTATUS NTAPI ZwOpenSymbolicLinkObject (__out PHANDLE LinkHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes);
-NTSYSAPI NTSTATUS NTAPI ZwQuerySymbolicLinkObject (__in HANDLE LinkHandle, __inout PUNICODE_STRING LinkTarget, __out_opt PULONG ReturnedLength);
+NTSYSAPI NTSTATUS NTAPI ZwOpenSymbolicLinkObject (__out PHANDLE LinkHandle,
+												  __in ACCESS_MASK DesiredAccess,
+												  __in POBJECT_ATTRIBUTES ObjectAttributes);
+NTSYSAPI NTSTATUS NTAPI ZwQuerySymbolicLinkObject (__in HANDLE LinkHandle,
+												   __inout PUNICODE_STRING LinkTarget,
+												   __out_opt PULONG ReturnedLength);
 NTSYSAPI NTSTATUS NTAPI ZwGetPlugPlayEvent (
     __in HANDLE EventHandle,
     __in_opt PVOID Context,
@@ -703,7 +795,10 @@ NTSYSAPI NTSTATUS NTAPI ZwCreateProcessEx (
     __in_opt HANDLE ExceptionPort,
     __in ULONG JobMemberLevel
     );
-NTSYSAPI NTSTATUS NTAPI ZwOpenProcess (__out PHANDLE ProcessHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes, __in_opt PCLIENT_ID ClientId);
+NTSYSAPI NTSTATUS NTAPI ZwOpenProcess (__out PHANDLE ProcessHandle,
+									   __in ACCESS_MASK DesiredAccess,
+									   __in POBJECT_ATTRIBUTES ObjectAttributes,
+									   __in_opt PCLIENT_ID ClientId);
 NTSYSAPI NTSTATUS NTAPI ZwTerminateProcess (__in_opt HANDLE ProcessHandle, __in NTSTATUS ExitStatus);
 NTSYSAPI NTSTATUS NTAPI ZwQueryInformationProcess (
     __in HANDLE ProcessHandle,
@@ -772,7 +867,9 @@ NTSYSAPI NTSTATUS NTAPI ZwSetInformationThread (
     );
 NTSYSAPI NTSTATUS NTAPI ZwAlertThread (__in HANDLE ThreadHandle);
 NTSYSAPI NTSTATUS NTAPI ZwAlertResumeThread (__in HANDLE ThreadHandle, __out_opt PULONG PreviousSuspendCount);
-NTSYSAPI NTSTATUS NTAPI ZwImpersonateThread (__in HANDLE ServerThreadHandle, __in HANDLE ClientThreadHandle, __in PSECURITY_QUALITY_OF_SERVICE SecurityQos);
+NTSYSAPI NTSTATUS NTAPI ZwImpersonateThread (__in HANDLE ServerThreadHandle,
+											 __in HANDLE ClientThreadHandle,
+											 __in PSECURITY_QUALITY_OF_SERVICE SecurityQos);
 NTSYSAPI NTSTATUS NTAPI ZwTestAlert (VOID);
 NTSYSAPI NTSTATUS NTAPI ZwRegisterThreadTerminatePort (__in HANDLE PortHandle);
 NTSYSAPI NTSTATUS NTAPI ZwSetLdtEntries (
@@ -865,7 +962,9 @@ NTSYSAPI NTSTATUS NTAPI ZwLoadKeyEx(
     __in ULONG                Flags,
     __in_opt HANDLE           TrustClassKey
     );
-NTSYSAPI NTSTATUS NTAPI ZwOpenKey(__out PHANDLE KeyHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes);
+NTSYSAPI NTSTATUS NTAPI ZwOpenKey(__out PHANDLE KeyHandle, 
+								  __in ACCESS_MASK DesiredAccess, 
+								  __in POBJECT_ATTRIBUTES ObjectAttributes);
 NTSYSAPI NTSTATUS NTAPI ZwQueryKey(
     __in HANDLE KeyHandle,
     __in KEY_INFORMATION_CLASS KeyInformationClass,
@@ -983,9 +1082,16 @@ NTSYSAPI NTSTATUS NTAPI ZwCreateToken(
 NTSYSAPI NTSTATUS NTAPI ZwCompareTokens(__in HANDLE FirstTokenHandle, __in HANDLE SecondTokenHandle, __out PBOOLEAN Equal);
 NTSYSAPI NTSTATUS NTAPI ZwOpenThreadToken(__in HANDLE ThreadHandle, __in ACCESS_MASK DesiredAccess, __in BOOLEAN OpenAsSelf, __out PHANDLE TokenHandle);
 NTSYSAPI NTSTATUS NTAPI ZwOpenThreadTokenEx(
-    __in HANDLE ThreadHandle, __in ACCESS_MASK DesiredAccess, __in BOOLEAN OpenAsSelf, __in ULONG HandleAttributes, __out PHANDLE TokenHandle);
+    __in HANDLE ThreadHandle,
+	__in ACCESS_MASK DesiredAccess,
+	__in BOOLEAN OpenAsSelf,
+	__in ULONG HandleAttributes,
+	__out PHANDLE TokenHandle);
 NTSYSAPI NTSTATUS NTAPI ZwOpenProcessToken(__in HANDLE ProcessHandle, __in ACCESS_MASK DesiredAccess, __out PHANDLE TokenHandle);
-NTSYSAPI NTSTATUS NTAPI ZwOpenProcessTokenEx(__in HANDLE ProcessHandle, __in ACCESS_MASK DesiredAccess, __in ULONG HandleAttributes, __out PHANDLE TokenHandle);
+NTSYSAPI NTSTATUS NTAPI ZwOpenProcessTokenEx(__in HANDLE ProcessHandle,
+											 __in ACCESS_MASK DesiredAccess, 
+											 __in ULONG HandleAttributes,
+											 __out PHANDLE TokenHandle);
 NTSYSAPI NTSTATUS NTAPI ZwDuplicateToken(
     __in HANDLE ExistingTokenHandle,
     __in ACCESS_MASK DesiredAccess,
@@ -1124,7 +1230,11 @@ __in PPRIVILEGE_SET Privileges,
 __in BOOLEAN AccessGranted);
 NTSYSAPI NTSTATUS NTAPI ZwCloseObjectAuditAlarm (__in PUNICODE_STRING SubsystemName, __in_opt PVOID HandleId, __in BOOLEAN GenerateOnClose);
 NTSYSAPI NTSTATUS NTAPI ZwDeleteObjectAuditAlarm (__in PUNICODE_STRING SubsystemName, __in_opt PVOID HandleId, __in BOOLEAN GenerateOnClose);
-NTSYSAPI NTSTATUS NTAPI ZwPrivilegedServiceAuditAlarm (__in PUNICODE_STRING SubsystemName, __in PUNICODE_STRING ServiceName, __in HANDLE ClientToken, __in PPRIVILEGE_SET Privileges, __in BOOLEAN AccessGranted);
+NTSYSAPI NTSTATUS NTAPI ZwPrivilegedServiceAuditAlarm (__in PUNICODE_STRING SubsystemName,
+													   __in PUNICODE_STRING ServiceName,
+													   __in HANDLE ClientToken,
+													   __in PPRIVILEGE_SET Privileges,
+													   __in BOOLEAN AccessGranted);
 NTSYSAPI NTSTATUS NTAPI ZwTraceEvent(__in HANDLE TraceHandle, __in ULONG Flags, __in ULONG FieldSize, __in PVOID Fields);
 NTSYSAPI NTSTATUS NTAPI ZwContinue (__in PCONTEXT ContextRecord, __in BOOLEAN TestAlert);
 NTSYSAPI NTSTATUS NTAPI ZwRaiseException (__in PEXCEPTION_RECORD ExceptionRecord, __in PCONTEXT ContextRecord, __in BOOLEAN FirstChance);

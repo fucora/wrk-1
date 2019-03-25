@@ -1,20 +1,15 @@
 /*
-
 Copyright (c) Microsoft Corporation. All rights reserved.
 
 You may only use this code if you agree to the terms of the Windows Research Kernel Source Code License agreement (see License.txt).
 If you do not agree to the terms, do not use the code.
 
-
 Module Name:
-
     hdlsterm.h
 
 Abstract:
-
     This module contains the public header information (function prototypes,
     data and type declarations) for the Headless Terminal effort.
-
 */
 
 #ifndef _HDLSTERM_
@@ -82,11 +77,7 @@ typedef enum _HEADLESS_CMD {
 } HEADLESS_CMD, *PHEADLESS_CMD;
 
 
-
-
 // Structure definitions for the input buffer for each command type.
-
-
 
 
 // HeadlessCmdEnableTerminal:
@@ -97,14 +88,12 @@ typedef struct _HEADLESS_CMD_ENABLE_TERMINAL {
 } HEADLESS_CMD_ENABLE_TERMINAL, *PHEADLESS_CMD_ENABLE_TERMINAL;
 
 
-
 // HeadlessCmdCheckForReboot:
 //    Response structure: Reboot, TRUE if user typed reboot command on the terminal.
 
 typedef struct _HEADLESS_RSP_REBOOT {
     BOOLEAN Reboot;
 } HEADLESS_RSP_REBOOT, *PHEADLESS_RSP_REBOOT;
-
 
 
 // HeadlessCmdPutString:
@@ -115,7 +104,6 @@ typedef struct _HEADLESS_CMD_PUT_STRING {
 } HEADLESS_CMD_PUT_STRING, *PHEADLESS_CMD_PUT_STRING;
 
 
-
 // HeadlessCmdClearDisplay:
 // HeadlessCmdClearToEndOfDisplay:
 // HeadlessCmdClearToEndOfLine:
@@ -124,8 +112,6 @@ typedef struct _HEADLESS_CMD_PUT_STRING {
 // HeadlessCmdStartBugCheck:
 // HeadlessCmdDoBugCheckProcessing:
 //     No Input nor Output parameters expected.
-
-
 
 
 // HeadlessCmdSetColor:
@@ -199,14 +185,10 @@ typedef enum _HEADLESS_TERM_SERIAL_PORT {
 } HEADLESS_TERM_SERIAL_PORT, *PHEADLESS_TERM_SERIAL_PORT;
 
 typedef struct _HEADLESS_RSP_QUERY_INFO {
-
     HEADLESS_TERM_PORT_TYPE PortType;
 
-
     // All the possible parameters for each connection type.
-
     union {
-
         struct {
             BOOLEAN TerminalAttached;
             BOOLEAN UsedBiosSettings;
@@ -215,25 +197,19 @@ typedef struct _HEADLESS_RSP_QUERY_INFO {
             ULONG TerminalBaudRate;
             UCHAR TerminalType;
         } Serial;
-
     };
-
 } HEADLESS_RSP_QUERY_INFO, *PHEADLESS_RSP_QUERY_INFO;
-
 
 
 // HeadlessCmdAddLogEntry:
 //   Input structure: String, A NULL-terminated string.
-
 typedef struct _HEADLESS_CMD_ADD_LOG_ENTRY {
     WCHAR String[1];
 } HEADLESS_CMD_ADD_LOG_ENTRY, *PHEADLESS_CMD_ADD_LOG_ENTRY;
 
 
-
 // HeadlessCmdDisplayLog:
 //    Response structure: Paging, TRUE if paging is to be applied, else FALSE.
-
 typedef struct _HEADLESS_CMD_DISPLAY_LOG {
     BOOLEAN Paging;
 } HEADLESS_CMD_DISPLAY_LOG, *PHEADLESS_CMD_DISPLAY_LOG;
@@ -248,8 +224,6 @@ typedef struct _HEADLESS_CMD_DISPLAY_LOG {
 // For cross checking, the UCHAR in the Data array before the ValueIndex
 // must be a null character. Similarly the last character in the
 // entire data buffer passed in must be a null character.
-
-
 typedef struct _HEADLESS_CMD_SET_BLUE_SCREEN_DATA {
         ULONG ValueIndex;
         UCHAR Data[1];
@@ -258,45 +232,23 @@ typedef struct _HEADLESS_CMD_SET_BLUE_SCREEN_DATA {
 
 // HeadlessCmdSendBlueScreenData
 //    The only parameter is the bugcheck code
-
 typedef struct _HEADLESS_CMD_SEND_BLUE_SCREEN_DATA {
         ULONG BugcheckCode;
 } HEADLESS_CMD_SEND_BLUE_SCREEN_DATA, *PHEADLESS_CMD_SEND_BLUE_SCREEN_DATA;
 
 
-
-
-
 // Headless routines
-
-VOID
-HeadlessInit(
-    IN PLOADER_PARAMETER_BLOCK LoaderBlock
-    );
-
-NTSTATUS
-HeadlessTerminalAddResources(
-    PCM_RESOURCE_LIST Resources,
-    ULONG ResourceListSize,
-    BOOLEAN TranslatedList,
-    PCM_RESOURCE_LIST *NewList,
-    PULONG NewListSize
-    );
-
-VOID
-HeadlessKernelAddLogEntry(
-    IN ULONG StringCode,
-    IN PUNICODE_STRING DriverName OPTIONAL
-    );
-
-NTSTATUS
-HeadlessDispatch(
-    IN  HEADLESS_CMD Command,
-    IN  PVOID InputBuffer OPTIONAL,
-    IN  SIZE_T InputBufferSize OPTIONAL,
-    OUT PVOID OutputBuffer OPTIONAL,
-    OUT PSIZE_T OutputBufferSize OPTIONAL
-    );
+VOID HeadlessInit(IN PLOADER_PARAMETER_BLOCK LoaderBlock);
+NTSTATUS HeadlessTerminalAddResources(PCM_RESOURCE_LIST Resources,
+									  ULONG ResourceListSize,
+									  BOOLEAN TranslatedList,
+									  PCM_RESOURCE_LIST *NewList,
+									  PULONG NewListSize);
+VOID HeadlessKernelAddLogEntry(IN ULONG StringCode, IN PUNICODE_STRING DriverName OPTIONAL);
+NTSTATUS HeadlessDispatch(IN  HEADLESS_CMD Command, 
+						  IN  PVOID InputBuffer OPTIONAL,
+						  IN  SIZE_T InputBufferSize OPTIONAL,
+						  OUT PVOID OutputBuffer OPTIONAL,
+						  OUT PSIZE_T OutputBufferSize OPTIONAL);
 
 #endif // _HDLSTERM_
-

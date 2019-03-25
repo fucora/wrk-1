@@ -172,8 +172,9 @@ Return Value:
     PAGED_CODE();
 
     requestorMode = KeGetPreviousMode();// Get the previous mode;  i.e., the mode of the caller.
-    if ((requestorMode != KernelMode) && (InvokedByPnpMgr == FALSE)) {//引用层的走这里。
-        // The caller's access mode is not kernel so check to ensure that the caller has the privilege to unload a driver and probe and capture the name of the driver service entry.
+    if ((requestorMode != KernelMode) && (InvokedByPnpMgr == FALSE)) {//应用层的走这里。
+        // The caller's access mode is not kernel 
+		// so check to ensure that the caller has the privilege to unload a driver and probe and capture the name of the driver service entry.
         if (!SeSinglePrivilegeCheck(SeLoadDriverPrivilege, requestorMode)) {
             return STATUS_PRIVILEGE_NOT_HELD;
         }

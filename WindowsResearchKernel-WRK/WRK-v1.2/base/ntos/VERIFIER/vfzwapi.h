@@ -50,7 +50,12 @@ VfZwAdjustPrivilegesToken (
 //NTSYSAPI
 NTSTATUS NTAPI VfZwAlertThread(IN HANDLE ThreadHandle);
 //NTSYSAPI
-NTSTATUS NTAPI VfZwAllocateVirtualMemory(IN HANDLE ProcessHandle, IN OUT PVOID *BaseAddress, IN ULONG_PTR ZeroBits, IN OUT PSIZE_T RegionSize, IN ULONG AllocationType, IN ULONG Protect);
+NTSTATUS NTAPI VfZwAllocateVirtualMemory(IN HANDLE ProcessHandle,
+										 IN OUT PVOID *BaseAddress,
+										 IN ULONG_PTR ZeroBits,
+										 IN OUT PSIZE_T RegionSize,
+										 IN ULONG AllocationType,
+										 IN ULONG Protect);
 //NTSYSAPI
 NTSTATUS NTAPI VfZwAssignProcessToJobObject(IN HANDLE JobHandle, IN HANDLE ProcessHandle);
 //NTSYSAPI
@@ -77,7 +82,11 @@ NTSTATUS NTAPI VfZwConnectPort(
 //NTSYSAPI
 NTSTATUS NTAPI VfZwCreateDirectoryObject(OUT PHANDLE DirectoryHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes);
 //NTSYSAPI
-NTSTATUS NTAPI VfZwCreateEvent (OUT PHANDLE EventHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL, IN EVENT_TYPE EventType, IN BOOLEAN InitialState);
+NTSTATUS NTAPI VfZwCreateEvent (OUT PHANDLE EventHandle,
+								IN ACCESS_MASK DesiredAccess,
+								IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL,
+								IN EVENT_TYPE EventType,
+								IN BOOLEAN InitialState);
 //NTSYSAPI
 NTSTATUS NTAPI VfZwCreateFile(
     OUT PHANDLE FileHandle,
@@ -95,8 +104,13 @@ NTSTATUS NTAPI VfZwCreateFile(
 //NTSYSAPI
 NTSTATUS NTAPI VfZwCreateJobObject (OUT PHANDLE JobHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL);
 //NTSYSAPI
-NTSTATUS NTAPI VfZwCreateKey(OUT PHANDLE KeyHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes, IN ULONG TitleIndex, IN PUNICODE_STRING Class OPTIONAL,
-    IN ULONG CreateOptions, OUT PULONG Disposition OPTIONAL);
+NTSTATUS NTAPI VfZwCreateKey(OUT PHANDLE KeyHandle,
+							 IN ACCESS_MASK DesiredAccess,
+							 IN POBJECT_ATTRIBUTES ObjectAttributes,
+							 IN ULONG TitleIndex,
+							 IN PUNICODE_STRING Class OPTIONAL,
+							 IN ULONG CreateOptions,
+							 OUT PULONG Disposition OPTIONAL);
 //NTSYSAPI
 NTSTATUS NTAPI VfZwCreateSection (
     OUT PHANDLE SectionHandle,
@@ -108,7 +122,10 @@ NTSTATUS NTAPI VfZwCreateSection (
     IN HANDLE FileHandle OPTIONAL
     );
 //NTSYSAPI
-NTSTATUS NTAPI VfZwCreateSymbolicLinkObject(OUT PHANDLE LinkHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes, IN PUNICODE_STRING LinkTarget);
+NTSTATUS NTAPI VfZwCreateSymbolicLinkObject(OUT PHANDLE LinkHandle,
+											IN ACCESS_MASK DesiredAccess,
+											IN POBJECT_ATTRIBUTES ObjectAttributes,
+											IN PUNICODE_STRING LinkTarget);
 //NTSYSAPI
 NTSTATUS NTAPI VfZwCreateTimer (OUT PHANDLE TimerHandle, IN ACCESS_MASK DesiredAccess, IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL, IN TIMER_TYPE TimerType);
 //NTSYSAPI
@@ -409,7 +426,10 @@ NTSTATUS NTAPI VfZwQuerySecurityObject(
 //NTSYSAPI
 NTSTATUS NTAPI VfZwQuerySymbolicLinkObject(IN HANDLE LinkHandle, IN OUT PUNICODE_STRING LinkTarget, OUT PULONG ReturnedLength OPTIONAL);
 //NTSYSAPI
-NTSTATUS NTAPI VfZwQuerySystemInformation (IN SYSTEM_INFORMATION_CLASS SystemInformationClass, OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG ReturnLength OPTIONAL);
+NTSTATUS NTAPI VfZwQuerySystemInformation (IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
+										   OUT PVOID SystemInformation, 
+										   IN ULONG SystemInformationLength,
+										   OUT PULONG ReturnLength OPTIONAL);
 //NTSYSAPI
 NTSTATUS NTAPI VfZwQueryValueKey(
     IN HANDLE KeyHandle,
@@ -420,7 +440,11 @@ NTSTATUS NTAPI VfZwQueryValueKey(
     OUT PULONG ResultLength
     );
 //NTSYSAPI
-NTSTATUS NTAPI VfZwQueryVolumeInformationFile(IN HANDLE FileHandle, OUT PIO_STATUS_BLOCK IoStatusBlock, OUT PVOID FsInformation, IN ULONG Length, IN FS_INFORMATION_CLASS FsInformationClass);
+NTSTATUS NTAPI VfZwQueryVolumeInformationFile(IN HANDLE FileHandle, 
+											  OUT PIO_STATUS_BLOCK IoStatusBlock,
+											  OUT PVOID FsInformation, 
+											  IN ULONG Length, 
+											  IN FS_INFORMATION_CLASS FsInformationClass);
 //NTSYSAPI
 NTSTATUS NTAPI VfZwReadFile(
     IN HANDLE FileHandle,
@@ -492,15 +516,27 @@ NTSTATUS NTAPI VfZwSetTimer (
     OUT PBOOLEAN PreviousState OPTIONAL
     );
 //NTSYSAPI
-NTSTATUS NTAPI VfZwSetValueKey(IN HANDLE KeyHandle, IN PUNICODE_STRING ValueName, IN ULONG TitleIndex OPTIONAL, IN ULONG Type, IN PVOID Data, IN ULONG DataSize);
+NTSTATUS NTAPI VfZwSetValueKey(IN HANDLE KeyHandle,
+							   IN PUNICODE_STRING ValueName,
+							   IN ULONG TitleIndex OPTIONAL,
+							   IN ULONG Type,
+							   IN PVOID Data,
+							   IN ULONG DataSize);
 //NTSYSAPI
-NTSTATUS NTAPI VfZwSetVolumeInformationFile(IN HANDLE FileHandle, OUT PIO_STATUS_BLOCK IoStatusBlock, IN PVOID FsInformation, IN ULONG Length, IN FS_INFORMATION_CLASS FsInformationClass);
+NTSTATUS NTAPI VfZwSetVolumeInformationFile(IN HANDLE FileHandle,
+											OUT PIO_STATUS_BLOCK IoStatusBlock,
+											IN PVOID FsInformation,
+											IN ULONG Length,
+											IN FS_INFORMATION_CLASS FsInformationClass);
 //NTSYSAPI
 NTSTATUS NTAPI VfZwTerminateJobObject(IN HANDLE JobHandle, IN NTSTATUS ExitStatus);
 //NTSYSAPI
 NTSTATUS NTAPI VfZwTerminateProcess(IN HANDLE ProcessHandle OPTIONAL, IN NTSTATUS ExitStatus);
 //NTSYSAPI
-NTSTATUS NTAPI VfZwTranslateFilePath (IN PFILE_PATH InputFilePath, IN ULONG OutputType, OUT PFILE_PATH OutputFilePath, IN OUT PULONG OutputFilePathLength);
+NTSTATUS NTAPI VfZwTranslateFilePath (IN PFILE_PATH InputFilePath,
+									  IN ULONG OutputType,
+									  OUT PFILE_PATH OutputFilePath,
+									  IN OUT PULONG OutputFilePathLength);
 //NTSYSAPI
 NTSTATUS NTAPI VfZwUnloadDriver(IN PUNICODE_STRING DriverServiceName);
 //NTSYSAPI
@@ -508,7 +544,11 @@ NTSTATUS NTAPI VfZwUnloadKey(IN POBJECT_ATTRIBUTES TargetKey);
 //NTSYSAPI
 NTSTATUS NTAPI VfZwUnmapViewOfSection(IN HANDLE ProcessHandle, IN PVOID BaseAddress);
 //NTSYSAPI
-NTSTATUS NTAPI VfZwWaitForMultipleObjects(IN ULONG Count, IN HANDLE Handles[], IN WAIT_TYPE WaitType, IN BOOLEAN Alertable, IN PLARGE_INTEGER Timeout OPTIONAL);
+NTSTATUS NTAPI VfZwWaitForMultipleObjects(IN ULONG Count,
+										  IN HANDLE Handles[],
+										  IN WAIT_TYPE WaitType,
+										  IN BOOLEAN Alertable,
+										  IN PLARGE_INTEGER Timeout OPTIONAL);
 //NTSYSAPI
 NTSTATUS NTAPI VfZwWaitForSingleObject(IN HANDLE Handle, IN BOOLEAN Alertable, IN PLARGE_INTEGER Timeout OPTIONAL);
 //NTSYSAPI
