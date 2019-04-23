@@ -1,20 +1,14 @@
 /*
-
 Copyright (c) Microsoft Corporation. All rights reserved.
 
 You may only use this code if you agree to the terms of the Windows Research Kernel Source Code License agreement (see License.txt).
 If you do not agree to the terms, do not use the code.
 
-
 Module Name:
-
     haldisp.h
 
 Abstract:
-
-    This module contains the private structure definitions and APIs used by
-    the NT haldisp
-
+    This module contains the private structure definitions and APIs used by the NT haldisp
 */
 
 #pragma warning(push)
@@ -70,21 +64,9 @@ xHalQueryBusSlots(
     OUT PULONG              ReturnedLength
     );
 
-VOID
-xHalSetWakeEnable(
-    IN BOOLEAN              Enable
-    );
-
-VOID
-xHalSetWakeAlarm(
-    IN ULONGLONG        WakeTime,
-    IN PTIME_FIELDS     WakeTimeFields
-    );
-
-VOID
-xHalLocateHiberRanges(
-    IN PVOID MemoryMap
-    );
+VOID xHalSetWakeEnable(IN BOOLEAN Enable);
+VOID xHalSetWakeAlarm(IN ULONGLONG        WakeTime, IN PTIME_FIELDS     WakeTimeFields);
+VOID xHalLocateHiberRanges(IN PVOID MemoryMap);
 
 NTSTATUS
 xHalRegisterBusHandler(
@@ -98,50 +80,13 @@ xHalRegisterBusHandler(
     OUT PBUS_HANDLER           *BusHandler
     );
 
-PBUS_HANDLER
-FASTCALL
-xHalHandlerForBus (
-    IN INTERFACE_TYPE InterfaceType,
-    IN ULONG          BusNumber
-    );
-
-VOID
-FASTCALL
-xHalReferenceHandler (
-    IN PBUS_HANDLER     Handler
-    );
-
-NTSTATUS
-xHalInitPnpDriver(
-    VOID
-    );
-
-NTSTATUS
-xHalInitPowerManagement(
-    IN PPM_DISPATCH_TABLE  PmDriverDispatchTable,
-    IN OUT PPM_DISPATCH_TABLE *PmHalDispatchTable
-    );
-
-PDMA_ADAPTER
-xHalGetDmaAdapter (
-    IN PVOID Context,
-    IN struct _DEVICE_DESCRIPTION *DeviceDescriptor,
-    OUT PULONG NumberOfMapRegisters
-    );
-
-VOID
-xHalPutDmaAdapter (
-    PDMA_ADAPTER DmaAdapter
-    );
-
-PVOID
-xHalAllocateCommonBuffer (
-    IN PDMA_ADAPTER DmaAdapter,
-    IN ULONG Length,
-    OUT PPHYSICAL_ADDRESS LogicalAddress,
-    IN BOOLEAN CacheEnabled
-    );
-
+PBUS_HANDLER FASTCALL xHalHandlerForBus (IN INTERFACE_TYPE InterfaceType, IN ULONG BusNumber);
+VOID FASTCALL xHalReferenceHandler (IN PBUS_HANDLER     Handler);
+NTSTATUS xHalInitPnpDriver(VOID);
+NTSTATUS xHalInitPowerManagement(IN PPM_DISPATCH_TABLE  PmDriverDispatchTable, IN OUT PPM_DISPATCH_TABLE *PmHalDispatchTable);
+PDMA_ADAPTER xHalGetDmaAdapter (IN PVOID Context, IN struct _DEVICE_DESCRIPTION *DeviceDescriptor, OUT PULONG NumberOfMapRegisters);
+VOID xHalPutDmaAdapter (PDMA_ADAPTER DmaAdapter);
+PVOID xHalAllocateCommonBuffer (IN PDMA_ADAPTER DmaAdapter, IN ULONG Length, OUT PPHYSICAL_ADDRESS LogicalAddress, IN BOOLEAN CacheEnabled);
 NTSTATUS
 xHalAllocateMapRegisters(
     IN PADAPTER_OBJECT DmaAdapter,
@@ -178,10 +123,7 @@ xHalFlushAdapterBuffers (
     IN BOOLEAN WriteToDevice
     );
 
-VOID
-xHalFreeAdapterChannel (
-    IN PDMA_ADAPTER DmaAdapter
-    );
+VOID xHalFreeAdapterChannel (IN PDMA_ADAPTER DmaAdapter);
 
 VOID
 xHalFreeMapRegisters (
@@ -200,15 +142,8 @@ xHalMapTransfer (
     IN BOOLEAN WriteToDevice
     );
 
-ULONG
-xHalGetDmaAlignment (
-    IN PDMA_ADAPTER DmaAdapter
-    );
-
-ULONG
-xHalReadDmaCounter (
-    IN PDMA_ADAPTER DmaAdapter
-    );
+ULONG xHalGetDmaAlignment (IN PDMA_ADAPTER DmaAdapter);
+ULONG xHalReadDmaCounter (IN PDMA_ADAPTER DmaAdapter);
 
 NTSTATUS
 xHalGetScatterGatherList (
@@ -270,32 +205,11 @@ xHalAssignSlotResources (
     IN OUT PCM_RESOURCE_LIST *AllocatedResources
     );
 
-VOID
-xHalHaltSystem(
-    VOID
-    );
-
-NTSTATUS
-xHalStartMirroring(
-    VOID
-    );
-
-NTSTATUS
-xHalEndMirroring(
-    IN ULONG PassNumber
-    );
-
-NTSTATUS
-xHalMirrorPhysicalMemory(
-    IN PHYSICAL_ADDRESS PhysicalAddress,
-    IN LARGE_INTEGER NumberOfBytes
-    );
-
-NTSTATUS
-xHalMirrorVerify(
-    IN PHYSICAL_ADDRESS PhysicalAddress,
-    IN LARGE_INTEGER NumberOfBytes
-    );
+VOID xHalHaltSystem(VOID);
+NTSTATUS xHalStartMirroring(VOID);
+NTSTATUS xHalEndMirroring(IN ULONG PassNumber);
+NTSTATUS xHalMirrorPhysicalMemory(IN PHYSICAL_ADDRESS PhysicalAddress, IN LARGE_INTEGER NumberOfBytes);
+NTSTATUS xHalMirrorVerify(IN PHYSICAL_ADDRESS PhysicalAddress, IN LARGE_INTEGER NumberOfBytes);
 
 NTSTATUS
 xKdSetupPciDeviceForDebugging(
@@ -303,43 +217,12 @@ xKdSetupPciDeviceForDebugging(
     IN OUT PDEBUG_DEVICE_DESCRIPTOR  PciDevice
     );
 
-NTSTATUS
-xKdReleasePciDeviceForDebugging(
-    IN OUT PDEBUG_DEVICE_DESCRIPTOR  PciDevice
-    );
-
-PVOID
-xKdGetAcpiTablePhase0(
-    IN  PLOADER_PARAMETER_BLOCK LoaderBlock,
-    IN  ULONG   Signature
-    );
-
-VOID
-xKdCheckPowerButton(
-    VOID
-    );
-
-VOID
-xHalEndOfBoot(
-    VOID
-    );
-
-UCHAR
-xHalVectorToIDTEntry(
-    ULONG Vector
-    );
-
-PVOID
-xKdMapPhysicalMemory64(
-    IN PHYSICAL_ADDRESS PhysicalAddress,
-    IN ULONG NumberPages
-    );
-
-VOID
-xKdUnmapVirtualAddress(
-    IN PVOID    VirtualAddress,
-    IN ULONG    NumberPages
-    );
+NTSTATUS xKdReleasePciDeviceForDebugging(IN OUT PDEBUG_DEVICE_DESCRIPTOR  PciDevice);
+PVOID xKdGetAcpiTablePhase0(IN  PLOADER_PARAMETER_BLOCK LoaderBlock, IN  ULONG   Signature);
+VOID xKdCheckPowerButton(VOID);
+VOID xHalEndOfBoot(VOID);
+UCHAR xHalVectorToIDTEntry(ULONG Vector);
+PVOID xKdMapPhysicalMemory64(IN PHYSICAL_ADDRESS PhysicalAddress, IN ULONG NumberPages);
+VOID xKdUnmapVirtualAddress(IN PVOID    VirtualAddress, IN ULONG    NumberPages);
 
 #pragma warning(pop)
-

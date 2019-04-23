@@ -1476,13 +1476,8 @@ typedef PHYSICAL_ADDRESS (*PMAP_TRANSFER)(
     IN BOOLEAN WriteToDevice
     );
 
-typedef ULONG (*PGET_DMA_ALIGNMENT)(
-    IN PDMA_ADAPTER DmaAdapter
-    );
-
-typedef ULONG (*PREAD_DMA_COUNTER)(
-    IN PDMA_ADAPTER DmaAdapter
-    );
+typedef ULONG (*PGET_DMA_ALIGNMENT)(IN PDMA_ADAPTER DmaAdapter);
+typedef ULONG (*PREAD_DMA_COUNTER)(IN PDMA_ADAPTER DmaAdapter);
 
 typedef VOID
 (*PDRIVER_LIST_CONTROL)(
